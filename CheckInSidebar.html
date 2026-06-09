@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <!-- Prevent Google Apps Script from caching this HTML -->
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <style>
+      body { font-family: Arial, sans-serif; padding: 12px; }
+      label { display: block; margin-top: 10px; font-weight: bold; }
+      input, textarea {
+        width: 100%; padding: 6px; margin-top: 4px;
+        box-sizing: border-box;
+      }
+      .right-justify { text-align: right; }
+      button {
+        margin-top: 15px; padding: 10px;
+        width: 100%; background: #1976d2; color: white;
+        border: none; cursor: pointer; font-size: 14px;
+      }
+      button:hover { background: #0d47a1; }
+    </style>
+  </head>
+
+  <body onload="document.getElementById('ticket').focus();">
+
+    <label>Ticket #</label>
+    <input id="ticket" type="text" class="right-justify" oninput="autoAdvanceFromTicket()">
+
+    <label>SSN Last 4</label>
+    <input id="ssn" type="text" class="right-justify" oninput="autoAdvanceFromSSN()">
+
+    <label>First Name</label>
+    <input id="firstName" type="text">
+
+    <label>Last Name</label>
+    <input id="lastName" type="text">
+
+    <label>Tax Return Year (Default=2026)</label>
+    <input id="taxYear" type="text" class="right-justify">
+
+    <label>Comments</label>
+    <textarea id="comments"></textarea>
+
+    <button onclick="submitForm()">Check In</button>
+
+    <script>
+      // Cache-busting version stamp injected by controller
+      var CACHE_BUSTER = Date.now();
+
+      function submitForm() {
+        const data = {
+          ticketNumber: document.getElementById("ticket").value,
+          ssnLast4: document.getElementById("ssn").value,
+          firstName: document.getElementById("firstName").value,
+          lastName: document.getElementById("lastName").value,
+          taxYear: document.getElementById("taxYear").value,
+          comments: document.getElementById("comments").value,
+          isAppointment: false
+        };
+
+        google.script.run
+          .withSuccessHandler(result => {
+            if (!result.ok) {
+              alert(result.message);
+              return;
+            }
+
+            // Success: clear form
+            document.getElementById("ticket").value = "";
+            document.getElementById("ssn").value = "";
+            document.getElementById("firstName").value = "";
+            document.getElementById("lastName").value = "";
+            document.getElementById("taxYear").value = "";
+            document.getElementById("comments").value = "";
+            document.getElementById("ticket").focus();
+          })
+          .checkIn(data);
+      }
+
+      function autoAdvanceFromTicket() {
+        const v = document.getElementById("ticket").value.trim();
+        if (/^\d{2}$/.test(v)) document.getElementById("ssn").focus();
+      }
+
+      function autoAdvanceFromSSN() {
+        const v = document.getElementById("ssn").value.trim();
+        if (/^\d{4}$/.test(v)) document.getElementById("firstName").focus();
+      }
+    </script>
+  </body>
+</html>
