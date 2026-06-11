@@ -1,175 +1,99 @@
 /**
- * SIMPLE onOpen() — menu only.
- * Installable trigger will open the sidebar.
+ * Controller.gs
+ * Thin onEdit router using ColumnMapper + StateModel + StateController
  */
-function onOpen(e) {
+
+function onOpen() {
   const ui = SpreadsheetApp.getUi();
-  ui.createMenu("TaxAide Activity Log")
-    .addItem("Check In New Taxpayer", "showCheckInSidebar")
+
+  // Add menu
+  ui.createMenu("Check In")
+    .addItem("Open Check-In Sidebar", "showCheckInSidebar")
     .addToUi();
+
+    // Apply dynamic validation on open
+    applyDynamicValidation_();
 }
 
-/**
- * Opens the HTML sidebar.
- * This MUST be called by an INSTALLABLE trigger.
- */
 function showCheckInSidebar() {
-  const html = HtmlService.createHtmlOutputFromFile("CheckInSidebar.html")
-    .setTitle("Check In Taxpayer")
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);  // prevents caching
+  const html = HtmlService.createHtmlOutputFromFile("CheckInSidebar")
+    .setTitle("Check In");
   SpreadsheetApp.getUi().showSidebar(html);
 }
 
-
 /**
- * VALIDATION + NORMALIZATION
- * Returns:
- *   { ok: true, data: {...normalized fields...} }
- *   { ok: false, message: "Error message" }
- */
-function validateCheckIn(data) {
-  const isAppointment = data.isAppointment === true;
-
-  // -----------------------------
-  // Normalize raw inputs
-  // -----------------------------
-  let ticket = (data.ticketNumber || "").toString();
-  let ssn = (data.ssnLast4 || "").toString();
-  let first = (data.firstName || "").toString().trim();
-  let last = (data.lastName || "").toString().trim();
-  let taxYear = (data.taxYear || "").toString().trim();
-  let comments = (data.comments || "").toString().trim();
-
-  // -----------------------------
-  // Required for ALL check-ins
-  // -----------------------------
-  if (!first) return { ok: false, message: "Enter the taxpayer's first name" };
-  if (!last)  return { ok: false, message: "Enter the taxpayer's last name" };
-
-  // -----------------------------
-  // Tax Year: DEFAULT FIRST
-  // -----------------------------
-  if (taxYear === "") {
-    taxYear = "2026";
-  }
-
-  // -----------------------------
-  // Walk-in ONLY validation
-  // -----------------------------
-  if (!isAppointment) {
-
-    // Ticket: strip all non-digits
-    ticket = ticket.replace(/\D/g, "");
-    if (!ticket || Number(ticket) < 1 || Number(ticket) > 99) {
-      return { ok: false, message: "Ticket number must be 1–99" };
-    }
-
-    // SSN: strip all non-digits
-    ssn = ssn.replace(/\D/g, "");
-    if (!/^\d{4}$/.test(ssn)) {
-      return { ok: false, message: "Enter the last 4 digits of the taxpayer's SSN" };
-    }
-
-    // Tax Year must be valid
-    if (!/^(2023|2024|2025|2026)$/.test(taxYear)) {
-      return { ok: false, message: "Tax Year must be 2023–2026" };
-    }
-  }
-
-  // -----------------------------
-  // SUCCESS — return normalized data
-  // -----------------------------
-  return {
-    ok: true,
-    data: {
-      isAppointment,
-      ticket,
-      ssn,
-      first: first.toUpperCase(),
-      last: last.toUpperCase(),
-      taxYear,
-      comments: comments.toUpperCase()
-    }
-  };
-}
-
-/**
- * MAIN CHECK-IN ENTRY POINT
- * Returns clean error messages to HTML (no system popups)
- */
-function checkIn(data) {
-  const result = validateCheckIn(data);
-
-  if (!result.ok) {
-    // Return clean message to HTML success handler
-    return { ok: false, message: result.message };
-  }
-
-  const v = result.data;
-
-  const entry = {
-    checkInTime: new Date(),
-    ticket: v.ticket,
-    ssnLast4: v.ssn,
-    firstName: v.first,
-    lastName: v.last,
-    taxYear: v.taxYear,
-    counselor: "",
-    reviewer: "",
-    status: "Checked In",
-    comments: v.comments
-  };
-
-  ActivityLogModel.addEntry(entry);
-
-  return { ok: true };
-}
-
-/**
- * APPOINTMENT CHECK-IN TRIGGER
+ * Main onEdit router
  */
 function onEdit(e) {
   try {
+    if (!e || !e.range || !e.source) return;
+
     const sheet = e.source.getActiveSheet();
-    if (sheet.getName() !== "Appointments") return;
+    if (sheet.getName() !== "Activity_Log") return;
 
-    const range = e.range;
-    if (range.getColumn() !== 1) return;
-    if (e.value !== "TRUE") return;
+    const row = e.range.getRow();
+    const col = e.range.getColumn();
+    if (row < 2) return; // ignore header row
 
-    const row = range.getRow();
-    const processedCell = sheet.getRange(row, 6);
+    const model = StateModel.loadRow(row);
 
-    // Prevent double check-ins
-    if (processedCell.getValue() === "Checked IN") return;
+    // Determine which column was edited
+    const COL = {
+      TICKET:     ColumnMapper.col("Activity_Log", "TICKET #"),
+      SSN:        ColumnMapper.col("Activity_Log", "SSN LAST 4"),
+      FIRST:      ColumnMapper.col("Activity_Log", "FIRST NAME"),
+      LAST:       ColumnMapper.col("Activity_Log", "LAST NAME"),
+      TAXYEAR:    ColumnMapper.col("Activity_Log", "TAX YEAR"),
+      COUNSELOR:  ColumnMapper.col("Activity_Log", "COUNSELOR"),
+      REVIEWER:   ColumnMapper.col("Activity_Log", "REVIEWER"),
+      STATUS:     ColumnMapper.col("Activity_Log", "STATUS"),
+      COMMENTS:   ColumnMapper.col("Activity_Log", "COMMENTS")
+    };
 
-    // Read appointment row (A–E)
-    const rowValues = sheet.getRange(row, 1, 1, 5).getValues()[0];
-    const firstName = rowValues[2];
-    const lastName = rowValues[3];
+    let result = null;
 
-    if (!firstName || !lastName) return;
-
-    // Perform appointment check-in
-    const result = checkIn({
-      isAppointment: true,
-      ticketNumber: "",
-      ssnLast4: "",
-      firstName,
-      lastName,
-      taxYear: "",
-      comments: "Appointment Check-In"
-    });
-
-    // If validation fails (rare for appointments), do not mark processed
-    if (!result.ok) {
-      console.log("Appointment check-in failed:", result.message);
-      return;
+    // Route to correct handler
+    if (col === COL.COUNSELOR) {
+      result = StateController.handleCounselorEdit(model, e);
+    }
+    else if (col === COL.REVIEWER) {
+      result = StateController.handleReviewerEdit(model, e);
+    }
+    else if (col === COL.STATUS) {
+      result = StateController.handleStatusEdit(model, e);
+    }
+    else {
+      return; // other columns not controlled by state machine
     }
 
-    processedCell.setValue("Checked IN");
+    // Apply result
+    StateController.applyResult(result, model, row, e);
 
   } catch (err) {
-    console.error("Error in onEdit for Appointments:", err);
+    SpreadsheetApp.getUi().alert("Error in onEdit: " + err);
   }
 }
+
+/**
+ * Apply dynamic data validation for Tax Year column based on SettingsModel.
+ */
+function applyDynamicValidation_() {
+  const ss = SpreadsheetApp.getActive();
+  const sheet = ss.getSheetByName("Activity_Log");
+  if (!sheet) return;
+
+  const allowedYears = SettingsModel.getAllowedYears();
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(allowedYears, true)
+    .setAllowInvalid(false)
+    .build();
+
+  // Identify the Tax Year column
+  const col = ColumnMapper.col("Activity_Log", "TAX YEAR");
+
+  // Apply validation from row 2 downward (row 1 is header)
+  const lastRow = sheet.getMaxRows();
+  const range = sheet.getRange(2, col, lastRow - 1, 1);
+  range.setDataValidation(rule);
+}
+
