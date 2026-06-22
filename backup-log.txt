@@ -8,3 +8,12 @@
 [2026-06-22 19:36] --- Backup started ---
 [2026-06-22 19:36] Running clasp pull...
 [2026-06-22 19:36] Project settings not found.
+[2026-06-22 19:36] Staged changes:  M 20260622  M backup-log.txt
+[2026-06-22 19:36] Committed: chore: auto-backup 2026-06-22 19:36
+[2026-06-22 19:36] Push result: git: 'credential-manager-core' is not a git command. See 'git --help'. To https://github.com/alexypa/TaxAide_Activity_Log.git  ! [rejected]        main -> main (fetch first) error: failed to push some refs to 'https://github.com/alexypa/TaxAide_Activity_Log.git' hint: Updates were rejected because the remote contains work that you do not hint: have locally. This is usually caused by another repository pushing to hint: the same ref. If you want to integrate the remote changes, use hint: 'git pull' before pushing again. hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+[2026-06-22 19:36] --- Backup complete ---
+[2026-06-22 19:41] --- Backup started ---
+[2026-06-22 19:41] Running clasp pull...
+[2026-06-22 19:41] GööGöÇ appsscript.json GööGöÇ ActivityLogController.js GööGöÇ ActivityLogModel.js GööGöÇ ActivityLogView.js GööGöÇ AppointmentController.js GööGöÇ AppointmentModel.js GööGöÇ AppointmentView.js GööGöÇ ColumnMapper.js GööGöÇ Main.js GööGöÇ SettingsController.js GööGöÇ SettingsModel.js GööGöÇ SettingsView.js GööGöÇ StateController.js GööGöÇ Test.js Pulled 14 files.
+[2026-06-22 19:41] Pulling remote changes...
+[2026-06-22 19:41] error: cannot pull with rebase: You have unstaged changes. error: Please commit or stash them.
