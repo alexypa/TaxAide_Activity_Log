@@ -1,12 +1,12 @@
 # TaxAide Activity Log
 
-A Google Apps Script application for tracking and managing volunteer activity logs for AARP TaxAide programs. Built with a clean **Model-View-Controller (MVC)** architecture and an optional diagnostics mode for development and troubleshooting.
+A Google Apps Script application for tracking and managing volunteer activity logs for AARP TaxAide programs. Built with a **Model-View-Controller (MVC)** architecture and an optional diagnostics mode for development and troubleshooting.
 
 ---
 
 ## 📋 Project Overview
 
-TaxAide Activity Log automates the recording, validation, and reporting of volunteer activity data within Google Sheets. It is designed for site coordinators and district administrators to streamline data entry, enforce consistency, and generate organized session records with minimal manual effort.
+TaxAide Activity Log automates the recording, validation, and reporting of volunteer activity data within Google Sheets. It is designed for greeters, counselors, coordinators and district administrators to streamline data entry, enforce consistency, and generate organized session records with minimal manual effort.
 
 ---
 
@@ -15,7 +15,7 @@ TaxAide Activity Log automates the recording, validation, and reporting of volun
 - **Structured Activity Logging** — Captures volunteer sessions, roles, and hours with validated input fields
 - **MVC Architecture** — Clean separation of data (Model), UI (View), and business logic (Controller) for maintainability
 - **Diagnostics Mode** — Built-in diagnostics layer for runtime inspection, error tracing, and debug output during development
-- **Google Sheets Integration** — Operates natively within Google Sheets via a custom menu and sidebar UI
+- **Google Sheets Integration** — Operates natively within Google Sheets
 - **Input Validation** — Enforces data integrity rules on submission to prevent malformed log entries
 - **Automated Summaries** — Generates activity summaries and rollup reports on demand
 - **Version-Controlled Source** — Managed with `clasp` for full Git-based change history
@@ -28,7 +28,7 @@ The project follows an **MVC pattern** implemented in Google Apps Script:
 
 ```
 TaxAide_Activity_Log/
-├── Code.gs              # Entry point — menu registration and top-level triggers
+├── Main.gs              # Entry point — menu registration and top-level triggers
 ├── Controller.gs        # Business logic — handles user actions and coordinates Model/View
 ├── Model.gs             # Data layer — reads/writes to Google Sheets, data validation
 ├── View.gs              # UI layer — renders sidebar HTML, dialogs, and Sheet formatting
@@ -40,7 +40,7 @@ TaxAide_Activity_Log/
 | Layer | File | Responsibility |
 |---|---|---|
 | **Model** | `Model.gs` | Sheet data access, record CRUD, validation rules |
-| **View** | `View.gs` | Sidebar UI, HTML templates, Sheet output formatting |
+| **View** | `View.gs` | Sheet output formatting |
 | **Controller** | `Controller.gs` | User action handlers, orchestrates Model ↔ View |
 | **Diagnostics** | `Diagnostics.gs` | Debug logging, error surfacing, environment flags |
 
