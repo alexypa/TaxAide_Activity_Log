@@ -1,3 +1,10 @@
 [2026-06-22 18:49] --- Backup started ---
 [2026-06-22 18:49] Running clasp pull...
 [2026-06-22 18:49] Project settings not found.
+[2026-06-22 18:49] Staged changes:  D .clasp.json  D .claspignore  D ActivityLogModel.js  D AppointmentController.js  D CheckInController.js  D CheckInSidebar.html  D ColumnMapper.js  D Controller.js  D CounselorController.js  D SettingsModel.js  D StateController.js  D StateModel.js  D Test.js  D appsscript.json ?? 20260610/ ?? "20260619/# TaxAide Activity Log.md" ?? 20260622/ ?? backup-log.txt
+[2026-06-22 18:49] Committed: chore: auto-backup 2026-06-22 18:49
+[2026-06-22 18:49] Push result: git: 'credential-manager-core' is not a git command. See 'git --help'. To https://github.com/alexypa/TaxAide_Activity_Log.git  ! [rejected]        main -> main (fetch first) error: failed to push some refs to 'https://github.com/alexypa/TaxAide_Activity_Log.git' hint: Updates were rejected because the remote contains work that you do not hint: have locally. This is usually caused by another repository pushing to hint: the same ref. If you want to integrate the remote changes, use hint: 'git pull' before pushing again. hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+[2026-06-22 18:49] --- Backup complete ---
+[2026-06-22 19:36] --- Backup started ---
+[2026-06-22 19:36] Running clasp pull...
+[2026-06-22 19:36] Project settings not found.
