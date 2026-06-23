@@ -33,33 +33,70 @@ function onEdit(e) {
     const sheet = e.source.getActiveSheet();
     const sheetName = sheet.getName();
 
-    // ---------------------------------------------------------
-    // 1. Appointments sheet
-    // ---------------------------------------------------------
     if (sheetName === "Appointments") {
       const result = AppointmentController.handleAppointmentEdit(e);
       AppointmentView.applyAppointmentResult(result);
       return;
     }
 
-    // ---------------------------------------------------------
-    // 2. Activity_Log sheet
-    // ---------------------------------------------------------
     if (sheetName === "Activity_Log") {
+
+      const row = e.range.getRow();
+      const col = e.range.getColumn();
+      const COL = ActivityLogModel.getColumns();
+
+      if (col === COL.STATUS) {
+        const model = ActivityLogModel.getRow(row);
+        const result = StateController.handleStatusEdit(model, e);
+
+        if (!result.ok) {
+          const oldValue = e.oldValue || model.status || "";
+          e.range.setValue(oldValue);
+          SpreadsheetApp.getUi().alert(result.message);
+          return;
+        }
+
+        if (result.newStatus) {
+          ActivityLogModel.setStatus(row, result.newStatus);
+        }
+
+        return;
+      }
+
+      if (col === COL.COUNSELOR || col === COL.REVIEWER) {
+        const model = ActivityLogModel.getRow(row);
+        const result =
+          col === COL.COUNSELOR ? StateController.handleCounselorEdit(model, e) :
+          col === COL.REVIEWER  ? StateController.handleReviewerEdit(model, e) :
+                                  StateController.handleStatusEdit(model, e);
+
+        if (!result.ok) {
+          const oldValue = e.oldValue || "";   // previous cell content
+
+          // Revert the edited cell to its previous value
+          e.range.setValue(oldValue);
+
+          SpreadsheetApp.getUi().alert(result.message);
+          return;
+        }
+
+        if (result.newStatus) {
+          ActivityLogModel.setStatus(row, result.newStatus);
+        }
+
+        return;
+      }
+
       const result = ActivityLogController.handleActivityLogEdit(e);
       ActivityLogView.applyActivityLogResult(result);
       return;
     }
 
-    // ---------------------------------------------------------
-    // 3. Other sheets — ignore
-    // ---------------------------------------------------------
-    return;
-
   } catch (err) {
     SpreadsheetApp.getUi().alert("Error in onEdit: " + err);
   }
 }
+
 
 /**
  * ============================================================

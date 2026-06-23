@@ -1,15 +1,19 @@
 /**
- * ActivityLogModel.gs — LAZY LOAD VERSION
+ * ActivityLogModel.gs — Unified Model (Option 3 naming + batch writes)
+ * Single source of truth for Activity_Log sheet.
  */
 
 const ActivityLogModel = (() => {
 
   const SHEET = "Activity_Log";
 
+  /**
+   * Lazy column lookup — safest and most reliable.
+   */
   function getColumns() {
     return {
       TICKET:       ColumnMapper.col(SHEET, "Ticket #"),
-      SSN:          ColumnMapper.col(SHEET, "SSN Last 4"),
+      SSN_LAST4:    ColumnMapper.col(SHEET, "SSN Last 4"),
       FIRST:        ColumnMapper.col(SHEET, "First Name"),
       LAST:         ColumnMapper.col(SHEET, "Last Name"),
       TAXYEAR:      ColumnMapper.col(SHEET, "Tax Year"),
@@ -21,14 +25,18 @@ const ActivityLogModel = (() => {
     };
   }
 
+  /**
+   * Load a row into a structured object.
+   */
   function getRow(row) {
-    const COL = getColumns();  // <-- ColumnMapper resolved HERE, safely
     const sh = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const COL = getColumns();
     const values = sh.getRange(row, 1, 1, sh.getLastColumn()).getValues()[0];
 
     return {
+      row,
       ticket:       values[COL.TICKET - 1],
-      ssn:          values[COL.SSN - 1],
+      ssnLast4:     values[COL.SSN_LAST4 - 1],
       firstName:    values[COL.FIRST - 1],
       lastName:     values[COL.LAST - 1],
       taxYear:      values[COL.TAXYEAR - 1],
@@ -40,6 +48,90 @@ const ActivityLogModel = (() => {
     };
   }
 
-  return { getColumns, getRow };
+  /**
+   * Generic single-field write helper.
+   */
+  function writeField(row, fieldName, value) {
+    const sh = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const col = ColumnMapper.col(SHEET, fieldName);
+    sh.getRange(row, col).setValue(value);
+  }
+
+  // -----------------------------
+  // Batch write support
+  // -----------------------------
+  function setFields(row, fields) {
+    const sh = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const COL = getColumns();
+
+    const updates = [];
+
+    if (fields.firstName !== undefined) {
+      updates.push({ col: COL.FIRST, value: fields.firstName });
+    }
+    if (fields.lastName !== undefined) {
+      updates.push({ col: COL.LAST, value: fields.lastName });
+    }
+    if (fields.checkInTime !== undefined) {
+      updates.push({ col: COL.CHECKIN_TIME, value: fields.checkInTime });
+    }
+    if (fields.status !== undefined) {
+      updates.push({ col: COL.STATUS, value: fields.status });
+    }
+    if (fields.counselor !== undefined) {
+      updates.push({ col: COL.COUNSELOR, value: fields.counselor });
+    }
+    if (fields.reviewer !== undefined) {
+      updates.push({ col: COL.REVIEWER, value: fields.reviewer });
+    }
+    if (fields.comments !== undefined) {
+      updates.push({ col: COL.COMMENTS, value: fields.comments });
+    }
+
+    // Apply all updates in one batch
+    updates.forEach(u => {
+      sh.getRange(row, u.col).setValue(u.value);
+    });
+  }
+
+  // -----------------------------
+  // Convenience wrappers
+  // -----------------------------
+  function setStatus(row, newStatus) {
+    setFields(row, { status: newStatus });
+  }
+
+  function setCounselor(row, newCounselor) {
+    setFields(row, { counselor: newCounselor });
+  }
+
+  function setReviewer(row, newReviewer) {
+    setFields(row, { reviewer: newReviewer });
+  }
+
+  function setCheckInTime(row, timestamp) {
+    setFields(row, { checkInTime: timestamp });
+  }
+
+  function setName(row, first, last) {
+    setFields(row, { firstName: first, lastName: last });
+  }
+
+  function setComments(row, comments) {
+    setFields(row, { comments });
+  }
+
+  return {
+    getColumns,
+    getRow,
+    writeField,
+    setFields,
+    setStatus,
+    setCounselor,
+    setReviewer,
+    setCheckInTime,
+    setName,
+    setComments
+  };
 
 })();
