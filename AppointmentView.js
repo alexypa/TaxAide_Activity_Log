@@ -36,6 +36,8 @@ const AppointmentView = (() => {
 
   function createActivityLog_(ss, apptSheet, result) {
     const log = ss.getSheetByName("Activity_Log");
+    const COL = ActivityLogModel.getColumns();
+
     // Append to Activity Log
       log.appendRow([
         result.entry.checkInTime,
@@ -46,6 +48,10 @@ const AppointmentView = (() => {
         "Checked In", // Status
         "" // Comments blank
       ]);
+
+    const newRow = log.getLastRow();
+    log.getRange(newRow, COL.CHECKIN_TIME).setNumberFormat("h:mm AM/PM");
+    
     // Write timestamp + mark processed on Appointments sheet row
     apptSheet.getRange(result.row, 6).setValue(result.entry.checkInTime); // Timestamp
     apptSheet.getRange(result.row, 7).setValue(true); // Processed

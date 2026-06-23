@@ -25,9 +25,19 @@ const ActivityLogView = (() => {
       return;
     }
 
-    // Check-in
+    // ── Single name cell edited, check-in not triggered ──
+    if (result.action === "FORMAT_NAME") {
+      Logger.log("VIEW: FORMAT_NAME — uppercasing cell row=%s col=%s", result.row, result.col);
+      sheet.getRange(result.row, result.col).setValue(result.value);
+      return;
+    }
+
+    // ── Both names present and not yet checked in ──
     if (result.action === "CHECK_IN") {
-      Logger.log("VIEW: CHECK-IN — writing timestamp and status");
+      Logger.log("VIEW: CHECK-IN — writing names, timestamp and status");
+
+      sheet.getRange(result.row, COL.FIRST).setValue(result.firstName);
+      sheet.getRange(result.row, COL.LAST).setValue(result.lastName);
 
       const timeCell = sheet.getRange(result.row, COL.CHECKIN_TIME);
       timeCell.setValue(result.checkInTime);
