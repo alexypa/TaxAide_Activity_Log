@@ -9,7 +9,7 @@
 const AppointmentController = (() => {
 
   /**
-   * Called by Main onEditRouter when an edit occurs on the Appointments sheet.
+   * Called by Main onEdit when an edit occurs on the Appointments sheet.
    * Handles check-in events only.
    */
   function handleAppointmentEdit(e) {

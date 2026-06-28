@@ -8,7 +8,7 @@ const ActivityLogModel = (() => {
   const SHEET = "Activity_Log";
 
   /**
-   * Lazy column lookup — safest and most reliable.
+   * Column lookup
    */
   function getColumns() {
     return {
@@ -29,9 +29,9 @@ const ActivityLogModel = (() => {
    * Load a row into a structured object.
    */
   function getRow(row) {
-    const sh = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const activityLogSheet = SpreadsheetApp.getActive().getSheetByName(SHEET);
     const COL = getColumns();
-    const values = sh.getRange(row, 1, 1, sh.getLastColumn()).getValues()[0];
+    const values = activityLogSheet.getRange(row, 1, 1, activityLogSheet.getLastColumn()).getValues()[0];
 
     return {
       row,
@@ -52,16 +52,16 @@ const ActivityLogModel = (() => {
    * Generic single-field write helper.
    */
   function writeField(row, fieldName, value) {
-    const sh = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const activityLogSheet = SpreadsheetApp.getActive().getSheetByName(SHEET);
     const col = ColumnMapper.col(SHEET, fieldName);
-    sh.getRange(row, col).setValue(value);
+    activityLogSheet.getRange(row, col).setValue(value);
   }
 
   // -----------------------------
   // Batch write support
   // -----------------------------
   function setFields(row, fields) {
-    const sh = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const activityLogSheet = SpreadsheetApp.getActive().getSheetByName(SHEET);
     const COL = getColumns();
 
     const updates = [];
@@ -90,7 +90,7 @@ const ActivityLogModel = (() => {
 
     // Apply all updates in one batch
     updates.forEach(u => {
-      sh.getRange(row, u.col).setValue(u.value);
+      activityLogSheet.getRange(row, u.col).setValue(u.value);
     });
   }
 
@@ -121,6 +121,13 @@ const ActivityLogModel = (() => {
     setFields(row, { comments });
   }
 
+  // Append text to existing comment
+  function appendComment(row, text) {
+    const existingComment = row.getValues()[COL.COMMENTS];
+    const newValue = existingComment ? '${existingComment}. {text}' : text;
+    setComments(row, newValue);
+  }
+
   return {
     getColumns,
     getRow,
@@ -131,7 +138,8 @@ const ActivityLogModel = (() => {
     setReviewer,
     setCheckInTime,
     setName,
-    setComments
+    setComments,
+    appendComment
   };
 
 })();

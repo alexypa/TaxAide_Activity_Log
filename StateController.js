@@ -1,170 +1,242 @@
 /**
- * StateController.gs — Updated to use unified ActivityLogModel
+ * StateController.gs
+ * A result object returned by this State Controller has any number of the following fields:
+ *    ok:             boolean
+ *    ignore:         boolean
+ *    action:         string
+ *    rowNo:          int
+ *    colNo:          int
+ *    value:          string // The value of the cell defined by rowNo/colNo
+ *    status:         string
+ *    message:        string 
+ *    requiredReason: boolean // Indicates whether to pop up a form to fill out a required reason for an edit
  */
-
 const StateController = (() => {
 
+  /**
+   * Allowed transition matrix
+   * "From" : ["To"]
+   * See diagram: https://app.diagrams.net/#G1yJvid-OvGY6ZCAN18lyyTcECVRLSy-BW#%7B%22pageId%22%3A%22KDzbJBr2kpYvJaWEdd2Y%22%7D
+   */
   const ALLOWED_TRANSITIONS = {
     "Checked In":      ["Assigned", "No Return"],
-    "Assigned":        ["Ready for Review", "Incomplete", "Checked In"],
-    "Ready for Review":["In Review", "Incomplete", "Assigned"],
-    "In Review":       ["Complete", "Incomplete", "e-Filed", "Paper","Ready for Review"],
-    "Incomplete":      ["Checked In", "Assigned", "Deactivated", "In Review", "Ready for Review"],
+    "Assigned":        ["Ready for Review", "Incomplete", "No Return"],
+    "Ready for Review":["In Review", "Incomplete"],
+    "In Review":       ["Complete", "Incomplete", "e-Filed", "Paper","Deactivated"],
+    "Incomplete":      ["Checked In", "Assigned", "Deactivated", "In Review", "Ready for Review", "Paper"],
     "Complete":        ["e-Filed", "Deactivated", "Paper"],
     "e-Filed":         ["Accepted", "Rejected"],
     "Rejected":        ["Accepted", "Deactivated", "e-Filed"],
-    "Accepted":        [],
-    "Paper":           [],
-    "No Return":       [],
-    "Deactivated":     []
+    "Accepted":        [], // Terminal state
+    "Paper":           [], // Terminal state
+    "No Return":       [], // Terminal state
+    "Deactivated":     []  // Terminal state
   };
 
+  /**
+   * The following states are terminal. No transition out of these states are permitted
+   */
   const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
 
-  function validateStatusTransition(oldStatus, newStatus) {
-    if (TERMINAL.includes(oldStatus)) {
-      return { ok:false, message:`No transitions allowed from terminal state '${oldStatus}'.` };
+  /** The following states require the operator to state a reason why the transition occured
+   * The system will pop up a form, the operator will fill the reason from a dropdown or enter free text
+   *and the reason will be appended to the Comments field.
+  */
+  const TRANSITION_REQUIRES_REASON = ["No Return", "Incomplete", "Rejected", "Paper"];
+
+  /**
+   * Handles edit to first and last name columns.
+   * If one of the columns is still blank, capitalize the one edited 
+   * and set action code to "FORMAT_NAME"
+   * 
+   * If first and last names are populated, capitalize both names 
+   * and set action code to "CHECK_IN" and time stamp the checkin time
+   */
+  function handleFirstAndLastNames(COL, col, logRow, value) { 
+
+    const rawFirst = (col === COL.FIRST) ? value : logRow.firstName;
+    const rawLast = (col === COL.LAST) ? value : logRow.lastName;
+    const first = rawFirst ? String(rawFirst).toUpperCase() : "";
+    const last = rawLast ? String(rawLast).toUpperCase() : "";
+
+    const alreadyCheckedIn = logRow.status === "Checked In" || !!logRow.checkInTime;
+
+    // If both first and last names are set and the status is still not Checked In - then check in the taxpayer
+    if (first && last && !alreadyCheckedIn) {
+      return {
+        ok : true,
+        action: "CHECK_IN",
+        row: logRow.row,
+        firstName: first,
+        lastName : last,
+        checkInTime : new Date(),
+        status : "Checked In"
+      };
     }
-    const allowed = ALLOWED_TRANSITIONS[oldStatus] || [];
-    if (!allowed.includes(newStatus)) {
-      return { ok:false, message:`Transition from: ${oldStatus} to ${newStatus} is not allowed` };
+    // If only first or last names were edited, just format the edited name to uppercase
+    return {
+      ok: true,
+      ignore: false,
+      action: "FORMAT_NAME",
+      row: logRow.row,
+      col,
+      value: String(value).toUpperCase()
     }
-    return { ok:true };
   }
 
-  function validateCounselorChange(model, newCounselor) {
-    const status       = (model.status || "").toString().trim();
-    const oldCounselor = (model.counselor || "").toString().trim();
-    const counselor    = (newCounselor || "").toString().trim();
+  /**
+   * Handles edits to the Counselor column
+   */
+  function handleCounselorEdit(e) {
 
-    // Counselor edits allowed only in Checked In and Assigned
-    if (!["Checked In", "Assigned"].includes(status)) {
-      return { ok:false, message:`Counselor cannot be changed after '${status}'.` };
-    }
+    const model = ActivityLogModel.getRow(e.range.getRow());
+    const status = (model.status || "").toString().trim();
+    const counselor = (e.value || "").toString().trim();
+    const oldCounselor = (e.oldValue || "").toString().trim();
 
-    // Checked In → assign counselor → Assigned
+    // Primary path: Checked In → assign counselor → Assigned
     if (status === "Checked In" && counselor !== "") {
-      return { ok:true, newStatus:"Assigned" };
+      return { 
+        ok: true,
+        ignore: false,       
+        action: "ASSIGN_COUNSELOR",
+        row: model.row       
+      };
     }
 
-    // Checked In → empty counselor → forbidden
-    if (status === "Checked In" && counselor === "") {
-      return { ok:false, message:"A counselor must be assigned when the return is Checked In." };
+    // Deleting counselor when one is already assigned -> revert to Checked In
+    if (status === "Assigned" && counselor === "" && oldCounselor !== "") {
+      return {
+        ok: true,
+        ignore: false,
+        action: "STATUS_CHANGE",
+        newStatus: "Checked In",
+        requiresReason: false,
+        row: model.row
+      };
+    }
+    
+    // Counselor edits allowed only in Checked In and Assigned statuses
+    if (!["Checked In", "Assigned"].includes(status)) {
+      return{ 
+        ok:false,
+        ignore: false, 
+        message:`Counselor cannot be changed after '${status}'.` 
+      };
     }
 
-    // Assigned → remove counselor → Checked In
-    if (status === "Assigned" && counselor === "") {
-      return { ok:true, newStatus:"Checked In" };
-    }
-
-    // Assigned → same counselor → allowed
+    // Assigned → same counselor → ignore
     if (status === "Assigned" && counselor === oldCounselor) {
-      return { ok:true };
+      return { ignore:true };
     }
 
-    // Assigned → different counselor → forbidden
-    if (status === "Assigned" && counselor !== oldCounselor) {
-      return { ok:false, message:"A new counselor may only be reassigned if the return is Checked In or Assigned." };
-    }
-
-    return { ok:true };
+    // Otherwise - ignore
+    return { ignore:true };
   }
 
+  /**
+   * Handles edits to the Reviewer column
+   */
+  function handleReviewerEdit(e) { 
 
-  function validateReviewerChange(model, newReviewer) {
+    const model = ActivityLogModel.getRow(e.range.getRow()); 
+    const reviewer = (e.range.getValue() || "").toString().trim();
     const status    = (model.status || "").toString().trim();
     const counselor = (model.counselor || "").toString().trim();
-    const reviewer  = (newReviewer || "").toString().trim();
 
-    // Reject ANY reviewer edit before Ready for Review
-    if (["", "Checked In", "Assigned"].includes(status)) {
-      return { ok:false, message:"Reviewer may not be assigned before the return is 'Ready for Review'." };
-    }
-
-    // Reviewer cannot equal counselor
+    // Reviewer cannot be the same as counselor (IRS rule)
     if (reviewer && reviewer === counselor) {
+      Logger.log("counselor = reviewer = " + reviewer);
       return { ok:false, message:"Reviewer may not be the same as the counselor." };
     }
 
-    // Terminal states: reviewer locked
-    if (["Complete", "e-Filed", "Accepted", "Rejected", "Paper", "No Return", "Deactivated"]
-        .includes(status)) {
-      return { ok:false, message:`Reviewer cannot be changed after '${status}'.` };
+    // Reject ANY reviewer edit before Ready for Review
+    if (["Checked In", "Assigned"].includes(status)) {
+      return { ok:false, message:"Reviewer may not be assigned before the return is in 'Ready for Review' state." };
     }
-
-    // ⭐ Ready for Review → reviewer assigned → In Review
+    
+    // Primary path: Ready for Review → reviewer assigned → In Review
     if (status === "Ready for Review" && reviewer !== "") {
-      return { ok:true, newStatus:"In Review" };
+      return { 
+        ok:true, 
+        ignore: false,
+        action: "ASSIGN_REVIEWER",
+        row: model.row };
     }
 
-    // ⭐ Ready for Review → reviewer removed → forbidden
+    // Terminal states: reviewer locked
+    if (["Accepted", "No Return", "Deactivated"].includes(status)) {
+      return { ok:false, message:`Reviewer cannot be changed after terminal state: '${status}'.` };
+    }
+
+    // Ready for Review → reviewer removed → forbidden
     if (status === "Ready for Review" && reviewer === "") {
-      return { ok:false, message:"Reviewer cannot be removed while return is Ready for Review." };
+      return { ok:false, message:"Reviewer cannot be removed while return is in Ready for Review state." };
     }
 
-    // ⭐ Incomplete → reviewer edits allowed (no status change)
+    // Incomplete → reviewer edits allowed (no status change)
     if (status === "Incomplete") {
-      return { ok:true };
+      return { ok:true, ignore: true };
     }
 
-    // ⭐ In Review → reviewer removed → back to Ready for Review
+    // In Review → reviewer removed → revert to Ready for Review
     if (status === "In Review" && reviewer === "") {
       return { ok:true, newStatus:"Ready for Review" };
     }
 
-    // ⭐ In Review → reviewer changed to ANY non-empty name → allowed
+    // In Review → reviewer changed to ANY non-empty name → allowed
     if (status === "In Review" && reviewer !== "") {
-      return { ok:true };
+      return { ok:true, ignore:true };
     }
 
-    return { ok:true };
+    // Default
+    return { ok:true, ignore:true };
   }
 
-  function handleCounselorEdit(model, e) {
-    const newCounselor = (e.range.getValue() || "").toString().trim();
-    return validateCounselorChange(model, newCounselor);
-  }
+  /**
+   * Handles edits to the Status column
+   */
+  function handleStatusEdit(e) {   
 
-  function handleReviewerEdit(model, e) {   
-    const newReviewer = (e.range.getValue() || "").toString().trim();
-    return validateReviewerChange(model, newReviewer);
-  }
-
-  function handleStatusEdit(model, e) {
+    const model = ActivityLogModel.getRow(e.range.getRow());
     const oldStatus = e.oldValue || model.status || "";
     const newStatus = (e.range.getValue() || "").toString().trim();
 
-    if (TERMINAL.includes(oldStatus)) {
-      if (oldStatus === newStatus) return { ok:true, noChange:true };
-      return { ok:false, message:`No transitions allowed from terminal state '${oldStatus}'.` };
+    // No-op transitions always allowed
+    if (oldStatus === newStatus) { return { ok:true, ignore:true }; }
+
+    // Terminal state. Do not allow transition
+    if (TERMINAL.includes(oldStatus)) { 
+      return { ok:false, ignore:false, action:"FORBIDDEN_EDIT", message:`No transitions permitted from terminal state: ${oldStatus}. ` };
     }
 
-    if (oldStatus === newStatus) return { ok:true, noChange:true };
-
-    return validateStatusTransition(oldStatus, newStatus);
-  }
-
-  function applyResult(result, model, row, e) {
-    if (result.noChange) return { applied:false, reverted:false };
-
-    if (!result.ok) {
-      // Only used for direct status edits if you ever call it
-      e.range.setValue(model.status);
-      return { applied:false, reverted:true };
+    // Do not allow illegal transitions
+    const allowed = ALLOWED_TRANSITIONS[oldStatus] || [];
+    if (!allowed.includes(newStatus)) {
+      return { ok:false, ignore:false, message:`Direct transition from: ${oldStatus} state to ${newStatus} state is not permitted` };
     }
 
-    if (result.newStatus) {
-      ActivityLogModel.setStatus(row, result.newStatus);
+    // If the transition requires the operator to state a reason why the transition occured
+    // The system will pop up a form, the operator will fill the reason from a dropdown or enter free text
+    // and the reason will be appended to the Comments field.
+    if (TRANSITION_REQUIRES_REASON.includes(newStatus)) {
+      return {
+        ok: true,
+        ignore: false,
+        action: "STATUS_CHANGE",
+        requiresReason: true,
+        reasonType: newStatus,
+        row: model.row
+      }
     }
-
-    return { applied:true, reverted:false };
+    return { ok:true, ignore: true };
   }
 
   return {
+    handleFirstAndLastNames,
     handleCounselorEdit,
     handleReviewerEdit,
-    handleStatusEdit,
-    applyResult
+    handleStatusEdit
   };
 
 })();

@@ -53,6 +53,10 @@ const ColumnMapper = (() => {
     return load(sheetName);
   }
 
-  return { load, col, map };
+  return { 
+    load, 
+    col, 
+    map 
+  };
 
 })();

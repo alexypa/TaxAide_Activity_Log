@@ -1,0 +1,66 @@
+function handleActivityLogEdit(e) {
+
+    const sheetName = e.range.getSheet().getName();
+    const SHEET = "Activity_Log";
+    if (sheetName !== SHEET) return { ok: true, ignore: true };
+
+    const col = e.range.getColumn();
+    const row = e.range.getRow();
+    const COL = ActivityLogModel.getColumns();
+    const newValue = e.range.getValue();
+
+    // Ignore edits in header row
+    if (row === 1) return { ignore: true };
+
+    // Read row data
+    const log = ActivityLogModel.getRow(row);
+
+    switch (col) {
+       case COL.CHECKIN_TIME:
+          return {ok: false, action: "FORBIDDEN_EDIT", row, col, message: "Check In Time field is set by the system"};
+       case COL.TICKET:
+       case COL.SSN_LAST4:
+       case COL.TAXYEAR:
+       case COL.COMMENTS:
+          return { ignore: true };
+       case COL.FIRST:
+       case COL.LAST:
+          return handleFirstAndLastNames_(col, log);
+       case COL.COUNSELOR:
+          return StateController.handleCounselorEdit(log, e);
+       case COL.REVIEWER:
+          return StateController.handleReviewerEdit(log, e);
+       case COL.STATUS:
+          return StateController.handleStatusEdit(log, e);
+    }
+}
+
+
+function handleFirstAndLastNames_(col, log) {
+
+    const rawFirst = (col === COL.FIRST) ? value : log.firstName;
+    const rawLast  = (col === COL.LAST)  ? value : log.lastName;
+
+    const first = rawFirst ? String(rawFirst).toUpperCase() : "";
+    const last  = rawLast  ? String(rawLast).toUpperCase() : "";
+
+    const alreadyCheckedIn = log.status === "Checked In" || !!log.checkInTime;
+
+    if (first && last && !alreadyCheckedIn) {
+        return {
+          ok:true,
+          action:"CHECK_IN",
+          row,
+          firstName:first,
+          lastName:last,
+          checkInTime:new Date(),
+          status:"Checked In"
+        };
+    }
+
+    return {
+      action:"FORMAT_NAME",
+      row, col,
+      value:String(value).toUpperCase()
+    };
+}

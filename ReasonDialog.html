@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: Arial;">
+
+    <h3>Reason for {{ reasonType }}</h3>
+
+    <label><b>Select a reason:</b></label><br>
+    <select id="reasonSelect" style="width: 100%; margin-bottom: 10px;">
+      <option value="">-- Choose a reason --</option>
+      <? for (let r of reasons) { ?>
+        <option value="<?= r ?>"><?= r ?></option>
+      <? } ?>
+    </select>
+
+    <label><b>Or enter free‑form explanation:</b></label><br>
+    <textarea id="freeText" style="width: 100%; height: 80px;"></textarea>
+
+    <br><br>
+
+    <button onclick="submitReason()" style="padding: 6px 12px;">Submit</button>
+    <button onclick="google.script.host.close()" style="padding: 6px 12px;">Cancel</button>
+
+    <script>
+      function submitReason() {
+        const selected = document.getElementById('reasonSelect').value;
+        const freeText = document.getElementById('freeText').value;
+
+        google.script.run
+          .withSuccessHandler(() => google.script.host.close())
+          .submitReason(row, reasonType, selected, freeText);
+      }
+    </script>
+
+  </body>
+</html>
+
