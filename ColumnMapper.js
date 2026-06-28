@@ -13,7 +13,7 @@ const ColumnMapper = (() => {
    * Returns: { HEADERNAME: columnNumber, ... }
    */
   function load(sheetName) {
-    if (cache[sheetName]) return cache[sheetName];
+    //if (cache[sheetName]) return cache[sheetName];
 
     const ss = SpreadsheetApp.getActive();
     const sheet = ss.getSheetByName(sheetName);
@@ -30,7 +30,7 @@ const ColumnMapper = (() => {
       }
     });
 
-    cache[sheetName] = map;
+    //cache[sheetName] = map;
     return map;
   }
 

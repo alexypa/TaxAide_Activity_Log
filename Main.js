@@ -20,7 +20,7 @@ function onOpen() {
 }
 
 function onEdit(e) {
-  // Do nothing. onEditHandler will be triggered by an installable trigger
+  // Do nothing. onEditHandler(e) will handle the onEdit() installed trigger.
 }
 
 /**
@@ -49,7 +49,7 @@ function onEditHandler(e) {
 
   } catch (err) {
     Logger.log("Error in onEdit: " + err);
-    SpreadsheetApp.getUi().alert("Error in onEdit: " + err);
+    SpreadsheetApp.getUi().alert("Error in onEditHandler: " + err);
   }
 }
 

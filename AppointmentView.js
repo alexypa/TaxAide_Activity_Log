@@ -35,22 +35,26 @@ const AppointmentView = (() => {
   }
 
   function createActivityLog_(ss, apptSheet, result) {
-    const log = ss.getSheetByName("Activity_Log");
+    const activityLogSheet = ss.getSheetByName("Activity_Log");
     const COL = ActivityLogModel.getColumns();
 
-    // Append to Activity Log
-      log.appendRow([
-        result.entry.checkInTime,
+    Logger.log("COL: " + JSON.stringify(COL));
+  
+
+    const row = [
+      result.entry.checkInTime,
         "", "", // Ticket, SSN blank
         result.entry.firstName.toUpperCase(),
         result.entry.lastName.toUpperCase(),
         "", "", "", // Tax Year, Counselor, Reviewer blank
         "Checked In", // Status
         "" // Comments blank
-      ]);
+      ]
+    activityLogSheet.appendRow(row);
 
-    const newRow = log.getLastRow();
-    log.getRange(newRow, COL.CHECKIN_TIME).setNumberFormat("h:mm AM/PM");
+    const newRow = activityLogSheet.getLastRow();
+    
+    activityLogSheet.getRange(newRow, COL.CHECKIN_TIME).setNumberFormat("h:mm AM/PM");
     
     // Write timestamp + mark processed on Appointments sheet row
     apptSheet.getRange(result.row, 6).setValue(result.entry.checkInTime); // Timestamp

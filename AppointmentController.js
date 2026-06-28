@@ -49,7 +49,7 @@ const AppointmentController = (() => {
       action: "CREATE_ACTIVITY_LOG_ENTRY",
       entry,
       row
-    };    
+    };  
   }
 
   /**
