@@ -226,6 +226,8 @@ const StateController = (() => {
         action: "STATUS_CHANGE",
         requiresReason: true,
         reasonType: newStatus,
+        newStatus: newStatus,
+        oldStatus: oldStatus,
         row: model.row
       }
     }

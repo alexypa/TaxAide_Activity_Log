@@ -87,13 +87,12 @@ const ActivityLogView = (() => {
     // ───────────────────────────────────────────────
     if (result.action === "STATUS_CHANGE") {
 
-      // If the transition requires a reason, open modal dialog
       if (result.requiresReason) {
-        showReasonDialog(result.reasonType, result.row);
+        showReasonDialog(result.reasonType, result.row, result.newStatus, result.oldStatus);
         return;
       }
 
-      // Otherwise apply the status change normally
+      // Only write status when no reason is required
       ActivityLogModel.setFields(result.row, {
         status: result.newStatus
       });
@@ -102,7 +101,7 @@ const ActivityLogView = (() => {
     }
   }
 
-  function showReasonDialog(reasonType, row) {
+  function showReasonDialog(reasonType, row, newStatus, previousStatus) {
     
     const reasons = TransitionReasonRegistry[reasonType] || [];
 
@@ -110,6 +109,8 @@ const ActivityLogView = (() => {
     template.reasonType = reasonType;
     template.reasons = reasons;
     template.row = row;
+    template.newStatus = newStatus;
+    template.previousStatus = previousStatus;
 
     const html = template.evaluate()
       .setWidth(420)

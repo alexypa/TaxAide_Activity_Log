@@ -2,7 +2,7 @@
 <html>
   <body style="font-family: Arial;">
 
-    <h3>Reason for {{ reasonType }}</h3>
+    <h3>Reason for <?= reasonType ?></h3>
 
     <label><b>Select a reason:</b></label><br>
     <select id="reasonSelect" style="width: 100%; margin-bottom: 10px;">
@@ -13,24 +13,35 @@
     </select>
 
     <label><b>Or enter free‑form explanation:</b></label><br>
-    <textarea id="freeText" style="width: 100%; height: 80px;"></textarea>
+    <textarea id="freeText"
+      style="width: 100%; height: 80px; resize: none;"></textarea>
 
     <br><br>
 
     <button onclick="submitReason()" style="padding: 6px 12px;">Submit</button>
-    <button onclick="google.script.host.close()" style="padding: 6px 12px;">Cancel</button>
+    <button onclick="cancelReason()" style="padding: 6px 12px;">Cancel</button>
 
     <script>
+      const row = <?= row ?>;
+      const reasonType = "<?= reasonType ?>";
+      const newStatus = "<?= newStatus ?>";
+      const previousStatus = "<?= previousStatus ?>";
+
       function submitReason() {
         const selected = document.getElementById('reasonSelect').value;
         const freeText = document.getElementById('freeText').value;
 
         google.script.run
           .withSuccessHandler(() => google.script.host.close())
-          .submitReason(row, reasonType, selected, freeText);
+          .submitReason(row, reasonType, selected, freeText, newStatus);
+      }
+
+      function cancelReason() {
+        google.script.run
+          .withSuccessHandler(() => google.script.host.close())
+          .cancelReason(row, previousStatus);
       }
     </script>
 
   </body>
 </html>
-

@@ -123,10 +123,23 @@ const ActivityLogModel = (() => {
 
   // Append text to existing comment
   function appendComment(row, text) {
-    const existingComment = row.getValues()[COL.COMMENTS];
-    const newValue = existingComment ? '${existingComment}. {text}' : text;
-    setComments(row, newValue);
+    Logger.log("Row: " + row + ". text: " + text);
+    const activityLogSheet = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const COL = getColumns();
+
+    // Get the existing comment text
+    const cell = activityLogSheet.getRange(row, COL.COMMENTS);
+    const existing = cell.getValue();
+
+    // Append properly
+    const updated = existing
+      ? `${existing}\n${text}`
+      : text;
+
+    // Write back
+    cell.setValue(updated);
   }
+
 
   return {
     getColumns,

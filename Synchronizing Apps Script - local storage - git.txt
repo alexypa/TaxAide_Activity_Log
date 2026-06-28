@@ -1,0 +1,86 @@
+PS C:\Users\aparn\OneDrive\Documents\TaxAide_Activity_Log\20260622> clasp pull
+└─ appsscript.json
+└─ ActivityLogController.js
+└─ ActivityLogModel.js
+└─ ActivityLogView.js
+└─ AppointmentController.js
+└─ AppointmentModel.js
+└─ AppointmentView.js
+└─ ColumnMapper.js
+└─ Main.js
+└─ SettingsController.js
+└─ SettingsModel.js
+└─ SettingsView.js
+└─ StateController.js
+└─ Test.js
+└─ TransitionReasonRegistry.js
+└─ ReasonDialog.html
+└─ ReasonDialogController.js
+Pulled 17 files.
+PS C:\Users\aparn\OneDrive\Documents\TaxAide_Activity_Log\20260622> dir
+
+
+    Directory: C:\Users\aparn\OneDrive\Documents\TaxAide_Activity_Log\20260622
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---l         6/22/2026   4:38 PM            276 .clasp.json
+-a---l         6/22/2026  10:58 PM            112 .claspignore
+-a---l         6/27/2026   8:53 PM           1652 ActivityLogController.js
+-a---l         6/27/2026   8:53 PM           4247 ActivityLogModel.js
+-a---l         6/27/2026   8:53 PM           4972 ActivityLogView.js
+-a---l         6/27/2026   8:53 PM           2404 AppointmentController.js
+-a---l         6/27/2026   8:53 PM           1152 AppointmentModel.js
+-a---l         6/27/2026   8:53 PM           3871 AppointmentView.js
+-a---l         6/27/2026   8:53 PM            375 appsscript.json
+-a---l         6/27/2026   8:53 PM           1411 ColumnMapper.js
+-a---l         6/24/2026  12:01 AM           1988 function handleActivityLogEdit(e) {.txt
+-a---l         6/27/2026   8:53 PM           1837 Main.js
+-a---l         6/22/2026   7:50 PM           6604 README.md
+-a---l         6/27/2026   8:53 PM           1101 ReasonDialog.html
+-a---l         6/27/2026   8:53 PM            247 ReasonDialogController.js
+-a---l         6/27/2026   8:53 PM            767 SettingsController.js
+-a---l         6/27/2026   8:53 PM           1455 SettingsModel.js
+-a---l         6/27/2026   8:53 PM           1895 SettingsView.js
+-a---l         6/27/2026   8:53 PM           8475 StateController.js
+-a---l         6/27/2026   8:53 PM            417 Test.js
+-a---l         6/27/2026   8:53 PM            499 TransitionReasonRegistry.js
+
+
+PS C:\Users\aparn\OneDrive\Documents\TaxAide_Activity_Log\20260622> git add .
+warning: in the working copy of 'ActivityLogController.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ActivityLogModel.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ActivityLogView.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'AppointmentController.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'AppointmentModel.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'AppointmentView.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ColumnMapper.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Main.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'SettingsController.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'SettingsModel.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'SettingsView.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'StateController.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Test.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'appsscript.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ReasonDialog.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ReasonDialogController.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'TransitionReasonRegistry.js', LF will be replaced by CRLF the next time Git touches it
+PS C:\Users\aparn\OneDrive\Documents\TaxAide_Activity_Log\20260622> git commit -m "Stable 20260627 - reason dialog working"
+[main 3762ccf] Stable 20260627 - reason dialog working
+ 12 files changed, 481 insertions(+), 620 deletions(-)
+ create mode 100644 ReasonDialog.html
+ create mode 100644 ReasonDialogController.js
+ create mode 100644 TransitionReasonRegistry.js
+ create mode 100644 function handleActivityLogEdit(e) {.txt
+PS C:\Users\aparn\OneDrive\Documents\TaxAide_Activity_Log\20260622> git push origin main
+git: 'credential-manager-core' is not a git command. See 'git --help'.
+Enumerating objects: 22, done.
+Counting objects: 100% (22/22), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (14/14), done.
+Writing objects: 100% (14/14), 7.74 KiB | 1.93 MiB/s, done.
+Total 14 (delta 4), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
+To https://github.com/alexypa/TaxAide_Activity_Log.git
+   52bb84a..3762ccf  main -> main

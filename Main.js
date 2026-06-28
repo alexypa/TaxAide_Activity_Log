@@ -26,7 +26,7 @@ function onEdit(e) {
 /**
  * ============================================================
  *  Main onEdit router
- *  First every time a cell or range is edited
+ *  Fires every time a cell or range is edited
  * ============================================================
  */
 function onEditHandler(e) {
