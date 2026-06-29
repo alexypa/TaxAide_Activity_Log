@@ -10,7 +10,7 @@ const SettingsModel = (() => {
   function getSheet_() {
     const ss = SpreadsheetApp.getActive();
     const sheet = ss.getSheetByName(SHEET);
-    if (!sheet) throw new Error(Sheet + " sheet not found.");
+    if (!sheet) throw new Error(SHEET + " sheet not found.");
     return sheet;
   }
 

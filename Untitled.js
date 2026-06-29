@@ -1,44 +1,115 @@
-function myFunction() {
-  const cols = ActivityLogModel.getColumns();
-  Logger.log(JSON.stringify(cols));
+/**
+ * SAFE Test Harness for StateController
+ * -------------------------------------
+ * - No global overrides
+ * - No pollution of production ColumnMapper or ActivityLogModel
+ * - All mocks are local to the test harness
+ * - StateController is invoked exactly as production code does
+ */
+
+
+/**************************************
+ * Mock ColumnMapper (sandboxed)
+ **************************************/
+function MockColumnMapper() {
+  return {
+    col: (sheet, name) => {
+      const map = {
+        "Check In Time": 1,
+        "Ticket #": 2,
+        "SSN Last 4": 3,
+        "First Name": 4,
+        "Last Name": 5,
+        "Tax Year": 6,
+        "Counselor": 7,
+        "Reviewer": 8,
+        "Status": 9,
+        "Comments": 10
+      };
+      return map[name];
+    }
+  };
 }
 
-function debugColumnMapper() {
-  const map = ColumnMapper.map("Activity_Log");
-  Logger.log(JSON.stringify(map, null, 2));
+
+/**************************************
+ * Mock ActivityLogModel (sandboxed)
+ **************************************/
+function MockActivityLogModel() {
+  const rows = {};
+
+  return {
+    setRow: (row, data) => rows[row] = data,
+    getRow: (row) => rows[row]
+  };
 }
 
-function debugSheetName() {
-  const ss = SpreadsheetApp.getActive();
-  const sheet = ss.getSheetByName("Activity_Log");
-  Logger.log("Sheet found: " + (sheet ? sheet.getName() : "NONE"));
-  if (sheet) {
-    Logger.log("Sheet ID: " + sheet.getSheetId());
-    Logger.log("Last column: " + sheet.getLastColumn());
-    Logger.log("Headers: " + JSON.stringify(sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0]));
+
+/**************************************
+ * Mock event generator
+ **************************************/
+function makeEvent(row, newValue, oldValue) {
+  return {
+    range: {
+      getRow: () => row,
+      getValue: () => newValue
+    },
+    value: newValue,
+    oldValue: oldValue
+  };
+}
+
+
+/**************************************
+ * Assert Utility
+ **************************************/
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error("ASSERTION FAILED: " + message);
   }
 }
 
-function debugSheetIDs() {
-  const ss = SpreadsheetApp.getActive();
-  const sheets = ss.getSheets();
 
-  sheets.forEach(sh => {
-    Logger.log(`Name: '${sh.getName()}'  ID: ${sh.getSheetId()}`);
+/**************************************
+ * Test: Status Transitions (SAFE)
+ **************************************/
+function testStatusTransitionsSafe() {
+
+  const mockMapper = MockColumnMapper();
+  const mockModel = MockActivityLogModel();
+
+  const row = 1;
+
+  // Seed row
+  mockModel.setRow(row, {
+    row,
+    status: "Checked In",
+    counselor: "",
+    reviewer: "",
+    firstName: "",
+    lastName: "",
+    checkInTime: ""
   });
-}
 
-function copySheet() {
-  const ss = SpreadsheetApp.getActive();
-  const source = ss.getSheetByName("Activity_Log");
+  // Build event
+  const e = makeEvent(row, "Assigned", "Checked In");
 
-  // Creates a full duplicate named "Activity_Log_Copy"
-  const copy = source.copyTo(ss);
-  copy.setName("Activity_Log_Copy");
-}
+  // Call real controller
+  const result = StateController.handleStatusEdit(mockModel.getRow(row), e);
 
-function debugColumnMapperColSource() {
-  Logger.log(ColumnMapper.col.toString());
+  assert(result.ok === true, "Checked In → Assigned should be allowed");
 }
 
 
+/**************************************
+ * SAFE Test Runner
+ **************************************/
+function runStateControllerTestsSafe() {
+
+  Logger.log("Running SAFE StateController tests...");
+
+  testStatusTransitionsSafe();
+  // Add more SAFE tests here
+
+  Logger.log("✓ SAFE tests passed");
+}

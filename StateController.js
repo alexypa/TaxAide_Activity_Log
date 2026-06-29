@@ -20,7 +20,7 @@ const StateController = (() => {
    */
   const ALLOWED_TRANSITIONS = {
     "Checked In":      ["Assigned", "No Return"],
-    "Assigned":        ["Ready for Review", "Incomplete", "No Return"],
+    "Assigned":        ["Ready for Review", "Incomplete", "No Return", "Deactivated"],
     "Ready for Review":["In Review", "Incomplete"],
     "In Review":       ["Complete", "Incomplete", "e-Filed", "Paper","Deactivated"],
     "Incomplete":      ["Checked In", "Assigned", "Deactivated", "In Review", "Ready for Review", "Paper"],
@@ -42,7 +42,7 @@ const StateController = (() => {
    * The system will pop up a form, the operator will fill the reason from a dropdown or enter free text
    *and the reason will be appended to the Comments field.
   */
-  const TRANSITION_REQUIRES_REASON = ["No Return", "Incomplete", "Rejected", "Paper"];
+  const TRANSITION_REQUIRES_REASON = ["No Return", "Incomplete", "Rejected", "Paper", "Deactivated"];
 
   /**
    * Handles edit to first and last name columns.
@@ -146,7 +146,6 @@ const StateController = (() => {
 
     // Reviewer cannot be the same as counselor (IRS rule)
     if (reviewer && reviewer === counselor) {
-      Logger.log("counselor = reviewer = " + reviewer);
       return { ok:false, message:"Reviewer may not be the same as the counselor." };
     }
 
@@ -179,9 +178,16 @@ const StateController = (() => {
       return { ok:true, ignore: true };
     }
 
-    // In Review → reviewer removed → revert to Ready for Review
+    // In Review → reviewer deleted → revert to Ready for Review
     if (status === "In Review" && reviewer === "") {
-      return { ok:true, newStatus:"Ready for Review" };
+      return {
+        ok: true,
+        ignore: false,
+        action: "STATUS_CHANGE",
+        newStatus: "Ready for Review",
+        oldStatus: "In Review",
+        row: model.row
+      };
     }
 
     // In Review → reviewer changed to ANY non-empty name → allowed
