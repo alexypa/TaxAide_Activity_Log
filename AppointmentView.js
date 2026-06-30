@@ -10,6 +10,9 @@
 
 const AppointmentView = (() => {
 
+  /**
+   * A router for Appointment sheet events
+   */
   function applyAppointmentResult(result) {
 
     // No op if result object does not exist or result contains "ignore"
@@ -34,13 +37,17 @@ const AppointmentView = (() => {
     }
   }
 
+  /**
+   * Creates an activity log entry by clocking on the Check In checkbox
+   * on the Appointment sheet.
+   * The log transfers the first and last name of the taxpayer to the Activity_Log sheet,
+   * timestamps the log when the taxpayer checks in an sets the status to 'Checked In'
+   * It also timestamps the Appointment sheet and marks the entry as 'processed' 
+   */
   function createActivityLog_(ss, apptSheet, result) {
+
     const activityLogSheet = ss.getSheetByName("Activity_Log");
     const COL = ActivityLogModel.getColumns();
-
-    Logger.log("COL: " + JSON.stringify(COL));
-  
-
     const row = [
       result.entry.checkInTime,
         "", "", // Ticket, SSN blank
@@ -52,8 +59,7 @@ const AppointmentView = (() => {
       ]
     activityLogSheet.appendRow(row);
 
-    const newRow = activityLogSheet.getLastRow();
-    
+    const newRow = activityLogSheet.getLastRow();    
     activityLogSheet.getRange(newRow, COL.CHECKIN_TIME).setNumberFormat("h:mm AM/PM");
     
     // Write timestamp + mark processed on Appointments sheet row
@@ -61,19 +67,30 @@ const AppointmentView = (() => {
     apptSheet.getRange(result.row, 7).setValue(true); // Processed
   }
 
+  /**
+   * Invoked by the End of the Day menu item, this function moves all no shows
+   * to the No Shows sheet
+   */
   function moveNoShows_(ss, result) {
     const noShowSheet = ss.getSheetByName("No Shows");
     result.rows.forEach(r => {
       const row = [
-        getDayTime_(r.apptTime),
+        new Date(),
+        r.apptTime,
         r.firstName.toUpperCase(),
         r.lastName.toUpperCase(),
         r.phone
       ]
       noShowSheet.appendRow(row);
+      const newRow = noShowSheet.getLastRow();
+      noShowSheet.getRange(newRow, 1).setNumberFormat("YYYY-MM-DD");
     });
   }
 
+  /**
+   * Invoked by the End of the Day menu item, this function clears all of the day's 
+   * appointment entries from the Appointments sheet
+   */
   function clearAllAppointments_(apptSheet) {
     if (apptSheet.getLastRow() > 1) {
       apptSheet.getRange(2, 1, apptSheet.getLastRow() - 1, apptSheet.getLastColumn()).clearContent();
@@ -83,7 +100,7 @@ const AppointmentView = (() => {
   /**
    * Helper function to combine hours and minutes of appointment with today's date
    */
-  function getDayTime_(value)  {
+  /*function getDayTime_(value)  {
     // 1. Create a date object representing today
     const today = new Date();
 
@@ -96,7 +113,7 @@ const AppointmentView = (() => {
       minutes = value.getMinutes();
     } else if (typeof value === 'string') {
         // 3. Handle if the value comes in as a raw formatted string (e.g., "02:30 PM")
-        const match = timeValue.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+        const match = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
         if (!match) {
           throw new Error("Time format must be HH:MM AM/PM. Received: " + value);
         }
@@ -115,10 +132,11 @@ const AppointmentView = (() => {
     // 4. Set today's date to the target hours, minutes, seconds, miliseconds
     today.setHours(hours, minutes, 0, 0);
     return today;
-  }
+  }*/
 
   return {
     applyAppointmentResult,
+    moveNoShows_
   };
 
 })();

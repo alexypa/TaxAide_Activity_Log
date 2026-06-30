@@ -46,6 +46,53 @@ const ActivityLogController = (() => {
     }
   }
 
-  return { handleActivityLogEdit };
+  function archiveActivityLogs() {
+
+    const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
+    const logs = ActivityLogModel.getAllActivityLogs(); 
+
+    const logsToArchive = logs.filter(r => (TERMINAL.includes(r.status)));
+
+    return {
+      ok: true, 
+      ignore:false, 
+      action: "ARCHIVE_ACTIVITY_LOGS", 
+      rows: logsToArchive
+    };
+  }
+
+  function transferActivityLogsToIncomplete() {
+
+    const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
+    const logs = ActivityLogModel.getAllActivityLogs(); 
+
+    const logsToIncomplete = logs.filter(r => (!TERMINAL.includes(r.status)));
+
+    return {
+      ok: true, 
+      ignore:false, 
+      action: "TRANSFER_TO_INCOMPLETE", 
+      rows: logsToIncomplete
+    };
+  }
+
+  function clearActivityLogs() {
+
+    const logs = ActivityLogModel.getAllActivityLogs();
+
+    return {
+      ok: true,
+      ignore: false,
+      action: CLEAR_ACTIVITY_LOGS,
+      rows:logs
+    }
+  }
+
+  return { 
+    handleActivityLogEdit,
+    archiveActivityLogs,
+    transferActivityLogsToIncomplete,
+    clearActivityLogs
+  };
 
 })();

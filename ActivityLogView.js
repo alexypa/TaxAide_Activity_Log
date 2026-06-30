@@ -31,6 +31,62 @@ const ActivityLogView = (() => {
     const COL = ActivityLogModel.getColumns();
 
     // ───────────────────────────────────────────────
+    // Transfer completed returns to Archive sheet
+    // ───────────────────────────────────────────────
+    if (result.action === "ARCHIVE_ACTIVITY_LOGS") {
+
+      const archiveSheet = SpreadsheetApp.getActive().getSheetByName("Archive");
+      result.rows.forEach( r=> {
+        const row = [
+          r.checkedInTime,
+          r.ssnLast4,
+          r.firstName,
+          r.lastName,
+          r.taxYear,
+          r.counselor,
+          r.reviewer,
+          r.status,
+          r.comments
+        ]
+        archiveSheet.appendRow(row);
+      });
+    }
+
+    // ───────────────────────────────────────────────
+    // Transfer Incomplete returns to Incomplete sheet
+    // ───────────────────────────────────────────────
+    if (result.action === "TRANSFER_TO_INCOMPLETE") {
+
+      const incompleteSheet = SpreadsheetApp.getActive().getSheetByName("Incomplete");
+      
+      result.rows.forEach( r=> {
+        const row = [
+          r.checkedInTime,
+          r.ssnLast4,
+          r.firstName,
+          r.lastName,
+          r.taxYear,
+          r.counselor,
+          r.reviewer,
+          r.status,
+          r.comments
+        ]
+      incompleteSheet.appendRow(row);
+      });
+    }
+
+    // ───────────────────────────────────────────────
+    // Clears Activity_Log sheet
+    // ───────────────────────────────────────────────
+    if (result.action === "CLEAR_ACTIVITY_LOGS") {
+
+      const activityLogSheet = SpreadsheetApp.getActive().getSheetByName("Activity_Log");
+      if (activityLogSheet.getLastRow() > 1) {
+        activityLogSheet.getRange(2, 1, activityLogSheet.getLastRow() - 1, activityLogSheet.getLastColumn()).clearContent();
+      }
+    }
+
+    // ───────────────────────────────────────────────
     // Forbidden edit
     // ───────────────────────────────────────────────
     if (result.action === "FORBIDDEN_EDIT") {
@@ -119,6 +175,8 @@ const ActivityLogView = (() => {
     SpreadsheetApp.getUi().showModalDialog(html, "Reason Required");
   }
 
-  return { applyActivityLogResult };
+  return { 
+    applyActivityLogResult
+  };
 
 })();

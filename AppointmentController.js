@@ -60,7 +60,7 @@ const AppointmentController = (() => {
 
     // No Shows are out appointments that were not previously processed by moving them to the Activity_Log tab 
     // or rows that have no names associated with them, namely rows with only unchecked checkboxes 
-    const noShows = appts.filter(r => (!r.checkedIn && !r.processed) || (r.firstName !== "" && r.lastName !== ""));   
+    const noShows = appts.filter(r => (!r.checkedIn && !r.processed) && (r.firstName !== "" && r.lastName !== ""));   
 
     return {
       ok: true,

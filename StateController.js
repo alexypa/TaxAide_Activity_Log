@@ -244,7 +244,8 @@ const StateController = (() => {
     handleFirstAndLastNames,
     handleCounselorEdit,
     handleReviewerEdit,
-    handleStatusEdit
+    handleStatusEdit,
+    submitReason
   };
 
 })();

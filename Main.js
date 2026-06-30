@@ -63,6 +63,15 @@ function menuEndOfDayProcess_() {
 
   // Clear Appointment tab for next day
   AppointmentView.applyAppointmentResult(AppointmentController.clearAppointments());
+
+  // Process activity logs - to Archive
+  ActivityLogView.applyActivityLogResult(ActivityLogController.archiveActivityLogs());
+
+  // Process activity logs - to Incomplete
+  ActivityLogView.applyActivityLogResult(ActivityLogController.transferActivityLogsToIncomplete());
+
+  // Clear Activity_Log sheet
+  ActivityLogView.applyActivityLogResult(ActivityLogController.clearActivityLogs());
 }
 
 

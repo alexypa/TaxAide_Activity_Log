@@ -48,6 +48,28 @@ const ActivityLogModel = (() => {
     };
   }
 
+  function getAllActivityLogs() {
+    const activityLogSheet = SpreadsheetApp.getActive().getSheetByName(SHEET);
+    const rows = activityLogSheet.getLastRow() - 1;
+    if (rows < 1) return [];
+
+    const values = activityLogSheet.getRange(2, 1, rows, 11).getValues();
+
+    return values.map((r, i) => ({
+      row: i + 2,
+      checkedInTime: r[0],
+      ticketNo: r[1],
+      ssnLast4: r[2],
+      firstName: r[3],
+      lastName: r[4],
+      taxYear: r[5],
+      counselor: r[6],
+      reviewer: r[7],
+      status: r[8],
+      comments: r[9]
+    }));
+  }
+
   /**
    * Generic single-field write helper.
    */
@@ -152,7 +174,8 @@ const ActivityLogModel = (() => {
     setCheckInTime,
     setName,
     setComments,
-    appendComment
+    appendComment,
+    getAllActivityLogs
   };
 
 })();
