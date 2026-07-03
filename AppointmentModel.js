@@ -11,15 +11,15 @@ const AppointmentModel = (() => {
 
   function getAppointmentRow(row) {
     const sh = SpreadsheetApp.getActive().getSheetByName(SHEET);
-    const values = sh.getRange(row, 1, 1, 7).getValues()[0];
+    const values = sh.getRange(row, 1, 1, 6).getValues()[0];
 
     return {
-      checkedIn: values[0] === true,
-      apptTime: values[1],
-      firstName: values[2],
-      lastName: values[3],
-      phone: values[4],
-      processed: values[5] === true
+      apptTime: values[0],
+      firstName: values[1],
+      lastName: values[2],
+      phone: values[3],
+      checkedIn: values[4] === true,
+      checkedInTime: values[5]
     };
   }
 
@@ -28,16 +28,16 @@ const AppointmentModel = (() => {
     const rows = sh.getLastRow() - 1;
     if (rows < 1) return [];
 
-    const values = sh.getRange(2, 1, rows, 7).getValues();
+    const values = sh.getRange(2, 1, rows, 6).getValues();
 
     return values.map((r, i) => ({
       row: i + 2,
-      checkedIn: r[0] === true,
-      apptTime: r[1],
-      firstName: r[2],
-      lastName: r[3],
-      phone: r[4],
-      processed: r[5] === true
+      apptTime: r[0],
+      firstName: r[1],
+      lastName: r[2],
+      phone: r[3],
+      CheckedIn: r[4],
+      CheckedInTime: r[5]
     }));
   }
 

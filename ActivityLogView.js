@@ -58,9 +58,12 @@ const ActivityLogView = (() => {
     if (result.action === "TRANSFER_TO_INCOMPLETE") {
 
       const incompleteSheet = SpreadsheetApp.getActive().getSheetByName("Incomplete");
+
+      const transferToActivityLog = false;
       
       result.rows.forEach( r=> {
         const row = [
+          r.transferToActivityLog,
           r.checkedInTime,
           r.ssnLast4,
           r.firstName,
@@ -71,7 +74,14 @@ const ActivityLogView = (() => {
           r.status,
           r.comments
         ]
-      incompleteSheet.appendRow(row);
+        incompleteSheet.appendRow(row);
+
+        const transferToActivityLogCell = incompleteSheet.getRange(incompleteSheet.getLastRow(), 1);
+        const checkboxRule = SpreadsheetApp.newDataValidation()
+            .requireCheckbox()
+            .setAllowInvalid(false) // Blocks users from typing junk values text over the checkbox grid
+            .build();
+        transferToActivityLogCell.setDataValidation(checkboxRule);
       });
     }
 

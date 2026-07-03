@@ -49,22 +49,22 @@ const AppointmentView = (() => {
     const activityLogSheet = ss.getSheetByName("Activity_Log");
     const COL = ActivityLogModel.getColumns();
     const row = [
-      result.entry.checkInTime,
-        "", "", // Ticket, SSN blank
-        result.entry.firstName.toUpperCase(),
-        result.entry.lastName.toUpperCase(),
-        "", "", "", // Tax Year, Counselor, Reviewer blank
-        "Checked In", // Status
-        "" // Comments blank
+      result.entry.checkedInTime,
+      "", "", // Ticket, SSN blank
+      result.entry.firstName.toUpperCase(),
+      result.entry.lastName.toUpperCase(),
+      "", "", "", // Tax Year, Counselor, Reviewer blank
+      "Checked In", // Status
+      "" // Comments blank
       ]
+    
     activityLogSheet.appendRow(row);
 
     const newRow = activityLogSheet.getLastRow();    
     activityLogSheet.getRange(newRow, COL.CHECKIN_TIME).setNumberFormat("h:mm AM/PM");
     
-    // Write timestamp + mark processed on Appointments sheet row
-    apptSheet.getRange(result.row, 6).setValue(result.entry.checkInTime); // Timestamp
-    apptSheet.getRange(result.row, 7).setValue(true); // Processed
+    // Write timestamp on Appointments sheet row
+    apptSheet.getRange(result.row, 6).setValue(result.entry.checkedInTime); // Time stamp
   }
 
   /**
@@ -75,16 +75,86 @@ const AppointmentView = (() => {
     const noShowSheet = ss.getSheetByName("No Shows");
     result.rows.forEach(r => {
       const row = [
-        new Date(),
-        r.apptTime,
+        getFormattedDateTimeString(r.apptTime),
         r.firstName.toUpperCase(),
         r.lastName.toUpperCase(),
         r.phone
       ]
       noShowSheet.appendRow(row);
-      const newRow = noShowSheet.getLastRow();
-      noShowSheet.getRange(newRow, 1).setNumberFormat("YYYY-MM-DD");
+      //const newRow = noShowSheet.getLastRow();
+      //oShowSheet.getRange(newRow, 1).setNumberFormat("YYYY-MM-DD");
     });
+  }
+
+  /**
+   * Combines today's calendar date with a provided time value (Date object or string)
+   * and returns a string formatted exactly as "M/d/YYYY HH:mm:ss".
+   *
+   * @param {Date|string} timeValue - The raw time value to parse.
+   * @return {string|null} The formatted date-time string, or null if parsing fails.
+   */
+  function getFormattedDateTimeString(timeValue) {
+    try {
+      let hours = 0;
+      let minutes = 0;
+      let isValid = false;
+
+      // 1. PATH A: Value is already a native Date object
+      if (timeValue instanceof Date && !isNaN(timeValue.getTime())) {
+        hours = timeValue.getHours();
+        minutes = timeValue.getMinutes();
+        isValid = true;
+      } 
+      // 2. PATH B: Value is a raw text string (e.g., "6:27 PM", "18:27")
+      else if (typeof timeValue === 'string' && timeValue.trim() !== "") {
+        const timeStr = timeValue.trim().toUpperCase();
+        
+        // RegEx to capture hours, minutes, and optional AM/PM designator
+        const timeMatch = timeStr.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/);
+        
+        if (timeMatch) {
+          let extractedHours = parseInt(timeMatch[1], 10);
+          const extractedMinutes = parseInt(timeMatch[2], 10);
+          const ampm = timeMatch[3];
+
+          if (ampm) {
+            // Standard 12-hour AM/PM conversion
+            if (ampm === "PM" && extractedHours < 12) extractedHours += 12;
+            if (ampm === "AM" && extractedHours === 12) extractedHours = 0;
+          }
+
+          // Validate boundary constraints
+          if (extractedHours >= 0 && extractedHours < 24 && extractedMinutes >= 0 && extractedMinutes < 60) {
+            hours = extractedHours;
+            minutes = extractedMinutes;
+            isValid = true;
+          }
+        }
+      }
+
+      if (!isValid) {
+        console.warn(`⚠️ Unparseable time format parameter: "${timeValue}"`);
+        return null;
+      }
+
+      // 3. Construct a fresh Date object anchored precisely to today's date context
+      const dynamicDateTime = new Date();
+      
+      // Set the parsed hours and minutes. 
+      // We explicitly set seconds and milliseconds to match the current actual moment.
+      dynamicDateTime.setHours(hours, minutes, new Date().getSeconds(), 0);
+
+      // 4. Transform the object into the requested string blueprint
+      // Using the current active spreadsheet's time zone definition ensures alignment
+      const timeZone = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+      const finalizedFormat = Utilities.formatDate(dynamicDateTime, timeZone, "M/d/yyyy HH:mm:ss");
+
+      return finalizedFormat;
+
+    } catch (err) {
+      console.error(`Error constructing formatted datetime string: ${err.message}`);
+      return null;
+    }
   }
 
   /**
@@ -97,46 +167,10 @@ const AppointmentView = (() => {
     }
   }
 
-  /**
-   * Helper function to combine hours and minutes of appointment with today's date
-   */
-  /*function getDayTime_(value)  {
-    // 1. Create a date object representing today
-    const today = new Date();
-
-    let hours = 0;
-    let minutes = 0;
-
-    // 2. Handle if the value comes in as a JavaScript Date object
-    if (value instanceof Date) {
-      hours = value.getHours();
-      minutes = value.getMinutes();
-    } else if (typeof value === 'string') {
-        // 3. Handle if the value comes in as a raw formatted string (e.g., "02:30 PM")
-        const match = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-        if (!match) {
-          throw new Error("Time format must be HH:MM AM/PM. Received: " + value);
-        }
-        hours = parseInt(match[1], 10);
-        minutes = parseInt(match[2], 10);
-        const ampm = match[3].toUpperCase();
-
-        if (ampm === 'PM' && hours <12) {
-          hours += 12;
-        } else if (ampm === 'AM' && hours === 12) {
-          hours = 0;
-        }
-      } else {
-        throw new Error("Unsupported time format or empty cell");
-      }
-    // 4. Set today's date to the target hours, minutes, seconds, miliseconds
-    today.setHours(hours, minutes, 0, 0);
-    return today;
-  }*/
-
   return {
     applyAppointmentResult,
-    moveNoShows_
+    moveNoShows_,
+    getFormattedDateTimeString
   };
 
 })();

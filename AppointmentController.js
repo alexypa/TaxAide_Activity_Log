@@ -20,8 +20,8 @@ const AppointmentController = (() => {
     const row = e.range.getRow();
     const newValue = e.range.getValue();
 
-    // Ignore edits in any column other that column A (Check In) and in header row
-    if (col !== 1 || row === 1) return { ok: true, ignore: true };
+    // Ignore edits in any column other that column E (Check In) and in header row
+    if (col !== 5 || row === 1) return { ok: true, ignore: true };
 
     // Ignore unchecking
     if (newValue !== true) return { ok: true, ignore: true };
@@ -30,18 +30,15 @@ const AppointmentController = (() => {
     const appt = AppointmentModel.getAppointmentRow(row);
 
     // Prevent double-processing
-    if (appt.processed === true) {
+    if (appt.checkedInTime) {
       return { ok: false, message: "Appointment already processed." };
     }
 
     // Build Activity Log entry
     const entry = {
-      checkInTime: new Date(),
+      checkedInTime : new Date(),
       firstName: appt.firstName.toUpperCase(),
-      lastName: appt.lastName.toUpperCase(),
-      phone: appt.phone,
-      apptTime: appt.apptTime,
-      comments: ``
+      lastName: appt.lastName.toUpperCase()      
     };
 
     return {
@@ -49,18 +46,18 @@ const AppointmentController = (() => {
       action: "CREATE_ACTIVITY_LOG_ENTRY",
       entry,
       row
-    };  
+    }; 
   }
 
   /**
-   * End-of-day: Move no-shows to No Show sheet.
+   * End-of-day: Move no-shows from the Appointment sheet to the No Show sheet.
    */
   function processNoShows() {
     const appts = AppointmentModel.getAllAppointments();  
 
     // No Shows are out appointments that were not previously processed by moving them to the Activity_Log tab 
     // or rows that have no names associated with them, namely rows with only unchecked checkboxes 
-    const noShows = appts.filter(r => (!r.checkedIn && !r.processed) && (r.firstName !== "" && r.lastName !== ""));   
+    const noShows = appts.filter(r => !r.checkedIn && !r.CheckedInTime && r.firstName !== "" && r.lastName !== "");   
 
     return {
       ok: true,

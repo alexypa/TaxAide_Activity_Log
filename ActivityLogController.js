@@ -46,6 +46,7 @@ const ActivityLogController = (() => {
     }
   }
 
+  // Archive all activity logs that are in terminal state to Archive sheet
   function archiveActivityLogs() {
 
     const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
@@ -61,6 +62,7 @@ const ActivityLogController = (() => {
     };
   }
 
+  // Transfer all activity logs that are NOT in terminal state to Incomplete sheet
   function transferActivityLogsToIncomplete() {
 
     const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
@@ -76,6 +78,7 @@ const ActivityLogController = (() => {
     };
   }
 
+  // Clear all activity log from the Activity_Log sheet
   function clearActivityLogs() {
 
     const logs = ActivityLogModel.getAllActivityLogs();
@@ -83,7 +86,7 @@ const ActivityLogController = (() => {
     return {
       ok: true,
       ignore: false,
-      action: CLEAR_ACTIVITY_LOGS,
+      action: "CLEAR_ACTIVITY_LOGS",
       rows:logs
     }
   }
