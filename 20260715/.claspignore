@@ -1,0 +1,4 @@
+dist/**
+hub-project/**
+**/*.md
+docs/**
