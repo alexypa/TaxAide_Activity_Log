@@ -78,14 +78,18 @@ const AppointmentView = (() => {
       "", "", "", // Tax Year, Counselor, Reviewer blank
       "Checked In", // Status
       "", // Comments blank
-      ]
-    
-    activityLogSheet.appendRow(row);
-    //const newRow = activityLogSheet.getLastRow();    
-    //const formattedTimeStamp = Utilities.formatDate(result.entry.checkedInTime, timeZone, "M/d/yyyy HH:mm");
+    ]
 
-    //activityLogSheet.getRange(newRow, COL.CHECKIN_TIME).setNumberFormat("h:mm AM/PM");
-    //apptSheet.getRange(result.row, 6).setValue(formattedTimeStamp); 
+    // This appends the row to the next empty row on the Activity Log tab
+    const colAValues = activityLogSheet.getRange("A:A").getValues();
+    let nextRow = 2;
+    for (let i = 1; i < colAValues.length; i++) {
+      if (colAValues[i][0].toString().trim() === "") {
+        nextRow = i + 1;
+        break;
+      }
+    }
+    activityLogSheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
 
     apptSheet.getRange(result.row, 6).setValue(result.entry.checkedInTime);
 

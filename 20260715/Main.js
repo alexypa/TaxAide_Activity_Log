@@ -148,5 +148,10 @@ function menuEndOfDayProcess_() {
   );
 }
 
+function updateMasterClock() {
+  const settingsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");  
+  settingsSheet.getRange("B8").setValue(new Date());
+}
+
 
 
