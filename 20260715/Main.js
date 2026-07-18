@@ -65,39 +65,34 @@ function onEdit(e) {
 }
 
 /**
- * ============================================================
+ * =======================================================================
  *  Main onEdit router
- *  Fires every time a cell or range is edited
- * ============================================================
+ *  An installable trigger that fires every time a cell or range is edited
+ *  Runs under the owner's permissions to safely update backend DB tabs.
+ * =======================================================================
  */
 function onEditHandler(e) {
-  try {
-    if (!e || !e.range || !e.source) return;
+  if (!e || !e.range || !e.source) return;
 
-    Logger.log("Event: " + JSON.stringify(e));
+  Logger.log("Event: " + JSON.stringify(e));
+  const sheetName = e.source.getActiveSheet().getName();
 
-    const sheetName = e.source.getActiveSheet().getName();
+  if (sheetName === "Appointments") {
+    const result = AppointmentController.handleAppointmentEdit(e);
+    AppointmentView.applyAppointmentResult(result);
+    return;
+  }
 
-    if (sheetName === "Appointments") {
-      const result = AppointmentController.handleAppointmentEdit(e);
-      AppointmentView.applyAppointmentResult(result);
-      return;
-    }
+  if (sheetName === "Activity_Log") {
+    const result = ActivityLogController.handleActivityLogEdit(e);
+    ActivityLogView.applyActivityLogResult(result, e);
+    return;
+  }
 
-    if (sheetName === "Activity_Log") {
-      const result = ActivityLogController.handleActivityLogEdit(e);
-      ActivityLogView.applyActivityLogResult(result, e);
-      return;
-    }
-
-    if (sheetName === "Incomplete") {
-      const result = IncompleteController.handleIncompleteEdit(e);
-      IncompleteView.applyIncompleteResult(result, e);
-      return;
-    }
-
-  } catch (err) {
-    SpreadsheetApp.getUi().alert("Error in onEditHandler: " + err);
+  if (sheetName === "Incomplete") {
+    const result = IncompleteController.handleIncompleteEdit(e);
+    IncompleteView.applyIncompleteResult(result, e);
+    return;
   }
 }
 

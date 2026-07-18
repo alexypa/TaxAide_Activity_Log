@@ -56,9 +56,9 @@ const DatabaseController = {
   },
 
   /**
-   * High-level orchestration for checking in a taxpayer relational style
+   * Checking in a taxpayer
    * @param {Spreadsheet} ss - Active Spreadsheet object
-   * @param {Object} apptEntry - The pristine entry payload from your appt sheet/sidebar
+   * @param {Object} apptEntry - Entry payload from your Appointment sheet
    * @return {string} The TaxReturn ID used or generated
    */
   processCheckInTransaction: function(ss, apptEntry) {

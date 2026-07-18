@@ -57,30 +57,32 @@ const AppointmentView = (() => {
   }
 
 function createActivityLog_(ss, apptSheet, result) {
-  // Extract entry fields cleanly from your payload
-  const apptEntry = {
-    firstName: result.entry.firstName,
-    lastName: result.entry.lastName,
-    ssnLast4: "", 
-    taxYear: "", 
+  const apptRowIndex = result.row;
+  
+  // 1. Extract data using your exact Appointment tab headers
+  const apptData = {
+    firstName: apptSheet.getRange(apptRowIndex, 2).getValue(), // Column B: First Name
+    lastName: apptSheet.getRange(apptRowIndex, 3).getValue(),  // Column C: Last Name
+    ssnLast4: "",                                              // Not on appointment tab
+    taxYear: "2026",                                           // Default fallback year
     firstNameSpouse: "",
     lastNameSpouse: ""
   };
 
-  // 1. Run the relational database operations
-  const taxReturnId = DatabaseController.processCheckInTransaction(ss, apptEntry);
+  // 2. Run the transaction (Checks/Creates master profile, writes "Checked In" to DB_History_Log)
+  const taxReturnId = DatabaseController.processCheckInTransaction(ss, apptData);
 
-  // 2. Mark the appointment sheet timeline timestamp exactly as before
-  apptSheet.getRange(result.row, 6).setValue(result.entry.checkedInTime);
+  // 3. Write the arrival timestamp to your "Checked In Time" column
+  apptSheet.getRange(apptRowIndex, 6).setValue(result.entry.checkedInTime); // Column F
 
-  // 3. Flush changes to secure the database transaction instantly
+  // 4. Flush changes to secure the database transaction instantly
   SpreadsheetApp.flush();
 
-  // 4. Alert user interface confirmation
+  // 5. Show confirmation to the intake coordinator
   const ui = SpreadsheetApp.getUi();
   ui.alert(
-      'Checked in taxpayer',
-      'Name: ' + apptEntry.firstName.toUpperCase() + " " + apptEntry.lastName.toUpperCase() + "\n" +
+      'Taxpayer Checked In',
+      'Name: ' + apptData.firstName.toUpperCase() + " " + apptData.lastName.toUpperCase() + "\n" +
       'Database Track ID: ' + taxReturnId,
       ui.ButtonSet.OK
   );
