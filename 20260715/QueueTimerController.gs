@@ -56,10 +56,21 @@ const QueueTimerController = (() => {
         }
       }
 
-      // 4. Batch target column updates to minimize sheet recalculation lag
-      const durationRange = logSheet.getRange(2, COL.DURATION, durationValues.length, 1);
-      durationRange.setValues(durationValues);
-      durationRange.setBackgrounds(backgroundColors);
+    // 4. Batch target column updates to minimize sheet recalculation lag
+    const durationRange = logSheet.getRange(2, COL.DURATION, durationValues.length, 1);
+    durationRange.setValues(durationValues);
+    durationRange.setBackgrounds(backgroundColors);
+
+    // CRITICAL FIX 3: TARGET ALL MATERIAL CELL RANGES ALL THE WAY TO THE MAXIMUM SHEET BOUNDARY
+    const maxRowsInSheet = logSheet.getMaxRows();
+    const nextEmptyRow = lastRow + 1;
+    
+    if (maxRowsInSheet >= nextEmptyRow) {
+    const trailingRowsCount = (maxRowsInSheet - nextEmptyRow) + 1;
+    const trailingRange = logSheet.getRange(nextEmptyRow, COL.DURATION, trailingRowsCount, 1);
+    trailingRange.clearContent();
+    trailingRange.setBackground("#ffffff"); // Revert any trailing fields to standard transparent white
+    }
 
     } catch (err) {
       Logger.log(`CRITICAL: Error inside QueueTimerController processing: ${err.stack}`);

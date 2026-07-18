@@ -37,6 +37,55 @@ const StateController = (() => {
   const TRANSITION_REQUIRES_REASON = ["No Return", "Incomplete", "Rejected", "Paper", "Deactivated"];
 
   /**
+   * Syncs real-time inline dashboard updates straight back into the database architecture.
+   */
+  function handleInlineFieldEdit(COL, colNumber, rowData, newValue, e) {
+    const returnId = rowData.returnId;
+    
+    // Guard: If the row doesn't have a unique Return ID tracking key yet, skip processing
+    if (!returnId) return { ok: true, ignore: true };
+
+    const ss = e.source;
+    const cleanValue = newValue !== null && newValue !== undefined ? newValue.toString().trim() : "";
+
+    // SCENARIO 1: Update comments in the active row mapping (Updates DB history state log down the line if needed)
+    if (colNumber === COL.COMMENTS) {
+      // Comments stay on the Activity_Log view grid but are fully tracked. 
+      // If your backend also maintains historical comment sync, you can explicitly update it here.
+      return { ok: true, ignore: true };
+    }
+
+    // SCENARIO 2: Update Profile Attributes inside DB_Tax_Returns
+    const dbReturnsSheet = ss.getSheetByName("DB_Tax_Returns");
+    const dbData = dbReturnsSheet.getDataRange().getValues();
+    let rowUpdated = false;
+
+    for (let i = 1; i < dbData.length; i++) {
+      if (dbData[i][0].toString() === returnId) {
+        let dbColIndex = -1;
+
+        // Map model columns precisely to fixed DB_Tax_Returns columns
+        // DB Schema: row[0]=ID, row[1]=SSN, row[2]=First, row[3]=Last, row[6]=Tax_Year, row[7]=Ticket
+        if (colNumber === COL.SSN_LAST4) dbColIndex = 2; // Column B
+        if (colNumber === COL.TAXYEAR)   dbColIndex = 7; // Column G
+        if (colNumber === COL.TICKET)    dbColIndex = 8; // Column H
+
+        if (dbColIndex !== -1) {
+          dbReturnsSheet.getRange(i + 1, dbColIndex).setValue(cleanValue);
+          rowUpdated = true;
+        }
+        break;
+      }
+    }
+
+    if (!rowUpdated) {
+      return { ok: false, message: "Relational sync warning: Master profile match missing for ID: " + returnId };
+    }
+
+    return { ok: true, action: "INLINE_DB_SYNC_COMPLETE", ignore: true };
+  }
+
+  /**
    * Handles edit to first and last name columns.
    * If both parts are available, sets up a relational walk-in creation payload.
    */

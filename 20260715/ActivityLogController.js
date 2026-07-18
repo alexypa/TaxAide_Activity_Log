@@ -16,7 +16,6 @@ const ActivityLogController = (() => {
     if (rowNumber === 1) return {ok: false, action: "FORBIDDEN_EDIT", rowNumber, colNumber, message: "Edits to header row are not permitted"};
 
     const COL = ActivityLogModel.getColumns();
-
     const value = e.range.getValue();
 
     // Read row data
@@ -25,12 +24,14 @@ const ActivityLogController = (() => {
     switch (colNumber) {
       case COL.CHECKIN_TIME:
         return {ok: false, action: "FORBIDDEN_EDIT", rowNumber, colNumber, message: "Check In Time field is set by the system when a taxpayer checks in"};
+      
+      // NEW ROUTING RULE: Route inline field modifications directly to the database backend handler
       case COL.TICKET:
       case COL.SSN_LAST4:
       case COL.TAXYEAR:
       case COL.COMMENTS:
-        // Entry in any of the above fields does not require action
-        return { ok: true, ignore:true };
+        return StateController.handleInlineFieldEdit(COL, colNumber, row, value, e);
+
       case COL.FIRST:
       case COL.LAST:
         return StateController.handleFirstAndLastNames(COL, colNumber, row, value);
@@ -48,7 +49,6 @@ const ActivityLogController = (() => {
 
   // Archive all activity logs that are in terminal state to Archive sheet
   function archiveActivityLogs() {
-
     const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
     const logs = ActivityLogModel.getAllActivityLogs(); 
     const logsToArchive = logs.filter(r => (TERMINAL.includes(r.status)));
@@ -63,10 +63,8 @@ const ActivityLogController = (() => {
 
   // Transfer all activity logs that are NOT in terminal state to Incomplete sheet
   function transferActivityLogsToIncomplete() {
-
     const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
     const logs = ActivityLogModel.getAllActivityLogs(); 
-
     const logsToIncomplete = logs.filter(r => (!TERMINAL.includes(r.status)));
 
     return {
@@ -79,7 +77,6 @@ const ActivityLogController = (() => {
 
   // Clear all activity log from the Activity_Log sheet
   function clearActivityLogs() {
-
     const logs = ActivityLogModel.getAllActivityLogs();
 
     return {
