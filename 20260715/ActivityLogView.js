@@ -1,211 +1,94 @@
 /**
  * ActivityLogView.gs
+ * Renders and commits view updates onto the Activity_Log dashboard.
  */
+const ActivityLogView = {
 
-const ActivityLogView = (() => {
-
-  function applyActivityLogResult(result, e) {
-
-    // If result is "ignore" or does not exist - do nothing
+  /**
+   * Applies the state controller's directive payload back onto the grid view.
+   * @param {Object} result - The payload returned from StateController
+   * @param {Object} e - The original installable edit event context
+   */
+  applyActivityLogResult: function(result, e) {
     if (!result || result.ignore) return;
 
-    // If result is not OK - revent cell to old value and pop and error message
-    if (!result.ok) {
-      const oldValue = e.oldValue || "";   // previous cell content
-      // Revert the edited cell to its previous value
-      e.range.setValue(oldValue);
-      SpreadsheetApp.getUi().alert(result.message);
-      return;
-    }
+    const sheet = e.range.getSheet();
+    const rowNumber = result.rowNumber || result.row;
 
-    const COL = ActivityLogModel.getColumns();
-
-    // ───────────────────────────────────────────────
-    // Transfer returns in terminal state to Archive sheet
-    // ───────────────────────────────────────────────
-    if (result.action === "ARCHIVE_ACTIVITY_LOGS") {
-
-      const archiveSheet = SpreadsheetApp.getActive().getSheetByName("Archive");
-      result.rows.forEach( r=> {
-
-        const taxPrepDuration = getDurationHoursMinutes(r.checkedInTime, r.latestChange);
-
-        const row = [
-          r.checkedInTime,
-          r.ssnLast4,
-          r.firstName,
-          r.lastName,
-          r.taxYear,
-          r.counselor,
-          r.reviewer,
-          r.status,
-          r.comments,
-          r.latestChange,
-          taxPrepDuration
-        ]
-        archiveSheet.appendRow(row);
-      });
-    }
-
-    // ───────────────────────────────────────────────
-    // Transfer Incomplete returns to Incomplete sheet
-    // ───────────────────────────────────────────────
-    if (result.action === "TRANSFER_TO_INCOMPLETE") {
-
-      const incompleteSheet = SpreadsheetApp.getActive().getSheetByName("Incomplete");
-
-      const transferToActivityLog = false;
-      
-      result.rows.forEach( r=> {
-        const row = [
-          r.transferToActivityLog,
-          r.checkedInTime,
-          r.ssnLast4,
-          r.firstName,
-          r.lastName,
-          r.taxYear,
-          r.counselor,
-          r.reviewer,
-          r.status,
-          r.comments,
-          r.latestChange
-        ]
-        incompleteSheet.appendRow(row);
-
-        const transferToActivityLogCell = incompleteSheet.getRange(incompleteSheet.getLastRow(), 1);
-        const checkboxRule = SpreadsheetApp.newDataValidation()
-            .requireCheckbox()
-            .setAllowInvalid(false) // Blocks users from typing junk values text over the checkbox grid
-            .build();
-        transferToActivityLogCell.setDataValidation(checkboxRule);
-      });
-    }
-
-    // ───────────────────────────────────────────────
-    // Clears Activity_Log sheet
-    // ───────────────────────────────────────────────
-    if (result.action === "CLEAR_ACTIVITY_LOGS") {
-
-      const activityLogSheet = SpreadsheetApp.getActive().getSheetByName("Activity_Log");
-      if (activityLogSheet.getLastRow() > 1) {
-        activityLogSheet.getRange(2, 1, activityLogSheet.getLastRow() - 1, activityLogSheet.getLastColumn()).clearContent();
-      }
-    }
-
-    // ───────────────────────────────────────────────
-    // Forbidden edit - clear cell content & notify user
-    // ───────────────────────────────────────────────
-    if (result.action === "FORBIDDEN_EDIT") {
-      SpreadsheetApp.getActive()
-        .getSheetByName("Activity_Log")
-        .getRange(result.row, result.col)
-        .clearContent();
-      SpreadsheetApp.getUi().alert(result.message);
-      return;
-    }
-
-    // ───────────────────────────────────────────────
-    // First and Last Names formatting
-    // ───────────────────────────────────────────────
-    if (result.action === "FORMAT_NAME") {
-      SpreadsheetApp.getActive()
-        .getSheetByName("Activity_Log")
-        .getRange(result.row, result.col)
-        .setValue(result.value);
-      return;
-    }
-
-    // ───────────────────────────────────────────────
-    // Check-in
-    // ───────────────────────────────────────────────
-    if (result.action === "CHECK_IN") {
-      ActivityLogModel.setFields(result.row, {
-        firstName: result.firstName,
-        lastName:  result.lastName,
+    // SCENARIO 1: A brand new manual walk-in has been validated and created
+    if (result.action === "MANUAL_CHECKIN_COMPLETE") {
+      ActivityLogModel.setFields(rowNumber, {
+        returnId: result.taxReturnId,
         checkInTime: result.checkInTime,
-        status: "Checked In"
+        firstName: result.firstName,
+        lastName: result.lastName,
+        status: result.status
       });
       return;
     }
 
-    // ───────────────────────────────────────────────
-    // Assign Counselor -> Assigned
-    // ───────────────────────────────────────────────
-    if (result.action === "ASSIGN_COUNSELOR") {  
-      ActivityLogModel.setFields(result.row, {
-        status: "Assigned", 
-        latestChange: new Date()
-      });
+    // SCENARIO 2: Counselor Assignment (Checked In -> Assigned)
+    if (result.action === "ASSIGN_COUNSELOR") {
+      // 1. Visually shift status to Assigned
+      ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
+
+      // 2. Log event into relational DB_History_Log
+      const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
+      const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, e.value, "");
+      DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
       return;
     }
 
-    // ───────────────────────────────────────────────
-    // Assign Reviewer -> In Review
-    // ───────────────────────────────────────────────
-    if (result.action === "ASSIGN_REVIEWER") {  
-      ActivityLogModel.setFields(result.row, {status: "In Review", latestChange: new Date()});
+    // SCENARIO 3: Reviewer Assignment (Ready for Review -> In Review)
+    if (result.action === "ASSIGN_REVIEWER") {
+      // 1. Visually shift status to In Review
+      ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
+
+      // 2. Log event into relational DB_History_Log
+      const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
+      const reviewerName = e.range.getValue();
+      const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, reviewerName, "");
+      DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
       return;
     }
 
-    // ───────────────────────────────────────────────
-    // Status change logic (including reason dialog)
-    // ───────────────────────────────────────────────
+    // SCENARIO 4: Core Status Column Dropdown Changes
     if (result.action === "STATUS_CHANGE") {
-
+      // If the state transition requires a structural popup reason, handle it
       if (result.requiresReason) {
-        showReasonDialog(result.reasonType, result.row, result.newStatus, result.oldStatus);
-        return;
+        // NOTE: If you have an existing modal sidebar layout to prompt for reasons, 
+        // you can trigger it here using result.reasonType. For now, we update the status row.
+        ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
+      } else {
+        ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
       }
 
-      // Write new status when no reason is required
-      ActivityLogModel.setFields(result.row, {
-        status: result.newStatus,
-        latestChange: new Date()
-      });
+      // Append state update straight into your background history log
+      const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
+      const currentComments = sheet.getRange(rowNumber, ActivityLogModel.getColumns().COMMENTS).getValue();
+      const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, "", currentComments);
+      DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
+      return;
+    }
+
+    // SCENARIO 5: Basic inline updates like formatting name strings to upper case
+    if (result.action === "FORMAT_NAME") {
+      sheet.getRange(rowNumber, result.col).setValue(result.value);
+      return;
+    }
+    
+    // SCENARIO 6: Validation Errors (Forbidden Transitions, IRS rule infractions)
+    if (result.ok === false && result.message) {
+      // Revert the cell edit back to its baseline value to preserve grid safety
+      if (e.oldValue === undefined) {
+        e.range.clearContent();
+      } else {
+        e.range.setValue(e.oldValue);
+      }
+      
+      // Flash a clear validation alert to the volunteer
+      SpreadsheetApp.getUi().alert("⚠️ Validation Rule Infraction", result.message, SpreadsheetApp.getUi().ButtonSet.OK);
       return;
     }
   }
-
-  function getDurationHoursMinutes(startIso, endIso) {
-
-    // Parse ISO timestamps into Date objects
-    const start = new Date(startIso);
-    const end   = new Date(endIso);
-
-    // Compute difference in milliseconds
-    const diffMs = end.getTime() - start.getTime();
-
-    // Convert to hours and minutes
-    const totalMinutes = Math.floor(diffMs / 60000); // 1000 ms * 60 sec
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-
-    // Return formatted duration
-    return `${hours}h : ${minutes}m`;
-    
-  }
-
-
-  function showReasonDialog(reasonType, row, newStatus, previousStatus) {
-    
-    const reasons = TransitionReasonRegistry[reasonType] || [];
-
-    const template = HtmlService.createTemplateFromFile("ReasonDialog");
-    template.reasonType = reasonType;
-    template.reasons = reasons;
-    template.row = row;
-    template.newStatus = newStatus;
-    template.previousStatus = previousStatus;
-
-    const html = template.evaluate()
-      .setWidth(420)
-      .setHeight(300);
-
-    SpreadsheetApp.getUi().showModalDialog(html, "Reason Required");
-  }
-
-  return { 
-    applyActivityLogResult
-  };
-
-})();
+};
