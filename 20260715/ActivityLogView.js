@@ -16,7 +16,7 @@ const ActivityLogView = {
     const rowNumber = result.rowNumber || result.row;
 
     // SCENARIO 1: A brand new manual walk-in has been validated and created
-    if (result.action === "MANUAL_CHECKIN_COMPLETE") {
+    if (result.action === "CHECK_IN") {
       ActivityLogModel.setFields(rowNumber, {
         returnId: result.taxReturnId,
         checkInTime: result.checkInTime,
@@ -54,20 +54,25 @@ const ActivityLogView = {
 
     // SCENARIO 4: Core Status Column Dropdown Changes
     if (result.action === "STATUS_CHANGE") {
-      // If the state transition requires a structural popup reason, handle it
-      if (result.requiresReason) {
-        // NOTE: If you have an existing modal sidebar layout to prompt for reasons, 
-        // you can trigger it here using result.reasonType. For now, we update the status row.
-        ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
-      } else {
-        ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
-      }
-
-      // Append state update straight into your background history log
+      const TERMINAL_STATES = ["Accepted", "Paper", "No Return", "Deactivated"];
+      
+      // 1. Append state update straight into your background history log first
       const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
       const currentComments = sheet.getRange(rowNumber, ActivityLogModel.getColumns().COMMENTS).getValue();
       const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, "", currentComments);
       DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
+
+      // 2. Visual Layer Handling: If terminal, drop the row from the live screen!
+      if (TERMINAL_STATES.includes(result.newStatus)) {
+        // Delete the row cleanly from the active grid
+        sheet.deleteRow(rowNumber);
+        
+        // Optional: Flash a quick toast message confirming the cleanup
+        e.source.toast("Return completed and moved to archives.", "Queue Cleared", 2);
+      } else {
+        // If it's a normal transition (e.g., In Review -> Incomplete), just update the status cell
+        ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
+      }
       return;
     }
 
