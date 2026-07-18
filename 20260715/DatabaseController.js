@@ -35,20 +35,26 @@ const DatabaseController = {
     const data = sheet.getDataRange().getValues();
     if (data.length <= 1) return null; // Only header exists
     
-    const searchFName = fName.toUpperCase().trim();
-    const searchLName = lName.toUpperCase().trim();
-    const searchSSN = ssnLast4.trim();
-    const searchYear = taxYear.toString().trim();
+    // Defensive normalization against null/undefined inputs
+    const safeFName = fName ? String(fName) : "";
+    const safeLName = lName ? String(lName) : "";
+    const safeSSN   = ssnLast4 ? String(ssnLast4) : "";
+    const safeYear  = taxYear ? String(taxYear) : "";
+
+    const searchFName = safeFName.toUpperCase().trim();
+    const searchLName = safeLName.toUpperCase().trim();
+    const searchSSN   = safeSSN.trim();
+    const searchYear  = safeYear.trim();
 
     // Loop through rows (skip header row 0)
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
       // Column index mapping: 
       // row[2] = First Name, row[3] = Last Name, row[1] = SSN, row[6] = Tax Year
-      if (row[2].toString().trim() === searchFName && 
-          row[3].toString().trim() === searchLName && 
-          row[1].toString().trim() === searchSSN &&
-          row[6].toString().trim() === searchYear) { // Added tax year validation!
+      if ((row[2] || "").toString().trim() === searchFName && 
+          (row[3] || "").toString().trim() === searchLName && 
+          (row[1] || "").toString().trim() === searchSSN &&
+          (row[6] || "").toString().trim() === searchYear) {
         return row[0]; // Return the existing unique return ID
       }
     }
