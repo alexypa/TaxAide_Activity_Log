@@ -64,7 +64,7 @@ function createActivityLog_(ss, apptSheet, result) {
     firstName: apptSheet.getRange(apptRowIndex, 2).getValue(), // Column B: First Name
     lastName: apptSheet.getRange(apptRowIndex, 3).getValue(),  // Column C: Last Name
     ssnLast4: "",                                              // Not on appointment tab
-    taxYear: "2026",                                           // Default fallback year
+    taxYear: new Date().getFullYear().toString(),              // Default current operational season
     firstNameSpouse: "",
     lastNameSpouse: ""
   };
@@ -72,13 +72,29 @@ function createActivityLog_(ss, apptSheet, result) {
   // 2. Run the transaction (Checks/Creates master profile, writes "Checked In" to DB_History_Log)
   const taxReturnId = DatabaseController.processCheckInTransaction(ss, apptData);
 
-  // 3. Write the arrival timestamp to your "Checked In Time" column
+  // 3. Write the arrival timestamp to your "Checked In Time" column on the Appointments tab
   apptSheet.getRange(apptRowIndex, 6).setValue(result.entry.checkedInTime); // Column F
 
-  // 4. Flush changes to secure the database transaction instantly
+  // 4. NEW: Draw the new entry visually onto the active Activity_Log dashboard instantly
+  const activityLogSheet = ss.getSheetByName("Activity_Log");
+  const targetRow = activityLogSheet.getLastRow() + 1;
+
+  // Use the synchronized ActivityLogModel to batch-write variables safely by header name
+  ActivityLogModel.setFields(targetRow, {
+    returnId: taxReturnId,
+    checkInTime: result.entry.checkedInTime,
+    ticket: "",              // Stays completely clean/blank for scheduled appointments
+    ssnLast4: "",            // Blank until intake counselor gathers it
+    firstName: apptData.firstName.toUpperCase(),
+    lastName: apptData.lastName.toUpperCase(),
+    taxYear: apptData.taxYear,
+    status: "Checked In"
+  });
+
+  // 5. Flush changes to secure the database transaction instantly
   SpreadsheetApp.flush();
 
-  // 5. Show confirmation to the intake coordinator
+  // 6. Show confirmation to the intake coordinator
   const ui = SpreadsheetApp.getUi();
   ui.alert(
       'Taxpayer Checked In',

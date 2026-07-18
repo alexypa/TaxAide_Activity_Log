@@ -13,7 +13,7 @@ const ActivityLogController = (() => {
     const colNumber = e.range.getColumn();
 
     // Do not permit edits to header row
-    // if (rowNumber === 1) return {ok: false, action: "FORBIDDEN_EDIT", rowNumber, colNumber, message: "Edits to header row are not permitted"};
+    if (rowNumber === 1) return {ok: false, action: "FORBIDDEN_EDIT", rowNumber, colNumber, message: "Edits to header row are not permitted"};
 
     const COL = ActivityLogModel.getColumns();
 
