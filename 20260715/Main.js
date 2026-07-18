@@ -4,25 +4,36 @@
  */
 
 /**
- * =================================================================
- *  Main onOpen handler
- *  Fires when spreadsheet is opened for the first time or refreshed
- * =================================================================
+ * Standard Google Apps Script entry point that fires automatically 
+ * when the Spreadsheet workbook is opened by any user.
  */
-function onOpen(e) {
+function onOpen() {
   const ui = SpreadsheetApp.getUi();
-
-  ui.createMenu("TaxAide")
-    .addItem("First-Time Activation (Run Once Only)", "activateUserSession_")
-    .addSeparator()
-    .addItem("End of Day Process (Clears/Archives Logs)", "menuEndOfDayProcess_")
+  
+  // Create a dedicated operational menu option for your coordinators
+  ui.createMenu("📊 Site Management")
+    .addItem("🔄 Refresh Activity Log Dashboard", "runManualDashboardRefresh")
     .addToUi();
-
-  // Configure the spreadsheet according to the site's settings
-  SettingsController.configureSpreadsheet(); 
-
-  securityCheck_(e);
+    
+  // Automatically compile the dashboard on opening to clear yesterday's terminal work
+  Logger.log("Workbook opened. Initializing daily dashboard compiler loop.");
+  DashboardCompiler.compileDailyDashboard();
 }
+
+/**
+ * Wrapper function executed explicitly when clicking the custom menu button.
+ */
+function runManualDashboardRefresh() {
+  const ui = SpreadsheetApp.getUi();
+  
+  // Quick visual toast notification so the user knows the engine is processing
+  SpreadsheetApp.getActiveSpreadsheet().toast("Compiling relational database logs...", "System Sync", 3);
+  
+  DashboardCompiler.compileDailyDashboard();
+  
+  SpreadsheetApp.getActiveSpreadsheet().toast("Dashboard is completely up to date!", "Sync Success", 3);
+}
+
 
 function securityCheck_(e) {
   try {
@@ -146,6 +157,7 @@ function menuEndOfDayProcess_() {
 function updateMasterClock() {
   const settingsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");  
   settingsSheet.getRange("B8").setValue(new Date());
+  QueueTimerController.updateLiveQueueDurations();
 }
 
 

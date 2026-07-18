@@ -25,7 +25,8 @@ const ActivityLogModel = (() => {
       COUNSELOR:    ColumnMapper.col(SHEET, "Counselor"),
       REVIEWER:     ColumnMapper.col(SHEET, "Reviewer"),
       STATUS:       ColumnMapper.col(SHEET, "Status"),
-      COMMENTS:     ColumnMapper.col(SHEET, "Comments")
+      COMMENTS:     ColumnMapper.col(SHEET, "Comments"),
+      DURATION:     ColumnMapper.col(SHEET, "Duration")
     };
     return cachedColumns;
   }
@@ -40,7 +41,7 @@ const ActivityLogModel = (() => {
 
     return {
       row,
-      returnId:     values[COL.RETURN_ID - 1] ? values[COL.RETURN_ID - 1].toString() : "",
+      returnId:    values[COL.RETURN_ID - 1] ? values[COL.RETURN_ID - 1].toString() : "",
       checkInTime:  values[COL.CHECKIN_TIME - 1],
       ticket:       values[COL.TICKET - 1],
       ssnLast4:     values[COL.SSN_LAST4 - 1] ? values[COL.SSN_LAST4 - 1].toString() : "",
@@ -50,7 +51,8 @@ const ActivityLogModel = (() => {
       counselor:    values[COL.COUNSELOR - 1],
       reviewer:     values[COL.REVIEWER - 1],
       status:       values[COL.STATUS - 1],
-      comments:     values[COL.COMMENTS - 1]
+      comments:     values[COL.COMMENTS - 1],
+      duration:     values[COL.DURATION - 1] ? values[COL.DURATION - 1].toString() : ""
     };
   }
 
@@ -78,7 +80,8 @@ const ActivityLogModel = (() => {
       counselor:    r[COL.COUNSELOR - 1],
       reviewer:     r[COL.REVIEWER - 1],
       status:       r[COL.STATUS - 1],
-      comments:     r[COL.COMMENTS - 1]
+      comments:     r[COL.COMMENTS - 1],
+      duration:     r[COL.DURATION - 1] ? r[COL.DURATION - 1].toString() : ""
     }));
   }
 
@@ -103,12 +106,16 @@ const ActivityLogModel = (() => {
 
     if (fields.returnId !== undefined)    rowValues[0][COL.RETURN_ID - 1]    = fields.returnId;
     if (fields.checkInTime !== undefined) rowValues[0][COL.CHECKIN_TIME - 1] = fields.checkInTime;
+    if (fields.ticket !== undefined)       rowValues[0][COL.TICKET - 1]       = fields.ticket;
+    if (fields.ssnLast4 !== undefined)    rowValues[0][COL.SSN_LAST4 - 1]    = fields.ssnLast4;
     if (fields.firstName !== undefined)   rowValues[0][COL.FIRST - 1]        = fields.firstName;
     if (fields.lastName !== undefined)    rowValues[0][COL.LAST - 1]         = fields.lastName;
+    if (fields.taxYear !== undefined)     rowValues[0][COL.TAXYEAR - 1]      = fields.taxYear;
     if (fields.status !== undefined)      rowValues[0][COL.STATUS - 1]       = fields.status;
     if (fields.counselor !== undefined)   rowValues[0][COL.COUNSELOR - 1]    = fields.counselor;
     if (fields.reviewer !== undefined)    rowValues[0][COL.REVIEWER - 1]     = fields.reviewer;
     if (fields.comments !== undefined)    rowValues[0][COL.COMMENTS - 1]     = fields.comments;
+    if (fields.duration !== undefined)    rowValues[0][COL.DURATION - 1]     = fields.duration;
 
     range.setValues(rowValues);
   }
@@ -144,6 +151,10 @@ const ActivityLogModel = (() => {
     setFields(row, { comments });
   }
 
+  function setDuration(row, durationText) {
+    setFields(row, { duration: durationText });
+  }
+
   function appendComment(row, text) {
     const activityLogSheet = SpreadsheetApp.getActive().getSheetByName(SHEET);
     const COL = getColumns();
@@ -165,6 +176,7 @@ const ActivityLogModel = (() => {
     setCheckInTime,
     setName,
     setComments,
+    setDuration,
     appendComment,
     getAllActivityLogs
   };
