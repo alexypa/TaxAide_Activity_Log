@@ -26,7 +26,6 @@ const ActivityLogModel = (() => {
       REVIEWER:     ColumnMapper.col(SHEET, "Reviewer"),
       STATUS:       ColumnMapper.col(SHEET, "Status"),
       COMMENTS:     ColumnMapper.col(SHEET, "Comments")
-      // LATEST_CHANGE removed per design decision
     };
     return cachedColumns;
   }
@@ -41,7 +40,7 @@ const ActivityLogModel = (() => {
 
     return {
       row,
-      returnId:    values[COL.RETURN_ID - 1] ? values[COL.RETURN_ID - 1].toString() : "",
+      returnId:     values[COL.RETURN_ID - 1] ? values[COL.RETURN_ID - 1].toString() : "",
       checkInTime:  values[COL.CHECKIN_TIME - 1],
       ticket:       values[COL.TICKET - 1],
       ssnLast4:     values[COL.SSN_LAST4 - 1] ? values[COL.SSN_LAST4 - 1].toString() : "",
