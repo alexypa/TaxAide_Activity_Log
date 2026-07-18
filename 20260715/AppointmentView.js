@@ -56,55 +56,35 @@ const AppointmentView = (() => {
     checkboxesRange.setDataValidation(checkboxRule);
   }
 
-  /**
-   * Creates an activity log entry by clocking on the Check In checkbox
-   * on the Appointment sheet.
-   * The log transfers the first and last name of the taxpayer to the Activity_Log sheet,
-   * timestamps the log when the taxpayer checks in an sets the status to 'Checked In'
-   * It also timestamps the Appointment sheet.
-   */
-  function createActivityLog_(ss, apptSheet, result) {
+function createActivityLog_(ss, apptSheet, result) {
+  // Extract entry fields cleanly from your payload
+  const apptEntry = {
+    firstName: result.entry.firstName,
+    lastName: result.entry.lastName,
+    ssnLast4: "", 
+    taxYear: "", 
+    firstNameSpouse: "",
+    lastNameSpouse: ""
+  };
 
-    const activityLogSheet = ss.getSheetByName("Activity_Log");
-    const COL = ActivityLogModel.getColumns();
-    const timeZone = ss.getSpreadsheetTimeZone();
+  // 1. Run the relational database operations
+  const taxReturnId = DatabaseController.processCheckInTransaction(ss, apptEntry);
 
-    // Format data row before pushing to the server
-    const row = [
-      result.entry.checkedInTime,
-      "", "", // Ticket, SSN blank
-      result.entry.firstName.toUpperCase(),
-      result.entry.lastName.toUpperCase(),
-      "", "", "", // Tax Year, Counselor, Reviewer blank
-      "Checked In", // Status
-      "", // Comments blank
-    ]
+  // 2. Mark the appointment sheet timeline timestamp exactly as before
+  apptSheet.getRange(result.row, 6).setValue(result.entry.checkedInTime);
 
-    // This appends the row to the next empty row on the Activity Log tab
-    const colAValues = activityLogSheet.getRange("A:A").getValues();
-    let nextRow = 2;
-    for (let i = 1; i < colAValues.length; i++) {
-      if (colAValues[i][0].toString().trim() === "") {
-        nextRow = i + 1;
-        break;
-      }
-    }
-    activityLogSheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
+  // 3. Flush changes to secure the database transaction instantly
+  SpreadsheetApp.flush();
 
-    apptSheet.getRange(result.row, 6).setValue(result.entry.checkedInTime);
-
-    // Flush changes right now so the spreadsheet updates instantly 
-    // in the background before the blocking UI Alert window opens!
-    SpreadsheetApp.flush();
-
-    const ui = SpreadsheetApp.getUi();
-    ui.alert(
-          'Checked in taxpayer and transferred appointment to Activity_Log sheet',
-          'Name: ' + result.entry.firstName.toUpperCase() + " " + result.entry.lastName.toUpperCase() + "\n" +
-          'Checked In Time: ' + Utilities.formatDate(result.entry.checkedInTime, Session.getScriptTimeZone(),"M/d/yyyy h:mma"),
-          ui.ButtonSet.OK
-    );
-  }
+  // 4. Alert user interface confirmation
+  const ui = SpreadsheetApp.getUi();
+  ui.alert(
+      'Checked in taxpayer',
+      'Name: ' + apptEntry.firstName.toUpperCase() + " " + apptEntry.lastName.toUpperCase() + "\n" +
+      'Database Track ID: ' + taxReturnId,
+      ui.ButtonSet.OK
+  );
+}
 
   /**
    * Invoked by the End of the Day menu item, this function moves all no shows

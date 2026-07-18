@@ -1,0 +1,18 @@
+{
+  "files.exclude": {
+    "qc_sync_state.json": true,
+    "jsconfig.json": true,
+    "package.json": true,
+    "package-lock.json": true,
+    "node_modules": true,
+    ".vscode": true
+  },
+  "search.exclude": {
+    "qc_sync_state.json": true,
+    "jsconfig.json": true,
+    "package.json": true,
+    "package-lock.json": true,
+    "node_modules": true,
+    ".vscode": true
+  }
+}
