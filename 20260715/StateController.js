@@ -245,6 +245,7 @@ const StateController = (() => {
    * Handles edits to the Status column via transition matrices
    */
   function handleStatusEdit(e) {   
+
     const model = ActivityLogModel.getRow(e.range.getRow());
     const oldStatus = e.oldValue || model.status || "";
     const newStatus = (e.range.getValue() || "").toString().trim();
@@ -260,11 +261,15 @@ const StateController = (() => {
       return { ok: false, ignore: false, message: `Direct transition from: ${oldStatus} state to ${newStatus} state is not permitted` };
     }
 
+    // Determine the architectural action based on whether the destination state is terminal
+    const isTerminal = TERMINAL.includes(newStatus);
+    const actionType = isTerminal ? "ARCHIVE_STATUS_CHANGE" : "STATUS_CHANGE";
+
     if (TRANSITION_REQUIRES_REASON.includes(newStatus)) {
       return {
         ok: true,
         ignore: false,
-        action: "STATUS_CHANGE",
+        action: actionType,
         requiresReason: true,
         reasonType: newStatus,
         newStatus: newStatus,

@@ -1,6 +1,6 @@
 /**
  * QueueTimerController.gs
- * Executed every minute via your time-driven background script trigger.
+ * Executed every minute via time-driven background script trigger.
  */
 const QueueTimerController = (() => {
 
@@ -48,11 +48,11 @@ const QueueTimerController = (() => {
 
         // Apply Hex styling based on Settings configurations
         if (elapsedMinutes < xThresholdMinutes) {
-          backgroundColors.push(["#d4edda"]); // Soft Operational Green
+          backgroundColors.push(["#055c10"]); // Soft Operational Green
         } else if (elapsedMinutes >= xThresholdMinutes && elapsedMinutes < yThresholdMinutes) {
-          backgroundColors.push(["#fff3cd"]); // Soft Warning Orange/Yellow
+          backgroundColors.push(["#daac16"]); // Soft Warning Orange/Yellow
         } else {
-          backgroundColors.push(["#f8d7da"]); // Soft Critical Red Alert
+          backgroundColors.push(["#db0f20"]); // Soft Critical Red Alert
         }
       }
 

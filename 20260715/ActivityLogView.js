@@ -51,19 +51,81 @@ const ActivityLogView = {
       DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
       return;
     }
-
+    
     // SCENARIO 4: Core Status Column Dropdown Changes
-    if (result.action === "STATUS_CHANGE") {
+    if (result.action === "STATUS_CHANGE" || result.action === "ARCHIVE_STATUS_CHANGE") {
       const TERMINAL_STATES = ["Accepted", "Paper", "No Return", "Deactivated"];
+
+      // 1. If the transition requires a reason, show the reason dialog and halt further processing
+      if (result.requiresReason) {
+        //showReasonDialog(result.reasonType, result.row, result.newStatus, result.oldStatus);
+        Logger.log("Result: " + JSON.stringify(result));
+        const reasons = TransitionReasonRegistry[result.reasonType] || [];
+        const template = HtmlService.createTemplateFromFile("ReasonDialog");
+        template.reasonType = result.reasonType;
+        template.reasons = reasons;
+        template.row = result.row;
+        template.newStatus = result.newStatus;
+        template.previousStatus = result.oldStatus;
+
+        const html = template.evaluate()
+          .setWidth(420)
+          .setHeight(300);
+
+        SpreadsheetApp.getUi().showModalDialog(html, "Reason Required");
+        return; // Exits here to wait for the user to type a reason in the dialog
+      }
       
-      // 1. Append state update straight into your background history log first
+      // 2. If no reason is required (or this is the secondary execution after the reason was saved)
       const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
       const currentComments = sheet.getRange(rowNumber, ActivityLogModel.getColumns().COMMENTS).getValue();
       const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, "", currentComments);
       DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
-
-      // 2. Visual Layer Handling: If terminal, drop the row from the live screen!
+    
+      // 3. Process the archival and row deletion for terminal states
       if (TERMINAL_STATES.includes(result.newStatus)) {
+
+        // Archive the row into the Archive sheet before deletion
+        const archiveSheet = e.source.getSheetByName("Archive");
+        const timeZone = e.source.getSpreadsheetTimeZone();
+        const now = new Date();
+
+        // Fetch current row values before deleting the row
+        const rowModel = ActivityLogModel.getRow(rowNumber);
+
+        // Format Date timestamps using our readable pattern
+        const formattedCheckIn = rowModel.checkInTime instanceof Date ? 
+          Utilities.formatDate(rowModel.checkInTime, timeZone, "MM/dd/yyyy hh:mm a") :
+          rowModel.checkInTime;
+
+        const formattedCompleted = Utilities.formatDate(now, timeZone, "MM/dd/yyyy hh:mm a");
+
+        // Calculate Time to Complete (h:mm)
+        let timeToCompleteStr = "0:00";
+        if (rowModel.checkInTime instanceof Date) {
+          const diffMs = now.getTime() - rowModel.checkInTime.getTime();  
+          const totalMinutes = Math.floor(diffMs / (1000 * 60));
+          const hours = Math.floor(totalMinutes / 60);
+          const mins =  totalMinutes % 60;
+          timeToCompleteStr = `${hours}:${mins < 10 ? "0" : ""}${mins}`;
+        }
+
+        const archiveViewRow = [
+          formattedCheckIn,
+          rowModel.ssnLast4,
+          rowModel.firstName,
+          rowModel.lastName,
+          rowModel.taxYear,
+          rowModel.counselor,
+          rowModel.reviewer,
+          result.newStatus,
+          currentComments || rowModel.comments || "",
+          formattedCompleted,
+          timeToCompleteStr
+        ];
+
+        archiveSheet.appendRow(archiveViewRow);
+
         // Delete the row cleanly from the active grid
         sheet.deleteRow(rowNumber);
         
@@ -95,5 +157,6 @@ const ActivityLogView = {
       SpreadsheetApp.getUi().alert("⚠️ Validation Rule Infraction", result.message, SpreadsheetApp.getUi().ButtonSet.OK);
       return;
     }
-  }
+  }  
+  
 };
