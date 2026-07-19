@@ -31,7 +31,6 @@ const ActivityLogController = (() => {
       case COL.TAXYEAR:
       case COL.COMMENTS:
         return StateController.handleInlineFieldEdit(COL, colNumber, row, value, e);
-
       case COL.FIRST:
       case COL.LAST:
         return StateController.handleFirstAndLastNames(COL, colNumber, row, value);

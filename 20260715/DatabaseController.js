@@ -91,7 +91,7 @@ const DatabaseController = {
 
     // 2. Transaction Step 2: Log the initial "Checked In" lifecycle event
     // Note: Checking in happens at front intake, so volunteerId is blank ("") initially
-    const initialEvent = new TaxReturnHistory(taxReturnId, "Checked In", "", "Arrived for appointment");
+    const initialEvent = new TaxReturnHistory(taxReturnId, "Checked In", "", "");
     this.appendRowExplicit(dbHistorySheet, initialEvent.toRowArray());
     Logger.log(`Logged 'Checked In' event for transaction identifier: ${taxReturnId}`);
 

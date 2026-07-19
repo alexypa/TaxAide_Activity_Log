@@ -64,11 +64,10 @@ const StateController = (() => {
       if (dbData[i][0].toString() === returnId) {
         let dbColIndex = -1;
 
-        // Map model columns precisely to fixed DB_Tax_Returns columns
-        // DB Schema: row[0]=ID, row[1]=SSN, row[2]=First, row[3]=Last, row[6]=Tax_Year, row[7]=Ticket
-        if (colNumber === COL.SSN_LAST4) dbColIndex = 2; // Column B
-        if (colNumber === COL.TAXYEAR)   dbColIndex = 7; // Column G
-        if (colNumber === COL.TICKET)    dbColIndex = 8; // Column H
+        // FIXED INDEX MAPPING (1-indexed for .getRange()):
+        if (colNumber === COL.SSN_LAST4) dbColIndex = 2; // Column B: SSN Last 4
+        if (colNumber === COL.TAXYEAR)   dbColIndex = 7; // Column G: Tax Year
+        if (colNumber === COL.TICKET)    dbColIndex = 9; // Column I: Ticket # (Shifted from 8 to 9!)
 
         if (dbColIndex !== -1) {
           dbReturnsSheet.getRange(i + 1, dbColIndex).setValue(cleanValue);
@@ -290,7 +289,8 @@ const StateController = (() => {
     handleFirstAndLastNames,
     handleCounselorEdit,
     handleReviewerEdit,
-    handleStatusEdit
+    handleStatusEdit,
+    handleInlineFieldEdit
   };
 
 })();

@@ -99,7 +99,7 @@ function createActivityLog_(ss, apptSheet, result) {
   ui.alert(
       'Taxpayer Checked In',
       'Name: ' + apptData.firstName.toUpperCase() + " " + apptData.lastName.toUpperCase() + "\n" +
-      'Database Track ID: ' + taxReturnId,
+      'Checked in at: ' + Utilities.formatDate(result.entry.checkedInTime, ss.getSpreadsheetTimeZone(), "MM/dd/yyyy hh:mm a"),
       ui.ButtonSet.OK
   );
 }
