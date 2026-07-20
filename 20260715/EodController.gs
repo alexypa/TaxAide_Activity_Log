@@ -8,7 +8,7 @@ const EodController = (() => {
 
   /**
    * Sweeps remaining active items on the dashboard over to the Incomplete tab
-   * while creating interactive reactivation checkboxes.
+   * while creating interactive reactivation checkboxes and updating the DB ledger.
    */
   function executeEndOfDaySweep() {
     const ui = SpreadsheetApp.getUi();
@@ -20,29 +20,29 @@ const EodController = (() => {
       const dbHistorySheet = ss.getSheetByName("DB_History_Log");
       
       if (!logSheet || !incompleteSheet || !dbHistorySheet) {
-        throw new Error("Missing required spreadsheet tabs. Please verify Activity_Log, Incomplete, and DB_History_Log exist.");
+        throw new Error("Required sheets are missing. Verify Activity_Log, Incomplete, and DB_History_Log exist.");
       }
 
-      // Scan Column A directly to calculate the true data boundaries
+      // 1. Scan Activity_Log Column A for true data boundaries
       const firstColumnValues = logSheet.getRange(1, 1, logSheet.getMaxRows(), 1).getValues();
       let trueLastRow = 1;
-      
       for (let r = firstColumnValues.length - 1; r >= 1; r--) {
-        const cellValue = firstColumnValues[r][0];
-        if (cellValue !== "" && cellValue !== undefined && cellValue !== null) {
+        if (firstColumnValues[r][0] !== "" && firstColumnValues[r][0] !== undefined && firstColumnValues[r][0] !== null) {
           trueLastRow = r + 1;
           break;
         }
       }
 
+      // If no active returns are present, exit early
       if (trueLastRow <= 1) {
         ui.alert("EOD Process Complete", "The live active queue is already empty.", ui.ButtonSet.OK);
         return;
       }
 
+      // 2. Prompt user with confirmation modal before actioning data shifts
       const response = ui.alert(
         "⚠️ Confirm Day Close", 
-        `Are you sure you want to sweep all remaining active returns to the Incomplete sheet?`, 
+        `Are you sure you want to sweep all remaining unfinished active returns to the Incomplete sheet?`, 
         ui.ButtonSet.YES_NO
       );
       if (response !== ui.Button.YES) return;
@@ -53,10 +53,11 @@ const EodController = (() => {
 
       let sweptCount = 0;
 
-      // Loop backwards to safely manage row deletions
+      // 3. Loop backwards through the live queue to safely manage row deletions
       for (let currentRowNum = trueLastRow; currentRowNum >= 2; currentRowNum--) {
         const rowModel = ActivityLogModel.getRow(currentRowNum);
 
+        // Skip ghost formatting rows that lack core payload data assets
         if (!rowModel.ssnLast4 && !rowModel.lastName) {
           logSheet.deleteRow(currentRowNum);
           continue;
@@ -64,10 +65,9 @@ const EodController = (() => {
 
         const eodComments = `[EOD Close ${dateString}] ${rowModel.comments || ""}`;
 
-        // Build 11-column array matching Incomplete tab tracking requirements
-        // Leave index 0 empty '' so it doesn't write flat text into the checkbox cell
+        // Build 11-column array matching Incomplete tab tracking schema requirements
         const incompleteRow = [
-          '', 
+          "", // Clean space left open exclusively for checkbox asset initialization
           rowModel.checkInTime || now,
           rowModel.ssnLast4 ? rowModel.ssnLast4.toString() : "",
           rowModel.firstName ? rowModel.firstName.toUpperCase() : "",
@@ -80,23 +80,33 @@ const EodController = (() => {
           now
         ];
 
-        // Explicitly calculate the exact next row insertion point on the Incomplete sheet
-        const targetNewRow = incompleteSheet.getLastRow() + 1;
-        
-        // Write the full 11-column row data set to the sheet in one block
+        // 4. Find the true physical bottom of Incomplete tab to safely bypass ghost rows
+        const incColA = incompleteSheet.getRange(1, 1, incompleteSheet.getMaxRows(), 1).getValues();
+        let targetNewRow = 1;
+        for (let i = incColA.length - 1; i >= 0; i--) {
+          if (incColA[i][0] !== "" && incColA[i][0] !== undefined && incColA[i][0] !== null) {
+            targetNewRow = i + 1;
+            break;
+          }
+        }
+        targetNewRow++; // Move to the empty line immediately below data boundary
+
+        // 5. Write data block out to the staging layout line
         incompleteSheet.getRange(targetNewRow, 1, 1, 11).setValues([incompleteRow]);
 
-        // Explicitly inject a physical checkbox criteria cell into Column A and force it FALSE
+        // 6. Inject the physical checkbox tool and force baseline value state
         const checkboxRange = incompleteSheet.getRange(targetNewRow, 1);
         checkboxRange.insertCheckboxes();
-        checkboxRange.setValue(false); 
+        checkboxRange.setValue(false);
 
-        // Relational DB logging event trace
+        // 7. Self-Contained DB Update: Log directly to DB_History_Log using standard sheet methods
+        // Sets a terminal indicator state "EOD_INCOMPLETE" to block morning auto-population compiler routines
         if (rowModel.returnId) {
-          const historyEvent = new TaxReturnHistory(rowModel.returnId, rowModel.status || "Incomplete", "SYSTEM_EOD_SWEEP", eodComments);
-          DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
+          const historyEvent = new TaxReturnHistory(rowModel.returnId, "EOD_INCOMPLETE", "SYSTEM_EOD_SWEEP", eodComments);
+          dbHistorySheet.appendRow(historyEvent.toRowArray());
         }
 
+        // 8. Wipe the row cleanly off the live daily view dashboard scratchpad surface
         logSheet.deleteRow(currentRowNum);
         sweptCount++;
       }

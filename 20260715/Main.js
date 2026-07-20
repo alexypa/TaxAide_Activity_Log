@@ -17,25 +17,33 @@
  */
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("TaxAide Operations")
-    .addItem("🔄 Refresh Live Dashboard", "runDashboardRefresh")
+    .addItem("🔄 Refresh Activity Log", "runDashboardRefresh")
     .addSeparator()
     .addItem("🌙 Execute End-of-Day Sweep", "runEndOfDaySweep")
     .addToUi();
 
   try {
-    DashboardCompiler.compileDailyDashboard();
+    DashboardController.refreshDailyDashboard();
   } catch (err) {
     Logger.log(`Automated onOpen dashboard compile failed: ${err.message}`);
   }
 }
 
 function runDashboardRefresh() {
+  const ui = SpreadsheetApp.getUi();
+  ui.alert(
+    "🔄 Refreshing Activity_Log Sheet",
+    "This operation will rebuild the Activity_Log sheet with current data.\n\n" +
+    "The process may take a few moments, depending on the size of the database.\n" +
+    "Please wait for the confirmation message before proceeding with any other operations.",
+    ui.ButtonSet.OK
+  );
   try {
-    SpreadsheetApp.getActiveSpreadsheet().toast("Compiling relational database logs...", "System Sync", 3);
-    DashboardCompiler.compileDailyDashboard();
-    SpreadsheetApp.getActiveSpreadsheet().toast("Dashboard is completely up to date!", "Sync Success", 3);
+    SpreadsheetApp.getActiveSpreadsheet().toast("Compiling database logs...", "System Sync", 3);
+    DashboardController.refreshDailyDashboard();
+    SpreadsheetApp.getActiveSpreadsheet().toast("The Activity_Log sheet is up to date!", "Sync Success", 3);
   } catch (err) {
-    Logger.log(`Manual dashboard refresh failed: ${err.message}`);
+    Logger.log(`Activity_Log sheet refresh failed: ${err.message}`);
   }
 }
 
