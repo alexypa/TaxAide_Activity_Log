@@ -12,7 +12,7 @@ const ActivityLogView = {
   applyActivityLogResult: function(result, e) {
     if (!result || result.ignore) return;
 
-    const sheet = e.range.getSheet();
+    const activitySheet = e.range.getSheet();
     const rowNumber = result.rowNumber || result.row;
 
     // SCENARIO 1: A brand new manual walk-in has been validated and created
@@ -78,7 +78,7 @@ const ActivityLogView = {
       
       // 2. If no reason is required (or this is the secondary execution after the reason was saved)
       const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
-      const currentComments = sheet.getRange(rowNumber, ActivityLogModel.getColumns().COMMENTS).getValue();
+      const currentComments = activitySheet.getRange(rowNumber, ActivityLogModel.getColumns().COMMENTS).getValue();
       const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, "", currentComments);
       DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
     
@@ -125,9 +125,12 @@ const ActivityLogView = {
         ];
 
         archiveSheet.appendRow(archiveViewRow);
+        // Sorts the entire archive by Column 10 (Completed Date/Time) descending
+        archiveSheet.getRange(2, 1, archiveSheet.getLastRow() - 1, archiveSheet.getLastColumn()).sort({column: 10, ascending: false});
+
 
         // Delete the row cleanly from the active grid
-        sheet.deleteRow(rowNumber);
+        activitySheet.deleteRow(rowNumber);
         
         // Optional: Flash a quick toast message confirming the cleanup
         e.source.toast("Return completed and moved to archives.", "Queue Cleared", 2);
@@ -140,7 +143,7 @@ const ActivityLogView = {
 
     // SCENARIO 5: Basic inline updates like formatting name strings to upper case
     if (result.action === "FORMAT_NAME") {
-      sheet.getRange(rowNumber, result.col).setValue(result.value);
+      activitySheet.getRange(rowNumber, result.col).setValue(result.value);
       return;
     }
     

@@ -7,31 +7,44 @@
  * Standard Google Apps Script entry point that fires automatically 
  * when the Spreadsheet workbook is opened by any user.
  */
+/**
+ * Automatically creates the custom TaxAide operational toolbar menu 
+ * when the spreadsheet workbook initializes.
+ */
+/**
+ * Automatically runs when the spreadsheet workbook initializes.
+ * Builds the operational menus and forces a live dashboard compiler refresh.
+ */
 function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  
-  // Create a dedicated operational menu option for your coordinators
-  ui.createMenu("📊 Site Management")
-    .addItem("🔄 Refresh Activity Log Dashboard", "runManualDashboardRefresh")
+  SpreadsheetApp.getUi().createMenu("TaxAide Operations")
+    .addItem("🔄 Refresh Live Dashboard", "runDashboardRefresh")
+    .addSeparator()
+    .addItem("🌙 Execute End-of-Day Sweep", "runEndOfDaySweep")
     .addToUi();
-    
-  // Automatically compile the dashboard on opening to clear yesterday's terminal work
-  Logger.log("Workbook opened. Initializing daily dashboard compiler loop.");
-  DashboardCompiler.compileDailyDashboard();
+
+  try {
+    DashboardCompiler.compileDailyDashboard();
+  } catch (err) {
+    Logger.log(`Automated onOpen dashboard compile failed: ${err.message}`);
+  }
 }
 
-/**
- * Wrapper function executed explicitly when clicking the custom menu button.
- */
-function runManualDashboardRefresh() {
-  const ui = SpreadsheetApp.getUi();
-  
-  // Quick visual toast notification so the user knows the engine is processing
-  SpreadsheetApp.getActiveSpreadsheet().toast("Compiling relational database logs...", "System Sync", 3);
-  
-  DashboardCompiler.compileDailyDashboard();
-  
-  SpreadsheetApp.getActiveSpreadsheet().toast("Dashboard is completely up to date!", "Sync Success", 3);
+function runDashboardRefresh() {
+  try {
+    SpreadsheetApp.getActiveSpreadsheet().toast("Compiling relational database logs...", "System Sync", 3);
+    DashboardCompiler.compileDailyDashboard();
+    SpreadsheetApp.getActiveSpreadsheet().toast("Dashboard is completely up to date!", "Sync Success", 3);
+  } catch (err) {
+    Logger.log(`Manual dashboard refresh failed: ${err.message}`);
+  }
+}
+
+function runEndOfDaySweep() {
+  try {
+    EodController.executeEndOfDaySweep();
+  } catch (err) {
+    Logger.log(`End-of-Day sweep failed: ${err.message}`);
+  }
 }
 
 

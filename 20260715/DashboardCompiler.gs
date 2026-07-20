@@ -1,6 +1,7 @@
 /**
  * DashboardCompiler.gs
  * Compiles the relational database logs into the active daily Activity_Log view.
+ * 
  */
 const DashboardCompiler = (() => {
 
@@ -14,7 +15,7 @@ const DashboardCompiler = (() => {
       const historyData = dbHistorySheet.getDataRange().getValues();
       const returnsData = dbReturnsSheet.getDataRange().getValues();
 
-      // CRITICAL FIX 1: WIPE CONTENT AND BACKGROUND COLORS ACROSS THE WHOLE GRID BEFORE REBUILDING
+      // WIPE CONTENT AND BACKGROUND COLORS ACROSS THE WHOLE Activity_Log GRID BEFORE REBUILDING
       const currentLastRow = activityLogSheet.getLastRow();
       if (currentLastRow > 1) {
         const clearRange = activityLogSheet.getRange(2, 1, currentLastRow - 1, activityLogSheet.getLastColumn());

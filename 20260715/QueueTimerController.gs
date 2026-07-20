@@ -27,6 +27,7 @@ const QueueTimerController = (() => {
       const values = dataRange.getValues();
 
       const durationValues = [];
+      const fontColors = [];
       const backgroundColors = [];
       const now = new Date();
 
@@ -38,6 +39,7 @@ const QueueTimerController = (() => {
         // Guard against manual entry anomalies or incomplete data
         if (!checkInTime || !(checkInTime instanceof Date)) {
           durationValues.push(["--"]);
+          fontColors.push(["#000000"]); // Black Text
           backgroundColors.push(["#ffffff"]); // Clear White
           continue;
         }
@@ -48,28 +50,34 @@ const QueueTimerController = (() => {
 
         // Apply Hex styling based on Settings configurations
         if (elapsedMinutes < xThresholdMinutes) {
-          backgroundColors.push(["#055c10"]); // Soft Operational Green
+          backgroundColors.push(["#055c10"]);
+          fontColors.push(["#ffffff"]); // White Text
         } else if (elapsedMinutes >= xThresholdMinutes && elapsedMinutes < yThresholdMinutes) {
           backgroundColors.push(["#daac16"]); // Soft Warning Orange/Yellow
+          fontColors.push(["#ffffff"]); // White Text
         } else {
           backgroundColors.push(["#db0f20"]); // Soft Critical Red Alert
+          fontColors.push(["#ffffff"]); // White Text
         }
       }
 
     // 4. Batch target column updates to minimize sheet recalculation lag
     const durationRange = logSheet.getRange(2, COL.DURATION, durationValues.length, 1);
     durationRange.setValues(durationValues);
+    durationRange.clearDataValidations();
     durationRange.setBackgrounds(backgroundColors);
+    durationRange.setFontColors(fontColors);
 
-    // CRITICAL FIX 3: TARGET ALL MATERIAL CELL RANGES ALL THE WAY TO THE MAXIMUM SHEET BOUNDARY
+    // TARGET ALL MATERIAL CELL RANGES ALL THE WAY TO THE MAXIMUM SHEET BOUNDARY
     const maxRowsInSheet = logSheet.getMaxRows();
     const nextEmptyRow = lastRow + 1;
     
     if (maxRowsInSheet >= nextEmptyRow) {
-    const trailingRowsCount = (maxRowsInSheet - nextEmptyRow) + 1;
-    const trailingRange = logSheet.getRange(nextEmptyRow, COL.DURATION, trailingRowsCount, 1);
-    trailingRange.clearContent();
-    trailingRange.setBackground("#ffffff"); // Revert any trailing fields to standard transparent white
+      const trailingRowsCount = (maxRowsInSheet - nextEmptyRow) + 1;
+      const trailingRange = logSheet.getRange(nextEmptyRow, COL.DURATION, trailingRowsCount, 1);
+      trailingRange.clearContent();
+      trailingRange.setBackground("#ffffff"); // Revert any trailing fields to standard transparent white
+      trailingRange.setFontColor("#000000"); // Revert any trailing fields to standard black text
     }
 
     } catch (err) {
