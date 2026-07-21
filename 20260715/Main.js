@@ -129,52 +129,9 @@ function onEditHandler(e) {
 }
 
 /**
- * Menu item processor
- * Process no shows and clear appointment sheet for next day
+ * Updates the master clock in the Settings sheet.
+ *
  */
-function menuEndOfDayProcess_() {
-
-  const ui = SpreadsheetApp.getUi();
-  const response = ui.alert(
-    "Confirm End of Day Process",
-    "This operation will:\n" +
-    "\t* Archive all completed returns to the Archive sheet\n" +
-    "\t* Transfer all incomplete returns to the Incomplete sheet\n" +
-    "\t* Clear today's Activity_Log sheet\n\n" + 
-    "If the site operates by appointment, this operation will also\n" +
-    "\t* Clear the Appointment sheet, and\n" +
-    "\t* Transfer the 'no shows' to the No Show sheet\n\n" + 
-    "Are you sure you want to proceed?",
-    ui.ButtonSet.YES_NO
-  );
-
-  if (response !== ui.Button.YES) return;
-
-  // Move no shows to No Show tab
-  AppointmentView.applyAppointmentResult(AppointmentController.processNoShows());
-
-  // Clear Appointment tab for next day
-  AppointmentView.applyAppointmentResult(AppointmentController.clearAppointments());
-
-  // Process activity logs - to Archive
-  ActivityLogView.applyActivityLogResult(ActivityLogController.archiveActivityLogs());
-
-  // Process activity logs - to Incomplete
-  ActivityLogView.applyActivityLogResult(ActivityLogController.transferActivityLogsToIncomplete());
-
-  // Clear Activity_Log sheet
-  ActivityLogView.applyActivityLogResult(ActivityLogController.clearActivityLogs());
-  
-  // Notify user that End of Day Process is complete
-    ui.alert(
-      'Completed End of Day Process',
-      '\t* Archived completed tax returns\n' +
-      '\t* Transferred incomplete tax returns to Incomplete sheet\n' + 
-      '\t* Cleared Activity_Log sheet\n',
-      ui.ButtonSet.OK
-  );
-}
-
 function updateMasterClock() {
   const settingsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");  
   settingsSheet.getRange("B8").setValue(new Date());

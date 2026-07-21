@@ -7,12 +7,39 @@
 const EodController = (() => {
 
   /**
-   * Sweeps remaining active items on the dashboard over to the Incomplete tab
+   * Sweeps remaining active items on the Activity_Log sheet over to the Incomplete tab
    * while creating interactive reactivation checkboxes and updating the DB ledger.
+   * Sweeps the 'no shoes' from the Appointment tab to the No Show tab and clears the Appointment tab.
+   * This is a destructive operation that cannot be undone. It is intended to be run at the end of each day.
+   * The user is prompted for confirmation before any action is taken.
    */
   function executeEndOfDaySweep() {
+
     const ui = SpreadsheetApp.getUi();
+    const response = ui.alert(
+      "Confirm End of Day Process",
+      "This operation will:\n" +
+      "\t* Transfer all today's incomplete returns from the Activity_Log sheet to the Incomplete sheet\n" +
+      "If the site operates by appointment, this operation will also:\n" +
+      "\t* Clear the Appointment sheet, and\n" +
+      "\t* Transfer the 'no shows' taxpayers to the No Show sheet\n\n" + 
+      "Do you want to proceed?",
+      ui.ButtonSet.YES_NO
+    );
+
+    if (response !== ui.Button.YES) return;
     
+    transferIncompleteReturns_();
+
+    // Move no shows to No Show tab
+    AppointmentView.applyAppointmentResult(AppointmentController.processNoShows());
+
+    // Clear Appointment tab for next day
+    AppointmentView.applyAppointmentResult(AppointmentController.clearAppointments());
+  }
+
+  function transferIncompleteReturns_() {
+
     try {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
       const logSheet = ss.getSheetByName("Activity_Log");
@@ -39,13 +66,13 @@ const EodController = (() => {
         return;
       }
 
-      // 2. Prompt user with confirmation modal before actioning data shifts
-      const response = ui.alert(
-        "⚠️ Confirm Day Close", 
-        `Are you sure you want to sweep all remaining unfinished active returns to the Incomplete sheet?`, 
-        ui.ButtonSet.YES_NO
-      );
-      if (response !== ui.Button.YES) return;
+      // // 2. Prompt user with confirmation modal before actioning data shifts
+      // const response = ui.alert(
+      //   "⚠️ Confirm Day Close", 
+      //   `Are you sure you want to sweep all remaining unfinished active returns to the Incomplete sheet?`, 
+      //   ui.ButtonSet.YES_NO
+      // );
+      // if (response !== ui.Button.YES) return;
 
       const now = new Date();
       const timeZone = ss.getSpreadsheetTimeZone();
@@ -122,10 +149,10 @@ const EodController = (() => {
         sweptCount++;
       }
 
-      ui.alert("Success", `End-of-Day complete. Moved ${sweptCount} items to Incomplete tracking.`, ui.ButtonSet.OK);
+      //ui.alert("Success", `End-of-Day complete. Moved ${sweptCount} items to Incomplete tracking.`, ui.ButtonSet.OK);
 
     } catch (globalErr) {
-      ui.alert("❌ Script Execution Interrupted", `Error details:\n${globalErr.message}`, ui.ButtonSet.OK);
+      //ui.alert("❌ Script Execution Interrupted", `Error details:\n${globalErr.message}`, ui.ButtonSet.OK);
     }
   }
 

@@ -15,30 +15,30 @@ const ActivityLogController = (() => {
     // Do not permit edits to header row
     if (rowNumber === 1) return {ok: false, action: "FORBIDDEN_EDIT", rowNumber, colNumber, message: "Edits to header row are not permitted"};
 
-    const COL = ActivityLogModel.getColumns();
+    const columns = ActivityLogModel.getColumns();
     const value = e.range.getValue();
 
     // Read row data
     const row = ActivityLogModel.getRow(rowNumber);
 
     switch (colNumber) {
-      case COL.CHECKIN_TIME:
+      case columns.CHECKIN_TIME:
         return {ok: false, action: "FORBIDDEN_EDIT", rowNumber, colNumber, message: "Check In Time field is set by the system when a taxpayer checks in"};
       
       // NEW ROUTING RULE: Route inline field modifications directly to the database backend handler
-      case COL.TICKET:
-      case COL.SSN_LAST4:
-      case COL.TAXYEAR:
-      case COL.COMMENTS:
-        return StateController.handleInlineFieldEdit(COL, colNumber, row, value, e);
-      case COL.FIRST:
-      case COL.LAST:
-        return StateController.handleFirstAndLastNames(COL, colNumber, row, value);
-      case COL.COUNSELOR:
+      case columns.TICKET:
+      case columns.SSN_LAST4:
+      case columns.TAXYEAR:
+      case columns.COMMENTS:
+        return StateController.handleInlineFieldEdit(columns, colNumber, row, value, e);
+      case columns.FIRST:
+      case columns.LAST:
+        return StateController.handleFirstAndLastNames(columns, colNumber, row, value);
+      case columns.COUNSELOR:
         return StateController.handleCounselorEdit(e);        
-      case COL.REVIEWER:
+      case columns.REVIEWER:
         return StateController.handleReviewerEdit(e);
-      case COL.STATUS:
+      case columns.STATUS:
         return StateController.handleStatusEdit(e);
       default:
         // Any column other than the above - ignore edits

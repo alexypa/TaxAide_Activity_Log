@@ -2,62 +2,105 @@
  * ====================================================================================
  *  IncompleteView.gs
  *  Applies controller results to the spreadsheet.
- *  CREATE_ACTIVITY_LOG_ENTRY -> Creates a new entry in the Activity_Log tab
+ *  CREATE_ACTIVITY_LOG_ENTRY -> Relocation pipeline back to Activity_Log with 
+ *  relational DB_History_Log logging.
  * ====================================================================================
  */
 
 const IncompleteView = (() => {
 
   function applyIncompleteResult(result, e) {
+    if (!result || result.ignore) return;
 
-    // No op if result object does not exist or result contains "ignore"
-    if (!result || result.ignore) return;    
-
-    // Create Activity_Log entry
     if (result.action === "CREATE_ACTIVITY_LOG_ENTRY") {
-
-      const activityLogSheet = e.source.getSheetByName("Activity_Log");
-      const COL = ActivityLogModel.getColumns();
+      const ss = e.source;
+      const activityLogSheet = ss.getSheetByName("Activity_Log");
+      const incompleteSheet = ss.getSheetByName("Incomplete");
+      const dbReturnsSheet = ss.getSheetByName("DB_Tax_Returns");
+      const dbHistorySheet = ss.getSheetByName("DB_History_Log");
 
       const taxReturn = result.taxReturn;
 
-      const comments = "Returning from " + 
-                        taxReturn.checkInTime.toString().split(' ')[1] + 
-                        " " + taxReturn.checkInTime.toString().split(' ')[2] + 
-                        ". " + 
-                        taxReturn.comments;
+      // 1. Relational Lookup: Find Return ID (UUID) and original Ticket # from DB_Tax_Returns
+      let returnId = "";
+      let ticketNum = "99"; // Default ticket # to 99 if missing
 
-      logEntry = [
-        new Date(),
-        "99", // Ticket # 99 indicates a taxpayer returning to complete his incomplete return
-        taxReturn.ssnLast4.toString(),
-        taxReturn.firstName.toUpperCase(),
-        taxReturn.lastName.toUpperCase(),
-        taxReturn.taxYear,
-        taxReturn.counselor,
-        taxReturn.reviewer,
-        taxReturn.status,
-        comments,
-        taxReturn.lastChange
-      ]
+      const lastRowReturns = dbReturnsSheet ? dbReturnsSheet.getLastRow() : 0;
+      if (lastRowReturns > 1) {
+        const returnsData = dbReturnsSheet.getRange(2, 1, lastRowReturns - 1, 9).getValues();
+        for (let i = 0; i < returnsData.length; i++) {
+          const dbSSN = returnsData[i][1] ? returnsData[i][1].toString().trim() : "";
+          const dbLast = returnsData[i][3] ? returnsData[i][3].toString().trim().toUpperCase() : "";
+          
+          if (dbSSN === taxReturn.ssnLast4 && dbLast === taxReturn.lastName) {
+            returnId = returnsData[i][0];
+            if (returnsData[i][8]) {
+              ticketNum = returnsData[i][8].toString();
+            }
+            break;
+          }
+        }
+      }
 
+      // Safeguard: If returnId isn't found in DB_Tax_Returns, generate one so the grid doesn't shift
+      if (!returnId) {
+        returnId = Utilities.getUuid();
+      }
+
+      // Format clean returning comment string
+      const now = new Date();
+      const dateTag = Utilities.formatDate(now, ss.getSpreadsheetTimeZone(), "MM/dd");
+      const updatedComments = `[Reactivated ${dateTag}] ${taxReturn.comments || ""}`;
+
+      // 2. Build exact 12-Column Array matching Activity_Log relational schema
+      const logEntry = [
+        returnId,                               // Col A: Return ID
+        now,                                    // Col B: Check In Time (Set to current time)
+        ticketNum,                              // Col C: Ticket #
+        taxReturn.ssnLast4,                     // Col D: SSN Last 4
+        taxReturn.firstName,                    // Col E: First Name
+        taxReturn.lastName,                     // Col F: Last Name
+        taxReturn.taxYear,                      // Col G: Tax Year
+        taxReturn.counselor,                    // Col H: Counselor
+        taxReturn.reviewer,                     // Col I: Reviewer
+        taxReturn.status || "Checked In",       // Col J: Status
+        updatedComments,                        // Col K: Comments
+        ""                                      // Col L: Duration
+      ];
+
+      // 3. Append to Activity_Log
       activityLogSheet.appendRow(logEntry);
+      const newRow = activityLogSheet.getLastRow();
+      activityLogSheet.getRange(newRow, 2).setNumberFormat("h:mm AM/PM");
 
-      const newRow = activityLogSheet.getLastRow();    
-      activityLogSheet.getRange(newRow, COL.CHECKIN_TIME).setNumberFormat("h:mm AM/PM");
+      // 4. Log Relational Event to DB_History_Log
+      if (dbHistorySheet) {
+        const formattedTimestamp = Utilities.formatDate(now, ss.getSpreadsheetTimeZone(), "MM/dd/yy hh:mm:ss a");
+        dbHistorySheet.appendRow([
+          Utilities.getUuid(),
+          returnId,
+          taxReturn.status || "Checked In",
+          "", // Blank Volunteer ID
+          formattedTimestamp,
+          updatedComments
+        ]);
+      }
 
-      // Delete row from Incomplete sheet
-      const incompleteSheet = e.source.getSheetByName("Incomplete");
+      // 5. Delete row from Incomplete sheet
       incompleteSheet.deleteRow(result.row);
 
+      // 6. Shift user's screen focus directly to the Activity_Log tab
+      ss.setActiveSheet(activityLogSheet);
+      activityLogSheet.getRange(newRow, 1).activate(); // Selects the newly reactivated row
+
+      // 7. Alert User
       const ui = SpreadsheetApp.getUi();
-        ui.alert(
-        'Transferred tax return to Activity_Log sheet',
-        'Name: ' + taxReturn.firstName.toUpperCase() + " " + taxReturn.lastName.toUpperCase() + '\n' +
-        'Previously counseled by: ' + taxReturn.counselor + '\n' +
-        'Current status: ' + taxReturn.status + '\n' +
-        'Comments: ' + comments + "\n" + 
-        'Last changed: ' + taxReturn.lastChange,
+      ui.alert(
+        'Transferred Tax Return to Activity_Log',
+        `Name: ${taxReturn.firstName} ${taxReturn.lastName}\n` +
+        `Previously counseled by: ${taxReturn.counselor || "N/A"}\n` +
+        `Current status: ${taxReturn.status}\n` +
+        `Comments: ${updatedComments}`,
         ui.ButtonSet.OK
       );
     }

@@ -94,7 +94,11 @@ function createActivityLog_(ss, apptSheet, result) {
   // 5. Flush changes to secure the database transaction instantly
   SpreadsheetApp.flush();
 
-  // 6. Show confirmation to the intake coordinator
+  // 6. Shift user's screen focus directly to the Activity_Log tab
+    ss.setActiveSheet(activityLogSheet);
+    activityLogSheet.getRange(targetRow, 1).activate(); // Selects the newly created row
+
+  // 7. Show confirmation to the intake coordinator
   const ui = SpreadsheetApp.getUi();
   ui.alert(
       'Taxpayer Checked In',

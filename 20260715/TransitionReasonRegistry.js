@@ -31,7 +31,8 @@ const TransitionReasonRegistry = {
 
   "Deactivated" : [
     "Taxpayer preference",
-    "Out of Scope"
+    "Out of Scope",
+    "Lost contact with taxpayer"  
   ]
 };
 

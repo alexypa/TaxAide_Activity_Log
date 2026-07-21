@@ -34,14 +34,14 @@ const ActivityLogModel = (() => {
   /**
    * Load a row into a structured object using dynamic column positions.
    */
-  function getRow(row) {
+  function getAcivityLogRow(row) {
     const activityLogSheet = SpreadsheetApp.getActive().getSheetByName(SHEET);
     const COL = getColumns();
     const values = activityLogSheet.getRange(row, 1, 1, activityLogSheet.getLastColumn()).getValues()[0];
 
     return {
       row,
-      returnId:    values[COL.RETURN_ID - 1] ? values[COL.RETURN_ID - 1].toString() : "",
+      returnId:     values[COL.RETURN_ID - 1] ? values[COL.RETURN_ID - 1].toString() : "",
       checkInTime:  values[COL.CHECKIN_TIME - 1],
       ticket:       values[COL.TICKET - 1],
       ssnLast4:     values[COL.SSN_LAST4 - 1] ? values[COL.SSN_LAST4 - 1].toString() : "",
@@ -166,7 +166,7 @@ const ActivityLogModel = (() => {
 
   return {
     getColumns,
-    getRow,
+    getRow: getAcivityLogRow,
     writeField,
     setFields,
     setReturnId,

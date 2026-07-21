@@ -8,6 +8,7 @@
 const IncompleteController = (() => {
   
   function handleIncompleteEdit(e) {
+    if (!e || !e.range) return { ok: true, ignore: true };
 
     const sheetName = e.range.getSheet().getName();
     if (sheetName !== "Incomplete") return { ok: true, ignore: true };
@@ -22,7 +23,7 @@ const IncompleteController = (() => {
       return { ok: true, ignore: true };
     }
 
-    // Ignore edits in any column other that column A (Transfer to Activity Log) and in header row
+    // Ignore edits in any column other than Column A or in header row
     if (col !== 1 || row === 1) return { ok: true, ignore: true };
 
     // Ignore unchecking
@@ -42,5 +43,6 @@ const IncompleteController = (() => {
 
   return {
     handleIncompleteEdit
-  }
+  };
+
 })();
