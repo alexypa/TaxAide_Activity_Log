@@ -35,7 +35,7 @@ const EodController = (() => {
 
       // If no active returns are present, exit early
       if (trueLastRow <= 1) {
-        ui.alert("EOD Process Complete", "The live active queue is already empty.", ui.ButtonSet.OK);
+        ui.alert("End-of-Day Process Complete", "The Activity Log is already empty.", ui.ButtonSet.OK);
         return;
       }
 
