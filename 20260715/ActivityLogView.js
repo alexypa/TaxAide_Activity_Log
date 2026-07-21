@@ -133,7 +133,7 @@ const ActivityLogView = {
         activitySheet.deleteRow(rowNumber);
         
         // Optional: Flash a quick toast message confirming the cleanup
-        e.source.toast("Return completed and moved to archives.", "Queue Cleared", 2);
+        e.source.toast(rowModel.firstName + " " + rowModel.lastName + " - Tax return completed and moved to archives.", "Tax Return Completed", 2);
       } else {
         // If it's a normal transition (e.g., In Review -> Incomplete), just update the status cell
         ActivityLogModel.setFields(rowNumber, { status: result.newStatus });

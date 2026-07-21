@@ -7,6 +7,14 @@
  */
 const DashboardController = (() => {
 
+  const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
+
+  function isStatusTerminal(status) {
+    if (!status) return false;
+    const cleanStatus = status.toString().trim().toLowerCase();
+    return TERMINAL.some(t => t.toLowerCase() === cleanStatus);
+  }
+
   /**
    * Refreshes and compiles the active dashboard grid scratchpad.
    * Pulls ONLY today's non-terminal returns from the master data logs.
@@ -45,9 +53,15 @@ const DashboardController = (() => {
       for (let i = 0; i < returnsData.length; i++) {
         const retRow = returnsData[i];
         const returnId = retRow[0];       
-        const createdDateRaw = retRow[7];  
-
-        if (!createdDateRaw) continue;
+        
+        // Find Created Date regardless of potential column shifting
+        let createdDateRaw = retRow[7];
+        if (!createdDateRaw || isNaN(new Date(createdDateRaw).getTime())) {
+          createdDateRaw = retRow[6]; // Fallback if shifted
+        }
+        if (!createdDateRaw || isNaN(new Date(createdDateRaw).getTime())) {
+          createdDateRaw = now; // Safety fallback
+        }
 
         const recordDateString = Utilities.formatDate(new Date(createdDateRaw), ss.getSpreadsheetTimeZone(), "yy/MM/dd");
         
@@ -64,12 +78,17 @@ const DashboardController = (() => {
           for (let j = historyData.length - 1; j >= 0; j--) {
             const histRow = historyData[j];
             if (histRow[1] === returnId) {
-              const currentStatus = histRow[2];
-              const assignedVolunteer = histRow[3];
+              let currentStatus = histRow[2] ? histRow[2].toString().trim() : "";
+              const assignedVolunteer = histRow[3] || "";
+
+              // Map legacy EOD string to valid dropdown option
+              if (currentStatus === "EOD_INCOMPLETE") {
+                currentStatus = "Incomplete";
+              }
 
               // ABSOLUTE LATEST STATE: Captures the genuine current status of the return
-              if (!statusCaptured) {
-                latestStatus = currentStatus || "Checked In";
+              if (!statusCaptured && currentStatus) {
+                latestStatus = currentStatus;
                 statusCaptured = true;
               }
 
@@ -77,7 +96,7 @@ const DashboardController = (() => {
                 latestComments = histRow[5];
               }
 
-              // LATEST ASSIGNMENTS: Captures the most recent staff member assigned to these roles
+              // LATEST ASSIGNMENTS
               if (currentStatus.toLowerCase().includes("review") && !reviewerName) {
                 reviewerName = assignedVolunteer;
               }
@@ -87,22 +106,27 @@ const DashboardController = (() => {
             }
           }
 
-          // Bypass terminal rows completely
+          // Fallback if history had no status entry
+          if (!latestStatus) {
+            latestStatus = "Checked In";
+          }
+
+          // Bypass terminal rows completely (e.g. "No Return", "Accepted", "Paper", "Deactivated")
           if (isStatusTerminal(latestStatus)) continue;
 
           dailyRows.push([
-            returnId,
-            new Date(createdDateRaw),         
-            retRow[8] || "",                  // Ticket #
-            retRow[1] ? retRow[1].toString() : "", 
-            retRow[2] ? retRow[2].toUpperCase() : "", // First Name
-            retRow[3] ? retRow[3].toUpperCase() : "", // Last Name
-            retRow[6] || "",                  // Tax Year
-            counselorName,
-            reviewerName,
-            latestStatus,
-            latestComments,
-            "" // Duration placeholder
+            returnId,                                 // Col A: Return ID
+            new Date(createdDateRaw),                 // Col B: Check In Time
+            retRow[8] || "",                          // Col C: Ticket #
+            retRow[1] ? retRow[1].toString() : "",    // Col D: SSN Last 4
+            retRow[2] ? retRow[2].toUpperCase() : "", // Col E: First Name
+            retRow[3] ? retRow[3].toUpperCase() : "", // Col F: Last Name
+            retRow[6] || "",                          // Col G: Tax Year
+            counselorName,                            // Col H: Counselor
+            reviewerName,                             // Col I: Reviewer
+            latestStatus,                             // Col J: Status (Guaranteed valid)
+            latestComments,                           // Col K: Comments
+            ""                                        // Col L: Duration
           ]);
         }
       }
@@ -150,7 +174,7 @@ const DashboardController = (() => {
 
       let counselorName = "";
       let reviewerName = "";
-      let finalStatus = "Accepted";
+      let finalStatus = "";
       let latestComments = "";
       let statusCaptured = false;
 
@@ -158,13 +182,11 @@ const DashboardController = (() => {
       for (let j = historyData.length - 1; j >= 0; j--) {
         const histRow = historyData[j];
         if (histRow[1] === targetReturnId) {
-          const currentStatus = histRow[2];
-          const assignedVolunteer = histRow[3];
+          const currentStatus = histRow[2] ? histRow[2].toString().trim() : "";
+          const assignedVolunteer = histRow[3] || "";
 
-          if (!statusCaptured) {
-            if (currentStatus.toLowerCase().includes("review") || currentStatus === "Accepted" || currentStatus === "e-Filed" || currentStatus === "Completed") {
-              finalStatus = currentStatus;
-            }
+          if (!statusCaptured && currentStatus) {
+            finalStatus = currentStatus;
             statusCaptured = true;
           }
 
@@ -181,19 +203,21 @@ const DashboardController = (() => {
         }
       }
 
+      if (!finalStatus) finalStatus = "Accepted";
+
       const archiveRow = [
         targetReturnId,
-        staticRecord[7],                  // Created_Date
-        staticRecord[8] || "",            // Ticket #
-        staticRecord[1] ? staticRecord[1].toString() : "", 
-        staticRecord[2] ? staticRecord[2].toUpperCase() : "", 
-        staticRecord[3] ? staticRecord[3].toUpperCase() : "", 
-        staticRecord[6] || "",            
+        staticRecord[7],                                         // Created_Date
+        staticRecord[8] || "",                                   // Ticket #
+        staticRecord[1] ? staticRecord[1].toString() : "",       // SSN Last 4
+        staticRecord[2] ? staticRecord[2].toUpperCase() : "",    // First Name
+        staticRecord[3] ? staticRecord[3].toUpperCase() : "",    // Last Name
+        staticRecord[6] || "",                                   // Tax Year
         counselorName || "UNASSIGNED",    
         reviewerName || "UNASSIGNED",     
-        finalStatus,                      
+        finalStatus,                                             // Exact final status
         latestComments || "",
-        new Date()                        // Archive Date Stamp
+        new Date()                                               // Archive Date Stamp
       ];
 
       // Sort with most recent completion stacked on top
@@ -205,15 +229,10 @@ const DashboardController = (() => {
     }
   }
 
-  function isStatusTerminal(status) {
-    if (!status) return false;
-    const cleanStatus = status.toString().trim();
-    return ["Completed", "E-Filed", "Accepted", "Rejected", "EOD_INCOMPLETE"].includes(cleanStatus);
-  }
-
   return {
     refreshDailyDashboard,
-    handleRecordArchiving
+    handleRecordArchiving,
+    isStatusTerminal
   };
 
 })();

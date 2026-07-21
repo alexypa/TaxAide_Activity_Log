@@ -50,6 +50,9 @@ const EodController = (() => {
       const now = new Date();
       const timeZone = ss.getSpreadsheetTimeZone();
       const dateString = Utilities.formatDate(now, timeZone, "MM/dd");
+      
+      // Exact system format for DB_History_Log timestamps: MM/dd/yy hh:mm:ss a
+      const formattedTimestamp = Utilities.formatDate(now, timeZone, "MM/dd/yy hh:mm:ss a");
 
       let sweptCount = 0;
 
@@ -64,6 +67,8 @@ const EodController = (() => {
         }
 
         const eodComments = `[EOD Close ${dateString}] ${rowModel.comments || ""}`;
+        // Preserve current row status; fallback to "Incomplete" only if completely blank
+        const rowStatus = rowModel.status ? rowModel.status.toString().trim() : "Incomplete";
 
         // Build 11-column array matching Incomplete tab tracking schema requirements
         const incompleteRow = [
@@ -75,7 +80,7 @@ const EodController = (() => {
           rowModel.taxYear || "",
           rowModel.counselor || "",
           rowModel.reviewer || "",
-          rowModel.status || "Incomplete",
+          rowStatus, // Preserves original status (e.g., Rejected, e-Filed, Incomplete)
           eodComments,
           now
         ];
@@ -99,11 +104,17 @@ const EodController = (() => {
         checkboxRange.insertCheckboxes();
         checkboxRange.setValue(false);
 
-        // 7. Self-Contained DB Update: Log directly to DB_History_Log using standard sheet methods
-        // Sets a terminal indicator state "EOD_INCOMPLETE" to block morning auto-population compiler routines
+        // 7. Log directly to DB_History_Log preserving current status and exact timestamp format
         if (rowModel.returnId) {
-          const historyEvent = new TaxReturnHistory(rowModel.returnId, "EOD_INCOMPLETE", "SYSTEM_EOD_SWEEP", eodComments);
-          dbHistorySheet.appendRow(historyEvent.toRowArray());
+          const historyRow = [
+            Utilities.getUuid(),    // Col A: History_ID
+            rowModel.returnId,     // Col B: Tax_Return_ID
+            rowStatus,             // Col C: Status (Preserved)
+            "",                    // Col D: Volunteer_ID
+            formattedTimestamp,    // Col E: Formatted Timestamp (MM/dd/yy hh:mm:ss a)
+            eodComments            // Col F: Comments
+          ];
+          dbHistorySheet.appendRow(historyRow);
         }
 
         // 8. Wipe the row cleanly off the live daily view dashboard scratchpad surface
