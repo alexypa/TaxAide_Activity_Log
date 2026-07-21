@@ -157,7 +157,11 @@ const ActivityLogView = {
       }
       
       // Flash a clear validation alert to the volunteer
-      SpreadsheetApp.getUi().alert("⚠️ Validation Rule Infraction", result.message, SpreadsheetApp.getUi().ButtonSet.OK);
+      Logger.log("Result: " + JSON.stringify(result));
+      SpreadsheetApp.getUi().alert("⚠️ Validation Rule Infraction", 
+        result.message + "\nPermitted tansitions from " + e.oldValue + " are: " + StateController.getAllowedTransitions(e.oldValue) + 
+        "\nThe attempted change has been reverted to its previous value.", 
+        SpreadsheetApp.getUi().ButtonSet.OK);
       return;
     }
   }  

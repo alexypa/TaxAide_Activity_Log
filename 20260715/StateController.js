@@ -24,17 +24,41 @@ const StateController = (() => {
     "Deactivated":       []  // Terminal state
   };
 
+  function getAllowedTransitions(fromState) {
+    return ALLOWED_TRANSITIONS[fromState] || [];
+  }
+
+  function canTransition(fromState, toState) {
+    const allowed = getAllowedTransitions(fromState);
+    return allowed.includes(toState);
+  }
+
   /**
    * The following states are terminal. No transition out of these states are permitted
    */
-
   const TERMINAL = ["Accepted", "Paper", "No Return", "Deactivated"];
+
+  function getTerminalStates() {
+    return TERMINAL;
+  }
+
+  function isStatusTerminal(status) {
+    return TERMINAL.includes(status);
+  }
 
   /** The following states require the operator to state a reason why the transition occured
    * The system will pop up a form, the operator will fill the reason from a dropdown or enter free text
    *and the reason will be appended to the Comments field.
   */
   const TRANSITION_REQUIRES_REASON = ["No Return", "Incomplete", "Rejected", "Paper", "Deactivated"];
+
+  function getTransitionsRequiringReason() {
+    return TRANSITION_REQUIRES_REASON;
+  }
+
+  function isTransitionReasonRequired(status) {
+    return TRANSITION_REQUIRES_REASON.includes(status);
+  } 
 
   /**
    * Syncs real-time inline dashboard updates straight back into the database architecture.
@@ -295,7 +319,13 @@ const StateController = (() => {
     handleCounselorEdit,
     handleReviewerEdit,
     handleStatusEdit,
-    handleInlineFieldEdit
+    handleInlineFieldEdit,
+    getAllowedTransitions,
+    canTransition,
+    getTerminalStates,
+    isStatusTerminal,
+    getTransitionsRequiringReason,
+    isTransitionReasonRequired
   };
 
 })();
