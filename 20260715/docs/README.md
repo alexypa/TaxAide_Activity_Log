@@ -44,6 +44,7 @@ The project implements a local development environment that links local source f
 ### Core Tools
 * **Clasp (Google Apps Script CLI):** Manages code transport between the local workspace and Google Servers.
 * **Git / GitHub:** Tracks source control history, isolates feature branches, and manages the cloud backup history repository.
+* **Visual Studio Code** VS Code is the primary code and documentation (ReadMe and User Manual) editor. Scripts are pushed from local storage to the Google Cloud using clasp push. VS Code is integrated with git for source control
 
 ### The Workspace Topology
 Edits are authored locally or inside the Test Site cloud workspace container. The root folder represents the master source of truth.
@@ -56,12 +57,13 @@ Edits are authored locally or inside the Test Site cloud workspace container. Th
   - **.gitignore :** Configured to drop dist/ out of version control tracking
   - **appsscript.json :** Script manifest definition
   - **deploy.ps1 :** The multi-site automated deployment script from the test to the sites' production environment
-  - **Source scripts:** Master script files (stored as local .js and .html modules)
+  - **Source scripts:** Master script files (stored as local .js or .gs and .html modules)
 
 ### The Deployment Loop
-1. Developer pulls stable, tested cloud updates straight into the master directory: clasp pull
-2. Developer backs up the workspace baseline up to GitHub: git push origin main
-3. Developer triggers production rollouts: ./deploy.ps1
+1. Developer pushes code updates from VS Code to the Google Cloud using clasp push.
+2. Code is tested on a cloud-based test spreadsheet.
+3. Developer backs up the workspace baseline up to git: git push origin main
+4. Developer triggers production rollouts: ./deploy.ps1
 
 How deploy.ps1 works: The automated script clears and opens an isolated dist/ directory, mirrors the active *.js and *.html files into it, and boots a loop across every production script container. It updates .clasp.json on the fly inside the loop to run forced clasp push -f actions, before resetting the terminal anchor safely back to the Test Site ID.
 
@@ -72,6 +74,7 @@ How deploy.ps1 works: The automated script clears and opens an isolated dist/ di
 To preserve readability across multiple developer hand-offs, the codebase enforces the following programmatic rules:
 
 * **Modular Encapsulation:** All architectural files (except Main.js) must be wrapped inside Immediately Invoked Function Expressions (IIFE) namespaces to prevent global scope pollution.
+* **Classes** Tax Return, TaxReturnHistory and Volunteer are core classes. CRUD operations are executed by a DatabaseController IIFE module to and from mirrored spreadsheet tabs.
 * **Zero Raw API Network Reads on Events:** Controllers handling spreadsheet editing actions must check the literal values associated with the editing event (e.value) rather than invoking get() methods, thereby avoiding client/server round trips. This prevents thread blocking during busy sign-in hours.
 * **Explicit File Formatting:** Files are stored locally with .js extensions for compatibility with IDE syntax highlighters (like Visual Studio Code) and automatically parsed to .gs format upon server upload via clasp.
 
