@@ -120,10 +120,8 @@ At sites operating on a first-come / first served basis or appointment sites tha
 
 Once the taxpayer's first and last names are entered into the Activity Log tab, the system will capitalize the taxpayer's first and last name, timestamp the check in time and set the status of the return to **Checked In**. See Figure 4.
 
-<figure>
-   <img src="Walk_In_Check_In.jpg" alt="Walk In Check In" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 4 - Checking In a Taxpayer Using the Activity Log Tab</figcaption>
-</figure>
+<p align="center"><img src="Walk_In_Check_In.jpg"></p>
+<p align="center"><b>Figure 5 - Checking In a Taxpayer on the Activity Log Tab</b></p>
 
 ### 2.3  Assigning a Counselor
 
