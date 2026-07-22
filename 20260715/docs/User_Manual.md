@@ -36,7 +36,7 @@ The system can also be accessed from a user's PC, provided that the network bein
 The overall process tracked by the system during a Tax-Aide shift is depicted in Figure 1.
 
 <figure>
-   <img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; width: 100%; height: auto; margin: 0 auto;">>
+   <img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; width: 100%; height: auto; margin: 20 auto;">>
    <figcaption align="center">Figure 1 - Tax Preparation Process Flowchart</figcaption>
 </figure>
 
