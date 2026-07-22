@@ -70,7 +70,7 @@ For the following states the system enforces stating a reason for the tax return
 * **Deactivated**
 * **Paper**
 
-<img src="Reason_Required_Form.jpg" align="center">
+<p align="center"><img src="Reason_Required_Form.jpg" align="center"></p>
 <p align="center"><b>Figure 2 - The Reason Required Form</b></p>
 
 ### 1.5 Status Tracking
