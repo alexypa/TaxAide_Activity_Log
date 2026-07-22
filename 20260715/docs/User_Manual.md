@@ -123,7 +123,7 @@ Once the taxpayer's first and last names are entered into the Activity Log tab, 
 
 ## 🗺️ Chapter 3: The Tax Preparation Process
 
-As per IRS and AARP policy, every tax return should be prepared by a certified counselor and reviewed by another certified reviewer. The system enforces this policy by presenting two dropdown lists, one for counselors and one for reviewers. The names of the counselors and reviewers on those lists are electronically pushed into the system by the District Administration Coordinators whose role is to oversee the certification process.
+As per IRS and AARP policy, every tax return should be prepared by a certified counselor and reviewed by another certified reviewer. The system enforces this policy by presenting two dropdown lists, one for counselors and one for reviewers. The system will not permit the assignment of the same volunteer as counselor and quality reviewer. The names of the certified counselors and reviewers are electronically pushed into the system by the District Administration Coordinators whose role is to oversee the certification process.
 
 ### 3.1 The Tax Counselor's Guide
 
@@ -151,9 +151,9 @@ While the quality reviewer is reviewing the tax return with the taxpayer, the st
 <p align="center"><img src="efiled.jpg"></p>
 <p align="center"><b>Figure 9 - e-Filed</b></p>
 
-## 3.3 Handling Exceptions by Counselors and Quality Reviewers
+## 3.3 Handling Exceptions
 
-Some cases do not follow the most common flow from **Assigned** to **Ready for Review** to **In Review** to **e-filed**. The tax counselor, quality review, or the taxpayer may decide that a different flow is appropriate. In this case, consult with the shift coordinator as to how to handle the tax return. Figure 1 shows all the possible state transitions, including such exceptional cases. These are described below.
+Some cases do not follow the most common workflow from **Checked In** to **Assigned** to **Ready for Review** to **In Review** and to **e-filed**. The tax counselor, quality review, or the taxpayer may decide that a different flow is appropriate. In such cases, consult with the shift coordinator as to how to handle the tax return. Figure 1 shows all the possible state transitions, including exceptional cases.
 
 #### 3.3.1 No Return
 
