@@ -187,7 +187,10 @@ In some cases, although the tax return has been completed and reviewed, the taxp
 
 ##### 3.2.1.4 Paper
 
-While most tax returns handled by the Tax-Aide program are filed electronically, there are circumstances where the taxpayer must file a paper return. After seeking the approval of the shift coordinator, the quality reviewer may print the tax return and assign the tax return the status of **Paper** in the system. The system will require the quality reviewer to state a reason for filing a **Paper** return - see Figure 2. Since **Paper** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab.
+While most tax returns handled by the Tax-Aide program are filed electronically, there are circumstances where the taxpayer must file a paper return. After seeking the approval of the shift coordinator, the quality reviewer may print the tax return, hand it to the taxpayer and assign the tax return the status of **Paper** in the system. The system will require the quality reviewer to state a reason for filing a **Paper** return - see Figure 2. Since **Paper** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab. The system will <span style="background-color: #dd84f369; color: white">highlight the row in pink</span>. See Figure 14.
+
+<p align="center"><img src="paper.jpg"></p>
+<p align="center"><b>Figure 14 - Paper</b></p>
 
 ### 2.7 Accepted
 
