@@ -173,14 +173,17 @@ Should the quality reviewer determine that the tax return cannot be completed at
 
 ##### 3.2.1.2 Deactivated
 
-After the tax preparation process has begun in TaxSlayer, the counselor, quality reviewer and taxpayer may decide to abandon the tax return. In this case the volunteer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Typical examples of **Deactivated** are "Out of Scope" returns, taxpayer's preference or simply a taxpayer that never returned to complete their tax return before the end of the tax season. Since **Deactivated** is a terminal state, the system will immediately transfer the tax return from the Activity_Log tab into the Archive tab.
+After the tax preparation process has begun in TaxSlayer, the counselor, quality reviewer and taxpayer may decide to abandon the tax return. In this case the volunteer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Typical examples of reasons for deactivation are "Out of Scope" returns, taxpayer's preference or simply a taxpayer that never returned to complete their tax return before the end of the tax season. Since **Deactivated** is a terminal state, the system will immediately transfer the tax return from the Activity_Log tab into the Archive tab. The system will <span style="background-color: #141414; color: white">highlight the row in black</span>. See Figure 12.
 
 <p align="center"><img src="Deactivate.jpg"></p>
-<p align="center"><b>Figure 12 - Deactivate</b></p>
+<p align="center"><b>Figure 12 - Deactivated</b></p>
 
 ##### 3.2.1.3 Complete
 
-In some cases, although the tax return has been completed and reviewed, the taxpayer does not wish to file it at that time. The quality reviewer has the option of assigning it the status of **Complete**, which will keep in this state until the taxpayer decided how they want to proceed. The system will require the quality reviewer to state a reason for filing a **Complete** return - see Figure 2. **Complete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual.
+In some cases, although the tax return has been completed and reviewed, the taxpayer does not wish to file it at that time. The quality reviewer has the option of assigning it the status of **Complete**, which will keep the tax return in this state until the taxpayer decides how they want to proceed. **Complete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #71108a69; color: white">highlight the row in purple</span>. See Figure 13.
+
+<p align="center"><img src="Completed.jpg"></p>
+<p align="center"><b>Figure 13 - Completed</b></p>
 
 ##### 3.2.1.4 Paper
 
