@@ -35,8 +35,7 @@ The system can also be accessed from a user's PC, provided that the network bein
 
 The overall process tracked by the system during a Tax-Aide shift is depicted in Figure 1.
 
-<img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; width: 100%; height: auto; margin: 20 auto;">>
-
+<img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; width: 100%; height: auto; margin: 20 auto;">
 <p align="center"><b>Figure 1 - The Tax Preparation Workflow</b></p>
 
 The diagram shows all possible states of a tax return as well as all permitted transitions from one state to the next. Transitions that are not shown by connections are deemed invalid. The workflow represented by this diagram is typical of all Tax-Aide sites that operate in the traditional, in-person service model. It is not designed for other service delivery models offered by the AARP Tax-Aide program.
@@ -71,10 +70,8 @@ For the following states the system enforces stating a reason for the tax return
 * **Deactivated**
 * **Paper**
 
-<figure>
-   <img src="Reason_Required_Form.jpg" alt="Reason Required Form" style="display: block; margin: 0 auto;">>
-   <figcaption align="center">Figure 2 - The Reason Required Form</figcaption>
-</figure>
+<img src="Reason_Required_Form.jpg" alt="Reason Required Form" style="display: block; margin: 0 auto;">
+<p align="center"><b>Figure 2 - The Reason Required Form</b></p>
 
 ### 1.5 Status Tracking
 
