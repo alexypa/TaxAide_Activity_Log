@@ -157,14 +157,14 @@ Some cases do not follow the most common workflow from **Checked In** to **Assig
 
 #### 3.3.1 No Return
 
-In some cases, during the initial discussion with the taxpayer, the client facilitator, counselor or taxpayer may reach the conclusion that a tax return should not be prepared at all. Typical examples of **No Return** are "Out of Scope" returns or taxpayer's inquiries. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2.  The system will <span style="background-color: #fafbfc; color: black">highlight the row in white</span>. See Figure 10. As the **No Return** state is terminal, the system will then transfer the record from the Activity Log to the Archive.
+In some cases, during the initial discussion with the taxpayer, the client facilitator, counselor or taxpayer may reach the conclusion that a tax return should not be prepared at all. Typical examples of **No Return** are "Out of Scope" returns or taxpayer's inquiries. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2.  The system will <span style="background-color: #fafbfc; color: black">highlight the row in white</span>. See Figure 10. As the **No Return** state is terminal, the system will immediately transfer the record from the Activity Log to the Archive.
 
 <p align="center"><img src="No_Return.jpg"></p>
 <p align="center"><b>Figure 10 - No Return</b></p>
 
 If a tax return was started in TaxSlayer, do not use a **No Return** status. Use a **Deactivated** state.
 
-##### 3.3.2 Incomplete
+#### 3.3.2 Incomplete
 
 Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #656768; color: white">highlight the row in grey</span>. See Figure 11.
 
@@ -173,7 +173,10 @@ Should the quality reviewer determine that the tax return cannot be completed at
 
 ##### 3.2.1.2 Deactivated
 
-The quality reviewer and taxpayer may also decide to abandon the tax preparation process. In this case the quality reviewer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Since **Deactivated** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab.
+After the tax preparation process has begun in TaxSlayer, the counselor, quality reviewer and taxpayer may decide to abandon the tax return. In this case the volunteer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Typical examples of **Deactivated** are "Out of Scope" returns, taxpayer's preference or simply a taxpayer that never returned to complete their tax return before the end of the tax season. Since **Deactivated** is a terminal state, the system will immediately transfer the tax return from the Activity_Log tab into the Archive tab.
+
+<p align="center"><img src="Deactivate.jpg"></p>
+<p align="center"><b>Figure 12 - Deactivate</b></p>
 
 ##### 3.2.1.3 Complete
 
