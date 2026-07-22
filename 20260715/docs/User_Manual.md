@@ -36,7 +36,7 @@ The system can also be accessed from a user's PC, provided that the network bein
 The overall process tracked by the system during a Tax-Aide shift is depicted in Figure 1.
 
 <figure>
-   <img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; margin: 0 auto;">>
+   <img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; width: 100%; margin: 0 auto;">>
    <figcaption align="center">Figure 1 - Tax Preparation Process Flowchart</figcaption>
 </figure>
 
@@ -90,16 +90,18 @@ This section is only applicable to sites who operate by appointment.
 Prior to the daily session, a Session Management Coordinator populates the Appointments tab of the system with the day's appointments. This process will be described later in this manual. The Appointments tab is shown in Figure 2.
 
 <figure>
-   <img src="Appointment_Tab.jpg" alt="Appointments Tab" style="display: block; margin: 0 auto;">>
-   <figcaption align="center">Figure 2 - A Populated Appointment Tab</figcaption>
+   <img src="Appointment_Tab.jpg" alt="Appointments Tab" style="display: block; width: 100%; height: auto; margin: 0 auto;">>
+   <figcaption align="center">Figure 3 - A Populated Appointment Tab</figcaption>
 </figure>
+
 
 When a taxpayer is welcomed at the tax preparation site, the greeter confirms the taxpayer's identity and checks the checkbox next to the taxpayer name (column E). The system will then timestamp the taxpayer's arrival date and time and transfer the tax return record to the Activity Log tab and confirm as follows:
 
 <figure>
    <img src="Checkin_Confirmation_Dialog.jpg" alt="Checkin Confirmation Dialog" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 3 -Checked In Confirmation on Appointments Tab</figcaption>
+   <figcaption align="center">Figure 4 -Checked In Confirmation on Appointments Tab</figcaption>
 </figure>
+
 
 After transferring the record to the Activity Log tab, the system will delete the appointment record from the Appointment tab. The fields transferred to the Activity Log tab include the taxpayer's first and last names (capitalized) and the time they checked in. The system then focuses on the row in the Appointment tab to which the appointment was transferred. The greeter may then add the primary taxpayer's last 4 digits of their Social Security number, if required by the site leadership. The system enters the tax year which by default is the current tax year (e.g 2026 for tax returns prepared in early 2027). The volunteer may choose a different tax year from the dropdown. If the taxpayer wishes to prepare tax returns for more than one year, the greeter should enter each year as a separate record, as each tax return is tracked separately.
 
