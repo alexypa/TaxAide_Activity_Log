@@ -37,7 +37,7 @@ The overall process tracked by the system during a Tax-Aide shift is depicted in
 
 <img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; width: 100%; height: auto; margin: 20 auto;">>
 
-<p style="text-align: center; font-weight: bold;">Figure 1 - The Tax Preparation Workflow*/p>
+<p style="text-align: center; font-weight: bold;">Figure 1 - The Tax Preparation Workflow</p>
 
 The diagram shows all possible states of a tax return as well as all permitted transitions from one state to the next. Transitions that are not shown by connections are deemed invalid. The workflow represented by this diagram is typical of all Tax-Aide sites that operate in the traditional, in-person service model. It is not designed for other service delivery models offered by the AARP Tax-Aide program.
 
