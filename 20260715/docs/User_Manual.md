@@ -153,18 +153,20 @@ While the quality reviewer is reviewing the tax return with the taxpayer, the st
 
 ## 3.3 Handling Exceptions
 
-Some cases do not follow the most common workflow from **Checked In** to **Assigned** to **Ready for Review** to **In Review** and to **e-filed**. The tax counselor, quality review, or the taxpayer may decide that a different flow is appropriate. In such cases, consult with the shift coordinator as to how to handle the tax return. Figure 1 shows all the possible state transitions, including exceptional cases.
+Some cases do not follow the most common workflow from **Checked In** to **Assigned** to **Ready for Review** to **In Review** and to **e-filed**. The tax counselor, quality reviewer or the taxpayer may decide that a different flow is appropriate. With the consent of the shift coordinator the system will support handling such exceptions as described in the following sections. Figure 1 depicts all the possible state transitions, including these exceptional cases.
 
 #### 3.3.1 No Return
 
-In some cases, during the initial discussion with the taxpayer, the counselor and taxpayer may reach the conclusion that a tax return should not be prepared. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2. As the **No Return** state is terminal, the system will then transfer the record from the Activity Log to the Archive.
+In some cases, during the initial discussion with the taxpayer, the client facilitator, counselor or taxpayer may reach the conclusion that a tax return should not be prepared at all. Typical examples of **No Return** are "Out of Scope" returns or taxpayer's inquiries. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2.  The system will <span style="background-color: #fafbfc; color: black">highlight the row in white</span>. See Figure 10. As the **No Return** state is terminal, the system will then transfer the record from the Activity Log to the Archive.
 
 <p align="center"><img src="No_Return.jpg"></p>
 <p align="center"><b>Figure 10 - No Return</b></p>
 
+If a tax return was started in TaxSlayer, do not use a **No Return** status. Use a **Deactivated** state.
+
 ##### 3.3.2 Incomplete
 
-Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #656768; color: white">highlight the row in grey</span>. See Figure 10.
+Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #656768; color: white">highlight the row in grey</span>. See Figure 11.
 
 <p align="center"><img src="Incomplete.jpg"></p>
 <p align="center"><b>Figure 11 - Incomplete</b></p>

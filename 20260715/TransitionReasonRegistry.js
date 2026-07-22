@@ -1,8 +1,6 @@
 const TransitionReasonRegistry = {
   "No Return": [
     "Inquiry Only",
-    "Taxpayer preference - deactivate",
-    "Lost contact with taxpayer",
     "Out of Scope"
   ],
 
