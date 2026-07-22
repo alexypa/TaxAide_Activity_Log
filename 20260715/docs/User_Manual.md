@@ -163,7 +163,7 @@ While the quality reviewer is reviewing the tax return with the taxpayer, the st
 
 ##### 3.2.1.1 Incomplete
 
-Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual.
+Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #656768; color: white">highlight the row in grey</span>. See Figure 10.
 
 <p align="center"><img src="Incomplete.jpg"></p>
 <p align="center"><b>Figure 10 - Incomplete</b></p>
