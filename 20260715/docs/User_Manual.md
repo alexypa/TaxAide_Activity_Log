@@ -137,14 +137,6 @@ While the Counselor is preparing the tax return with the taxpayer, the status re
 <p align="center"><img src="Ready_for_Review.jpg"></p>
 <p align="center"><b>Figure 7 - Ready for Review</b></p>
 
-#### 3.1.1 Handling Exceptions - No Return, Incomplete and Deactivation
-
-In some cases, during the initial discussion with the taxpayer, the counselor and taxpayer may reach the conclusion that a tax return should not be prepared. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2. The system will then transfer the record from the Activity Log to the Archive.
-
-If the counselor has started the return preparation in TaxSlayer and later determines that the tax return cannot be completed, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. More on the **Incomplete** state and the completion of ****Incomplete** returns later in the manual. 
-
-The counselor and taxpayer may also decide to abandon the tax return process. In this case the counselor marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Since **Deactivated** is a terminal state, the system will transfer the tax return from the Activity_Log into the Archive tab.
-
 ### 3.2 The Quality Reviewer's Guide
 
 Tax-Aide Quality Reviewers are experienced tax counselors who are authorized by their Local Coordinator (site leader) to review tax returns prepared by counselors. Typically, quality reviewers also act as Electronic Return Originators (EROs) who are authorized to e-file a tax return with the IRS. This manual assumes that a quality reviewer is also an ERO.
@@ -159,14 +151,23 @@ While the quality reviewer is reviewing the tax return with the taxpayer, the st
 <p align="center"><img src="efiled.jpg"></p>
 <p align="center"><b>Figure 9 - e-Filed</b></p>
 
-#### 3.2.1 Handling Exceptions
+## 3.3 Handling Exceptions by Counselors and Quality Reviewers
 
-##### 3.2.1.1 Incomplete
+Some cases do not follow the most common flow from **Assigned** to **Ready for Review** to **In Review** to **e-filed**. The tax counselor, quality review, or the taxpayer may decide that a different flow is appropriate. In this case, consult with the shift coordinator as to how to handle the tax return. Figure 1 shows all the possible state transitions, including such exceptional cases. These are described below.
+
+#### 3.3.1 No Return
+
+In some cases, during the initial discussion with the taxpayer, the counselor and taxpayer may reach the conclusion that a tax return should not be prepared. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2. As the **No Return** state is terminal, the system will then transfer the record from the Activity Log to the Archive.
+
+<p align="center"><img src="No_Return.jpg"></p>
+<p align="center"><b>Figure 10 - No Return</b></p>
+
+##### 3.3.2 Incomplete
 
 Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #656768; color: white">highlight the row in grey</span>. See Figure 10.
 
 <p align="center"><img src="Incomplete.jpg"></p>
-<p align="center"><b>Figure 10 - Incomplete</b></p>
+<p align="center"><b>Figure 11 - Incomplete</b></p>
 
 ##### 3.2.1.2 Deactivated
 
