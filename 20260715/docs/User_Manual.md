@@ -125,7 +125,7 @@ Once the taxpayer's first and last names are entered into the Activity Log tab, 
 
 As per IRS and AARP policy, every tax return should be prepared by a certified counselor and reviewed by another certified reviewer. The system enforces this policy by presenting two dropdown lists, one for counselors and one for reviewers. The names of the counselors and reviewers on those lists are electronically pushed into the system by the District Administration Coordinators whose role is to oversee the certification process.
 
-### 3.1 The Tax Counselor Process
+### 3.1 The Tax Counselor's Guide
 
 When the taxpayer is ready to be seen by a counselor and a counselor is available, the greeter will introduce the taxpayer to the counselor. The greeter will then select the counselor's name from the dropdown list . The system will change the status of the tax return to **"Assigned"**. <span style="background-color: yellow; color: black">The row will be highlighted in yellow</span>. See Figure 5.
 
@@ -145,23 +145,40 @@ If the counselor has started the return preparation in TaxSlayer and later deter
 
 The counselor and taxpayer may also decide to abandon the tax return process. In this case the counselor marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Since **Deactivated** is a terminal state, the system will transfer the tax return from the Activity_Log into the Archive tab.
 
-### 3.2 The Quality Reviewer Process
+### 3.2 The Quality Reviewer's Guide
 
 Tax-Aide Quality Reviewers are experienced tax counselors who are authorized by their Local Coordinator (site leader) to review tax returns prepared by counselors. Typically, quality reviewers also act as Electronic Return Originators (EROs) who are authorized to e-file a tax return with the IRS. This manual assumes that a quality reviewer is also an ERO.
 
-Once a quality reviewer is assigned to the tax return, by picking a quality reviewer name from the Reviewer column, the system will automatically advance the status to **In Review**, <span style="background-color: #A67B49; color: white">highlight the row in brown</span>. See Figure 8.
+Once a quality reviewer is assigned to the tax return, by picking a quality reviewer name from the Reviewer column, the system will automatically change the status of the tax return to **In Review**, <span style="background-color: #A67B49; color: white">highlight the row in brown</span>. See Figure 8.
 
 <p align="center"><img src="In_Review.jpg"></p>
 <p align="center"><b>Figure 8 - In Review</b></p>
 
-While the quality reviewer is reviewing the tax return with the taxpayer, the status remains **"In Review"**. Once a quality reviewer has completed the review of the tax return, the typical next step is to go over the completed return with the taxpayer and obtain their written consent for electronically filing the return with the IRS using form 8879. Once the consent was obtained and the tax return e-filed, the quality reviewer marks the return as e-filed and the system will <span style="background-color: #5ccff1; color: black">highlight the row in cyan</span>. See Figure 9.
+While the quality reviewer is reviewing the tax return with the taxpayer, the status remains **"In Review"**. Once a quality reviewer has completed the review of the tax return, the next step is typically to go over the completed return with the taxpayer and obtain their written consent for electronically filing the return with the IRS using IRS form 8879. Once the consent was obtained and the tax return e-filed, the quality reviewer marks the return as e-filed and the system will <span style="background-color: #5ccff1; color: black">highlight the row in cyan</span>. See Figure 9.
 
 <p align="center"><img src="efiled.jpg"></p>
 <p align="center"><b>Figure 9 - e-Filed</b></p>
 
 #### 3.2.1 Handling Exceptions
 
-As is the case with the tax counselor, should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. More on the **Incomplete** state and the completion of ****Incomplete** returns later in the manual. The quality reviewer and taxpayer may also decide to abandon the tax return process. In this case the quality reviewer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Since **Deactivated** is a terminal state, the system will transfer the tax return from the Activity_Log into the Archive tab.
+##### 3.2.1.1 Incomplete
+
+Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual.
+
+<p align="center"><img src="Incomplete.jpg"></p>
+<p align="center"><b>Figure 10 - Incomplete</b></p>
+
+##### 3.2.1.2 Deactivated
+
+The quality reviewer and taxpayer may also decide to abandon the tax preparation process. In this case the quality reviewer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Since **Deactivated** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab.
+
+##### 3.2.1.3 Complete
+
+In some cases, although the tax return has been completed and reviewed, the taxpayer does not wish to file it at that time. The quality reviewer has the option of assigning it the status of **Complete**, which will keep in this state until the taxpayer decided how they want to proceed. The system will require the quality reviewer to state a reason for filing a **Complete** return - see Figure 2. **Complete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual.
+
+##### 3.2.1.4 Paper
+
+While most tax returns handled by the Tax-Aide program are filed electronically, there are circumstances where the taxpayer must file a paper return. After seeking the approval of the shift coordinator, the quality reviewer may print the tax return and assign the tax return the status of **Paper** in the system. The system will require the quality reviewer to state a reason for filing a **Paper** return - see Figure 2. Since **Paper** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab.
 
 ### 2.7 Accepted
 
