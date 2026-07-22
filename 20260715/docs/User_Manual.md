@@ -127,10 +127,8 @@ Once the taxpayer's first and last names are entered into the Activity Log tab, 
 
 When a taxpayer is ready to be seen by a Counselor and a Counselor is available, the greeter will introduce the taxpayer to the Counselor. The greeter will then select a Counselor from the dropdown list . The system will change the status of the tax return to **"Assigned"**. <span style="background-color: yellow; color: black">The row will be highlighted in yellow</span>. See Figure 5.
 
-<figure>
-   <img src="Assignment.jpg" alt="Assignment" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 5 - Assigned State</figcaption>
-</figure>
+<p align="center"><img src="Assignment.jpg"></p>
+<p align="center"><b>Figure 6 - Assigning a Counselor</b></p>
 
 ## 🗺️ Chapter 3: The Tax Preparation Process
 
