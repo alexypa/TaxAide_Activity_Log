@@ -91,10 +91,8 @@ Prior to the daily session, a Session Management Coordinator populates the Appoi
 
 When a taxpayer is welcomed at the tax preparation site, the greeter confirms the taxpayer's identity and checks the checkbox next to the taxpayer name (column E). The system will then timestamp the taxpayer's arrival date and time and transfer the tax return record to the Activity Log tab and confirm as follows:
 
-<figure>
-   <img src="Checkin_Confirmation_Dialog.jpg" alt="Checkin Confirmation Dialog" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 4 -Checked In Confirmation on Appointments Tab</figcaption>
-</figure>
+<p align="center"><img src="Checkin_Confirmation_Dialog.jpg"></p>
+<p align="center"><b>Figure 4 -Checked In Confirmation</b></p>
 
 
 After transferring the record to the Activity Log tab, the system will delete the appointment record from the Appointment tab. The fields transferred to the Activity Log tab include the taxpayer's first and last names (capitalized) and the time they checked in. The system then focuses on the row in the Appointment tab to which the appointment was transferred. The greeter may then add the primary taxpayer's last 4 digits of their Social Security number, if required by the site leadership. The system enters the tax year which by default is the current tax year (e.g 2026 for tax returns prepared in early 2027). The volunteer may choose a different tax year from the dropdown. If the taxpayer wishes to prepare tax returns for more than one year, the greeter should enter each year as a separate record, as each tax return is tracked separately.
