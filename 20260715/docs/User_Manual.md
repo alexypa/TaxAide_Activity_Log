@@ -1,4 +1,4 @@
-# Tax-Aide Activity Logging and Tax Return Tracking System : User Manual
+# Tax-Aide Activity Logging System : User Manual
 ## 🗺️ Chapter 1: System Overview & General Concepts
 ### 1.1 Purpose of the System
 
@@ -19,24 +19,24 @@ All AARP Tax-Aide volunteers engaged in providing tax preparation services acces
 * District Administrator
 * District Coordinator
 
-This user manual will address the responsibilities of each of these roles and the procedures to be used by each.
+This user manual will address the responsibilities of each of these roles and the procedures to be used by them.
 
-### 1.3 Accessing the Google Workspace
+### 1.3 Accessing the System Using Google Workspace
 
-The system is based on the AARP-provided Google Workplace using Google Sheets that embed Apps Scripts (GAS).
+The system is hosted on the AARP-provided Google Workplace using Google Sheets that embed Apps Scripts (GAS).
 
 After logging into their Chromebook in the normal manner, the volunteer launches the system using the "Activity Logging" link provided on the Chrome browser's bookmark bar. No additional login is required.
 
-In some cases the Google Workspace will require the user to go through  a one-time procedure that enables the user to run the scripts associated with the system operation. If this occurs, please consult the District Technology Coordinator who will walk you though the procedure of providing such permission.
+In some cases the Google Workspace will require the user to go through a one-time procedure that enables the user to run the scripts associated with the system operation. If this occurs, please consult the District Technology Coordinator who will walk you though the procedure.
 
-The system can also be accessed from a user's PC, provided that the network being used meets AARP Tax-Aide's security requirements. Please consult the District Technology Coordinator if you wish to access the system from a non-AARP network.
+The system may also be accessed using a user's PC, provided that the network being used meets AARP Tax-Aide's security requirements. Please consult the District Technology Coordinator if you wish to access the system from a non-AARP network.
 
 ### 1.4 The Tax Preparation Workflow
 
 The overall process tracked by the system during a Tax-Aide shift is depicted in Figure 1.
 
-<img src="Workflow_State_Machine.jpg" alt="Tax Preparation Process Flowchart" style="display: block; width: 100%; height: auto; margin: 20 auto;">
-<p align="center"><b>Figure 1 - The Tax Preparation Workflow</b></p>
+<p align="center"><img src="Workflow_State_Machine.jpg"></p>
+<p align="center"><b>Figure 1 - The Tax-Aide Tax Preparation Workflow</b></p>
 
 The diagram shows all possible states of a tax return as well as all permitted transitions from one state to the next. Transitions that are not shown by connections are deemed invalid. The workflow represented by this diagram is typical of all Tax-Aide sites that operate in the traditional, in-person service model. It is not designed for other service delivery models offered by the AARP Tax-Aide program.
 
