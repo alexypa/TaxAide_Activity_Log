@@ -119,6 +119,12 @@ Once the taxpayer's first and last names are entered into the Activity Log tab, 
 <p align="center"><img src="Walk_In_Check_In.jpg"></p>
 <p align="center"><b>Figure 5 - Checking In a Taxpayer on the Activity Log Tab</b></p>
 
+### 2.3 The Duration Indicator
+
+The moment the taxpayer has checked in, a clock starts, showing the duration the taxpayer has been on site under the Duration header of the Activity_Log tab. The clock updates every minute. The clock continues to advance while the tax return is in any of the following states: **Checked In**, **Assigned**, **Ready for Review** or **In Review**. The clock stops when the return reaches any of the following states: **e-Filed**, **Complete**, **Paper**, **Accepted**, **Deactivated**, **No Return** or **Incomplete**.
+
+The background color of the duration changes color to alert the volunteers of a process that may take too long. By default it stays green up to 45 minutes, orange between 45 and 90 minutes and red above 90 minutes. Those times may be set differently in the Setting tab by a system administrator.
+
 ## 🗺️ Chapter 3: The Tax Preparation Process
 
 As per IRS and AARP policy, every tax return should be prepared by a certified counselor and reviewed by another certified reviewer. The system enforces this policy by presenting two dropdown lists, one for counselors and one for reviewers. The system will not permit the assignment of the same volunteer as counselor and quality reviewer. The names of the certified counselors and reviewers are electronically pushed into the system by the District Administration Coordinators whose role is to oversee the certification process.
@@ -169,21 +175,21 @@ Should the quality reviewer determine that the tax return cannot be completed at
 <p align="center"><img src="Incomplete.jpg"></p>
 <p align="center"><b>Figure 11 - Incomplete</b></p>
 
-##### 3.2.1.2 Deactivated
+##### 3.3.3 Deactivated
 
 After the tax preparation process has begun in TaxSlayer, the counselor, quality reviewer and taxpayer may decide to abandon the tax return. In this case the volunteer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Typical examples of reasons for deactivation are "Out of Scope" returns, taxpayer's preference or simply a taxpayer that never returned to complete their tax return before the end of the tax season. Since **Deactivated** is a terminal state, the system will immediately transfer the tax return from the Activity_Log tab into the Archive tab. The system will <span style="background-color: #141414; color: white">highlight the row in black</span>. See Figure 12.
 
 <p align="center"><img src="Deactivate.jpg"></p>
 <p align="center"><b>Figure 12 - Deactivated</b></p>
 
-##### 3.2.1.3 Complete
+##### 3.3.4 Complete
 
 In some cases, although the tax return has been completed and reviewed, the taxpayer does not wish to file it at that time. The quality reviewer has the option of assigning it the status of **Complete**, which will keep the tax return in this state until the taxpayer decides how they want to proceed. **Complete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #71108a69; color: white">highlight the row in purple</span>. See Figure 13.
 
 <p align="center"><img src="Completed.jpg"></p>
 <p align="center"><b>Figure 13 - Completed</b></p>
 
-##### 3.2.1.4 Paper
+##### 3.3.5 Paper
 
 While most tax returns handled by the Tax-Aide program are filed electronically, there are circumstances where the taxpayer must file a paper return. After seeking the approval of the shift coordinator, the quality reviewer may print the tax return, hand it to the taxpayer and assign the tax return the status of **Paper** in the system. The system will require the quality reviewer to state a reason for filing a **Paper** return - see Figure 2. Since **Paper** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab. The system will <span style="background-color: #dd84f369; color: white">highlight the row in pink</span>. See Figure 14.
 
