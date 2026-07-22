@@ -123,7 +123,7 @@ Once the taxpayer's first and last names are entered into the Activity Log tab, 
 
 The moment the taxpayer has checked in, a clock starts, showing the duration the taxpayer has been on site under the Duration header of the Activity_Log tab. The clock updates every minute. The clock continues to advance while the tax return is in any of the following states: **Checked In**, **Assigned**, **Ready for Review** or **In Review**. The clock stops when the return reaches any of the following states: **e-Filed**, **Complete**, **Paper**, **Accepted**, **Deactivated**, **No Return** or **Incomplete**.
 
-The background color of the duration changes color to alert the volunteers of a process that may take too long. By default it stays green up to 45 minutes, orange between 45 and 90 minutes and red above 90 minutes. Those times may be set differently in the Setting tab by a system administrator.
+The background color of the duration changes to alert the volunteers of a process that maybe too long. By default it stays green up to 45 minutes, orange between 45 and 90 minutes and red above 90 minutes. Those times may be set differently in the Setting tab by a system administrator.
 
 ## 🗺️ Chapter 3: The Tax Preparation Process
 
@@ -222,7 +222,7 @@ Under certain circumstances an IRS rejection can be cured by refiling the tax re
 
 ### 4.3 The End-of-day Process
 
-The previous section discussed the workflow at the Tax-Aide site during a typical daily session. After the conclusion of the daily activities, the system must be prepared for future operations. This is accomplished by an automated script initiated by the Shift Coordinator as follows:
+The previous section discussed the workflow at the Tax-Aide site during a typical daily session. At the conclusion of the daily activities, the Activity_log tab show only show the tax returns that have not yet reached a terminal state. These will be swept by a volunteer-initiated End-of-Day script into the Incomplete tab, where they can be retrieved for completion in future days. The procedure to initiate the script is as follows:
 
 * Click the "TaxAide Operations" Menu.
 * Choose the "Execute End-of-Day Sweep" menu item.
@@ -239,37 +239,34 @@ The script executes the following operations:
 
 ## 🗺️ Chapter 5: Continuing Incomplete Tax Returns
 
-Incomplete tax returns are tabulated in the Incomplete tab. When a taxpayer returns to the site to complete their tax return, the greeter will search for the record using the filters at the headers any of the columns. When the greeter finds the taxpayer's record, they will click the "Transfer to Activity Log" checkbox. See Figure 18.
+After the End-of-Day process was completed, **Incomplete** tax returns will be stored in the Incomplete tab. When a taxpayer returns to the site to complete their tax return, the greeter will search for the record using the filters at the headers any of the tab's column. See Figure 18.
 
-<p align="center"><img src="End_Of_Day_Process.jpg"></p>
-<p align="center"><b>Figure 18 - Continuing an Incomplete Tax Return</b></p>
+<p align="center"><img src="Incomplete_Tab.jpg"></p>
+<p align="center"><b>Figure 18 - The Incomplete Tab</b></p>
 
-The system will confirm that the incomplete tax return record was transferred to the Activity Log tab, listing the taxpayer's name, the counselor who previously worked on this tax return, the date the taxpayer was previously at the site, any comments that were previously added to the record and the date and time the state of the tax return was last changed. The system will also assign the tax return ticket number 99 to indicate that this is a returning taxpayer. From this point the incomplete tax return is processed normally using the Activity Log tab. See Figure 16.
+ The greeter will then click the "Transfer to Activity Log" checkbox to transfer the tax return to the Activity_Log tab. The system will confirm that the incomplete tax return record was transferred to the Activity Log tab, listing the taxpayer's name, the counselor who previously worked on this tax return, the date the taxpayer was previously at the site, any comments that were previously added to the record and the date the state of the tax return was last changed. The system will also assign the tax return ticket number 99 to indicate that this is a returning taxpayer. From this point the incomplete tax return is processed normally. See Figure 19.
 
-<figure>
-   <img src="Incomplete_Transfer_To_Activity_Log.jpg" alt="Incomplete_Transfer_To_Activity_Log" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 15 - Transfer from Incomplete to Activity Log</figcaption>
-</figure>
+<p align="center"><img src="TransferIncompleteToActivityLog.jpg"></p>
+<p align="center"><b>Figure 19 - Transfer Incomplete Record to Activity Log Tab</b></p>
 
-## 🗺️ Section 5: Archiving Completed Tax Returns
+## 🗺️ Chapter 6: The Archive Tab
 
-The End-of-Day process archives all tax returns in a "terminal" state to the Archive tab. It includes all tax returns in the following states:
+All tax return records that reached a terminal state are archived in the Archive tab. These include tax returns that were:
 
-* Approved by the IRS
-* Paper tax returns
-* Deactivated tax returns
-* No Return taxpayer interactions.
+* e-Filed and **Approved** by the IRS
+* Produced as **Paper** returns
+* **Deactivated** tax returns.
+* **No Return** taxpayer interactions.
 
-The archive serves as the database underlying the site's Dashboard and can be sorted by any of the columns.Column K shows the duration from check-in to the completion time. See Figure 16.
+The archive serves as the database underlying the site's Dashboard and can be sorted by any of the columns.
 
-<figure>
-   <img src="Archive.jpg" alt="Archive" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 16 - The Archive Tab</figcaption>
-</figure>
+## 🗺️ Chapter 7: The No Shows Tab
 
-## 🗺️ Section 6: No Shows
+The End-of_Day process transfers all appointments for which taxpayers at an appointment site were scheduled an failed to show up. See Figure 20.
 
-
+<p align="center"><img src="No Show Tab.jpg"></p>
+<p align="center"><b>Figure 20 - The No Show Tab</b></p>
 
 ## 🗺️ Section 7: The Dashboard
 
+TBD
