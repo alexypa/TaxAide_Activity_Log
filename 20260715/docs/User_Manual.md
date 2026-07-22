@@ -88,12 +88,10 @@ Prior to the daily session, a Session Management Coordinator populates the Appoi
 <p align="center"><img src="Appointment_Tab.jpg"></p>
 <p align="center"><b>Figure 3 -The Appointment Tab</b></p>
 
-
 When a taxpayer is welcomed at the tax preparation site, the greeter confirms the taxpayer's identity and checks the checkbox next to the taxpayer name (column E). The system will then timestamp the taxpayer's arrival date and time and transfer the tax return record to the Activity Log tab and confirm as follows:
 
 <p align="center"><img src="Checkin_Confirmation_Dialog.jpg"></p>
 <p align="center"><b>Figure 4 -Checked In Confirmation</b></p>
-
 
 After transferring the record to the Activity Log tab, the system will delete the appointment record from the Appointment tab. The fields transferred to the Activity Log tab include the taxpayer's first and last names (capitalized) and the time they checked in. The system then focuses on the row in the Appointment tab to which the appointment was transferred. The greeter may then add the primary taxpayer's last 4 digits of their Social Security number, if required by the site leadership. The system enters the tax year which by default is the current tax year (e.g 2026 for tax returns prepared in early 2027). The volunteer may choose a different tax year from the dropdown. If the taxpayer wishes to prepare tax returns for more than one year, the greeter should enter each year as a separate record, as each tax return is tracked separately.
 
@@ -110,58 +108,60 @@ At sites operating on a first-come / first served basis or appointment sites tha
   * The system also starts a duration counter, updated every minute, counting the time the taxpayer is being processed.
 * The last 4 digits of the primary taxpayer's Social Security number
   * If required by the site leadership.
-  * Inclusion or exclusion of the SSN Last 4 column in the system is controlled by the site's settings.
+  * Inclusion or exclusion of the SSN Last 4 column on the Activity_Log tab is controlled by the site's settings.
 * Ticket #
   * Ticket numbers are used at walk-in sites to control the first-come/first-served queuing system
-  * Inclusion or exclusion of the Ticket # column in the system is controlled by the site's settings.
+  * Inclusion or exclusion of the Ticket # column on the Activity_Log tab is controlled by the site's settings.
 * Tax Year
-  * When a taxpayer request preparation of more than one year of tax returns, every year must be entered as a separate record.
-  * By default, the system enters the current tax year. A volunteer may change the tax year to any of the tax years permitted.
+   * By default, the system enters the current tax year. A volunteer may change the tax year to any of the tax years permitted.
+   * When a taxpayer request preparation of more than one year of tax returns, every year must be entered as a separate record.
 
-Once the taxpayer's first and last names are entered into the Activity Log tab, the system will capitalize the taxpayer's first and last name, timestamp the check in time and set the status of the return to **Checked In**. See Figure 4.
+Once the taxpayer's first and last names are entered into the Activity Log tab, the system will capitalize the taxpayer's first and last name, timestamp the check in time and set the status of the return to **Checked In**. See Figure 5.
 
 <p align="center"><img src="Walk_In_Check_In.jpg"></p>
 <p align="center"><b>Figure 5 - Checking In a Taxpayer on the Activity Log Tab</b></p>
 
-### 2.3  Assigning a Counselor
+## 🗺️ Chapter 3: The Tax Preparation Process
 
-When a taxpayer is ready to be seen by a Counselor and a Counselor is available, the greeter will introduce the taxpayer to the Counselor. The greeter will then select a Counselor from the dropdown list . The system will change the status of the tax return to **"Assigned"**. <span style="background-color: yellow; color: black">The row will be highlighted in yellow</span>. See Figure 5.
+As per IRS and AARP policy, every tax return should be prepared by a certified counselor and reviewed by another certified reviewer. The system enforces this policy by presenting two dropdown lists, one for counselors and one for reviewers. The names of the counselors and reviewers on those lists are electronically pushed into the system by the District Administration Coordinators whose role is to oversee the certification process.
+
+### 3.1 The Tax Counselor Process
+
+When the taxpayer is ready to be seen by a counselor and a counselor is available, the greeter will introduce the taxpayer to the counselor. The greeter will then select the counselor's name from the dropdown list . The system will change the status of the tax return to **"Assigned"**. <span style="background-color: yellow; color: black">The row will be highlighted in yellow</span>. See Figure 5.
 
 <p align="center"><img src="Assignment.jpg"></p>
 <p align="center"><b>Figure 6 - Assigning a Counselor</b></p>
 
-## 🗺️ Chapter 3: The Tax Preparation Process
+While the Counselor is preparing the tax return with the taxpayer, the status remains **"Assigned"**. Once a counselor has completed the preparation of the tax return, they must change the status to **Ready for Review**, indicating that a reviewer may pick up the return for review and completion. The system will <span style="background-color: #F0DC82; color: black">highlight the row in light orange</span>. See Figure 6.
 
-### 3.1 Tax Preparation and Reading for Review
+<p align="center"><img src="Ready_for_Review.jpg"></p>
+<p align="center"><b>Figure 7 - Ready for Review</b></p>
 
-XXXXXXXXXXXXXXXXXX I am Here XXXXXXXXXXXXXXXXXXXXX
+#### 3.1.1 Handling Exceptions - No Return, Incomplete and Deactivation
 
-Once a counselor has completed the preparation of the tax return, they change the status to **Ready for Review**, indicating to the greeter that a reviewer may pick up the return for review and completion. The system will <span style="background-color: #F0DC82; color: black">highlight the row in light yellow</span>. See Figure 6.
+In some cases, during the initial discussion with the taxpayer, the counselor and taxpayer may reach the conclusion that a tax return should not be prepared. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2. The system will then transfer the record from the Activity Log to the Archive.
 
-<figure>
-   <img src="Ready_for_Review.jpg" alt="Ready for Review" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 6 - Ready for Review State</figcaption>
-</figure>
+If the counselor has started the return preparation in TaxSlayer and later determines that the tax return cannot be completed, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. More on the **Incomplete** state and the completion of ****Incomplete** returns later in the manual. 
 
-Another possibility is that the counselor will determine that the tax return cannot be completed at this time and assign the return a status of **Incomplete**. More on this state below.
+The counselor and taxpayer may also decide to abandon the tax return process. In this case the counselor marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Since **Deactivated** is a terminal state, the system will transfer the tax return from the Activity_Log into the Archive tab.
 
-### 2.5 In Review
+### 3.2 The Quality Reviewer Process
 
-Once a quality reviewer is assigned to the tax return, by picking a quality reviewer name from the Reviewer column (H), the system will automatically advance the status to **In Review**, <span style="background-color: #A67B49; color: white">highlight the row in brown</span>  and timestamp the transition in the "Latest Status Change" column K. See Figure 7.
+Tax-Aide Quality Reviewers are experienced tax counselors who are authorized by their Local Coordinator (site leader) to review tax returns prepared by counselors. Typically, quality reviewers also act as Electronic Return Originators (EROs) who are authorized to e-file a tax return with the IRS. This manual assumes that a quality reviewer is also an ERO.
 
-<figure>
-   <img src="In_Review.jpg" alt="In Review" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 7 - In Review State</figcaption>
-</figure>
+Once a quality reviewer is assigned to the tax return, by picking a quality reviewer name from the Reviewer column, the system will automatically advance the status to **In Review**, <span style="background-color: #A67B49; color: white">highlight the row in brown</span>. See Figure 8.
 
-### 2.6 e-Filed
+<p align="center"><img src="In_Review.jpg"></p>
+<p align="center"><b>Figure 8 - In Review</b></p>
 
-The normal progression of a tax return from an **In Review** state is to be electronically filed with the IRS. In this case, the quality reviewer will, after e-filing the return in TaxSlayer, indicate that the return was **e-Filed**. The system will timestamp this transition in the "Latest Status Change" column K and <span style="background-color: cyan; color: black">highlight the row in cyan</span>. See Figure 8.
+While the quality reviewer is reviewing the tax return with the taxpayer, the status remains **"In Review"**. Once a quality reviewer has completed the review of the tax return, the typical next step is to go over the completed return with the taxpayer and obtain their written consent for electronically filing the return with the IRS using form 8879. Once the consent was obtained and the tax return e-filed, the quality reviewer marks the return as e-filed and the system will <span style="background-color: #5ccff1; color: black">highlight the row in cyan</span>. See Figure 9.
 
-<figure>
-   <img src="efiled.jpg" alt="e-Filed" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 8 - e-Filed State</figcaption>
-</figure>
+<p align="center"><img src="efiled.jpg"></p>
+<p align="center"><b>Figure 9 - e-Filed</b></p>
+
+#### 3.2.1 Handling Exceptions
+
+As is the case with the tax counselor, should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. More on the **Incomplete** state and the completion of ****Incomplete** returns later in the manual. The quality reviewer and taxpayer may also decide to abandon the tax return process. In this case the quality reviewer marks the status as **"Deactivated"**, states the reasons - see Figure 2 - and deactivates the return in TaxSlayer. Since **Deactivated** is a terminal state, the system will transfer the tax return from the Activity_Log into the Archive tab.
 
 ### 2.7 Accepted
 
