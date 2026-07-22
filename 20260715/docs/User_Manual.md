@@ -40,8 +40,6 @@ The overall process tracked by the system during a Tax-Aide shift is depicted in
    <figcaption align="center">Figure 1 - Tax Preparation Process Flowchart</figcaption>
 </figure>
 
-
-
 The diagram shows all possible states of a tax return as well as all permitted transitions from one state to the next. Transitions that are not shown by connections are deemed invalid. The workflow represented by this diagram is typical of all Tax-Aide sites that operate in the traditional, in-person service model. It is not designed for other service delivery models offered by the AARP Tax-Aide program.
 
 At sites that operate by appointment, there is a preliminary process of transferring the daily appointments from the AARP Session Management or other appointment-making system into the Tax-Aide Activity Logging and Tax Return Tracking System. This process will be described later in this manual.
