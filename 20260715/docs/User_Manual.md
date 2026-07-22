@@ -192,77 +192,30 @@ While most tax returns handled by the Tax-Aide program are filed electronically,
 <p align="center"><img src="paper.jpg"></p>
 <p align="center"><b>Figure 14 - Paper</b></p>
 
-## Chapter 4 The Post Filing Process
+## Chapter 4 The Post-Filing Process
 
+After the tax return has been electronically filed with the IRS, it is the responsibility of the shift coordinator to make sure that the return was **Accepted** and address any return that was **Rejected**. Typically the shift coordinator will be informed through TaxSlayer of acceptance or rejection within 30 minutes of e-filing.
 
+### 4.1 Accepted
 
-### 2.7 Accepted
+The normal progression of a tax return from an **e-Filed** state is to be **Accepted** by the IRS. This typically happens within 30 minutes of the tax return being e-filed. The shift coordinator, who tracks the tax returns using the TaxSlayer system, will then change the status of the return to **Accepted**. The system will <span style="background-color: #07610469; color: white">highlight the row in green</span>.  Since **Accepted** is a terminal state, the system will then transfer the tax return from the Activity_Log tab into the Archive tab. See Figure 15.
 
-The normal progression of a tax return from an **e-Filed** state is to be **Accepted** by the IRS. This typically happens within 30 minutes of the tax return being filed as is being tracked by the Shift Coordinator using the TaxSlayer system. The Shift Coordinator will then change the status of the return to **Accepted**. The system will timestamp this transition in the "Latest Status Change" column K and <span style="background-color: green; color: white">highlight the row in green</span>. See Figure 9.
+<p align="center"><img src="accepted.jpg"></p>
+<p align="center"><b>Figure 15 - Accepted</b></p>
 
-<figure>
-   <img src="Accepted.jpg" alt="accepted" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 9 - Accepted State </figcaption>
-</figure>
-
-An **Accepted** state cannot be changed and will be archived on the Archive tab as part of the "End-of-Day" process.
 
 ### 2.8 IRS Rejection
 
 Occasionally, the IRS will reject an electronic filing of a tax return for a variety of reasons. The Shift Coordinator will typically find out about a rejection within approximately 30 minutes of the filing. By that time the taxpayer will not be available in person at the site and the Shift Coordinator will attempt to reach out to the taxpayer to try to resolve any discrepancy.
 
-When an IRS rejection occurs, the Shift Coordinator will change the status of the tax return to **Rejected**. The system will then present a dialog requiring the Shift Coordinator to enter a reason for the rejection and/or any additional comments. The system will timestamp this transition in the "Latest Status Change" column K and <span style="background-color: red; color: white">highlight the row in red</span>. See Figure 10.
+When an IRS rejection occurs, the Shift Coordinator will change the status of the tax return to **Rejected**. The system will then present a dialog requiring the Shift Coordinator to enter a reason for the rejection and/or any additional comments. The system will <span style="background-color: red; color: white">highlight the row in red</span>. See Figure 16.
 
-<figure>
-   <img src="rejection.jpg" alt="Rejection" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 10 - Rejection State</figcaption>
-</figure>
+<p align="center"><img src="Rejection.jpg"></p>
+<p align="center"><b>Figure 16 - Rejected</b></p>
+
+**Rejected** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. 
 
 Under certain circumstances an IRS rejection can be cured by refiling the tax return. This is typically done by the Shift Coordinator.
-
-### 2.9 Incompletion
-
-A tax return may be assigned an **Incomplete** status in cases where the tax return was started but cannot be completed during the daily session. Such assignment can be made by any Tax-Aide volunteer. Typically, this happens when the taxpayer did not provide all the document necessary for completing the tax return.
-
-An assignment of this state requires the operator to state a reason for the incompletion, which the system then records in the comments section (column J). The system will timestamp this transition in the "Latest Status Change" column K and <span style="background-color: grey; color: white">highlight the row in grey</span>. See Figure 11. 
-
-<figure>
-   <img src="incompletion.jpg" alt="Incompletion" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 11 - Incomplete State</figcaption>
-</figure>
-
-### 2.10  No Return
-
-All clients who show up at a Tax-Aide site must be checked into the system, whether they want their tax returns filed or just seek advice. This is a requirement of the Tax-Aide program's host sites, who need to know how many people were served by the program's services. This is also of interest to the Tax-Aide program.
-
-Occasionally, a taxpayer may decide to not proceed with the preparation of a tax return. In such case, the volunteer should set the status of the record to **No Return**. At the end of the daily shift, this record will be archived and will become part of the site's required statistics. A **No Return** status can be set by a greeter or counselor at any time before initiation of a tax return in TaxSlayer. When setting a record to a **No Return** state, the system will prompt the operator to select a reason (e.g. "Inquiry Only" or "Out of Scope"). A status of a record in a **No Return** state may not be changed. See Figure 12.
-
-<figure>
-   <img src="No_Return.jpg" alt="No Return" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 12 - No Return State with Reason Required Dialog</figcaption>
-</figure>
-
-### 2.11  Complete
-
-The tax return may be assigned a **Completed** state if the tax return is ready to be filed, but for a variety of reasons it is being placed on hold until a later time. Typically, a **Completed** state is a precursor to **Paper** filing of a tax return. See Figure 13.
-
-<figure>
-   <img src="Completed.jpg" alt="Completed" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 13 - Complete State
-   </figcaption>
-</figure>
-
-### 2.12  Paper Returns
-
-The AARP Tax-Aide program's primary goal is to prepare tax returns for electronic filing. This speeds up the filing and tax refund process, save paperwork and eases the burden on IRS resources. However, occasionally there is a need to file a tax return in paper form. Preparing a return to be filed in **Paper** form requires the approval of the Shift Coordinator.
-
-The **Paper** state of a tax return is typically set by the quality review or the Shift Coordinator by simple choosing **Paper** from the Status dropdown (column I). This state is "termina", namely the system will not permit a transition out of this state. The system will enforce stating a reason for a **Paper** return to be filed. **Paper** tax returns will be automatically archived to the Archive tab at the end-of-day process. See Figure 14.
-
-<figure>
-   <img src="Paper.jpg" alt="Paper" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 14 - Paper State
-   </figcaption>
-</figure>
 
 ## 🗺️ Section 3: End-of-day Process
 
