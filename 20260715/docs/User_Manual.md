@@ -31,13 +31,13 @@ In some cases the Google Workspace will require the user to go through a one-tim
 
 The system may also be accessed using a user's PC, provided that the network being used meets AARP Tax-Aide's security requirements. Please consult the District Technology Coordinator if you wish to access the system from a non-AARP network.
 
-<div style="page-break-after: always;"></div>
-
 ### 1.4 The Tax Preparation Workflow
 
 The overall process tracked by the system during a Tax-Aide shift is depicted in Figure 1.
 
-<p align="center"><img src="Workflow_State_Machine.jpg" width="100%"></p>
+<div style="page-break-after: always;"></div>
+
+<p align="center"><img src="Workflow_State_Machine_Light.jpg" width="100%"></p>
 <p align="center"><b>Figure 1 - The Tax-Aide Tax Preparation Workflow</b></p>
 
 The diagram shows all possible states of a tax return as well as all permitted transitions from one state to the next. Transitions that are not shown by connections are deemed invalid. The workflow represented by this diagram is typical of all Tax-Aide sites that operate in the traditional, in-person service model. It is not designed for other service delivery models offered by the AARP Tax-Aide program.
@@ -77,7 +77,7 @@ For the following states the system enforces stating a reason for the tax return
 
 ### 1.5 Status Tracking
 
-It is important to note that the system keeps track of every transition from one state to another. It does so in a background process which is not visible by the system operators. The information gathered by status tracking is processed and displayed on the system's dashboard in a variety of ways.
+It is important to note that the system keeps track of every transition from one state to another. It does so in a background process which is not visible to the system operators. This data is stored in three hidden and protected tabs - DB_Tax_Returns, DV_History_Log and DB_Volunteers. Do not try to manipulate the data in these tabs. The information gathered by status tracking is processed and displayed on the system's other tabs in a variety of ways.
 
 <div style="page-break-after: always;"></div>
 
@@ -133,11 +133,11 @@ The background color of the duration changes to alert the volunteers of a proces
 
 ## 🗺️ Chapter 3: The Tax Preparation Process
 
-As per IRS and AARP policy, every tax return should be prepared by a certified counselor and reviewed by another certified reviewer. The system enforces this policy by presenting two dropdown lists, one for counselors and one for reviewers. The system will not permit the assignment of the same volunteer as counselor and quality reviewer. The names of the certified counselors and reviewers are electronically pushed into the system by the District Administration Coordinators whose role is to oversee the certification process.
+As per IRS and AARP policy, every tax return should be prepared by a certified counselor and reviewed by another certified reviewer. The system enforces this policy by presenting two dropdown lists, one for counselors and one for reviewers. The system will not permit the assignment of the same volunteer as counselor and quality reviewer. The names of the certified counselors and reviewers are electronically pushed into the system by the District Administration Coordinator whose role is to oversee the certification process.
 
 ### 3.1 The Tax Counselor's Guide
 
-When the taxpayer is ready to be seen by a counselor and a counselor is available, the greeter will introduce the taxpayer to the counselor. The greeter will then select the counselor's name from the dropdown list . The system will change the status of the tax return to **"Assigned"**. <span style="background-color: yellow; color: black">The row will be highlighted in yellow</span>. See Figure 5.
+When the taxpayer is ready to be seen by a counselor, the greeter will introduce the taxpayer to the counselor. The greeter will then select the counselor's name from the dropdown list. The system will change the status of the tax return from **Checked In** to **"Assigned"**. <span style="background-color: yellow; color: black">The row will be highlighted in yellow</span>. See Figure 5.
 
 <p align="center"><img src="Assignment.jpg"></p>
 <p align="center"><b>Figure 6 - Assigning a Counselor</b></p>
@@ -151,7 +151,7 @@ While the Counselor is preparing the tax return with the taxpayer, the status re
 
 Tax-Aide Quality Reviewers are experienced tax counselors who are authorized by their Local Coordinator (site leader) to review tax returns prepared by counselors. Typically, quality reviewers also act as Electronic Return Originators (EROs) who are authorized to e-file a tax return with the IRS. This manual assumes that a quality reviewer is also an ERO.
 
-Once a quality reviewer is assigned to the tax return, by picking a quality reviewer name from the Reviewer column, the system will automatically change the status of the tax return to **In Review**, <span style="background-color: #A67B49; color: white">highlight the row in brown</span>. See Figure 8.
+Once a quality reviewer is assigned to the tax return by picking a quality reviewer name from the Reviewer column, the system will automatically change the status of the tax return to **In Review**, <span style="background-color: #A67B49; color: white">highlighting the row in brown</span>. See Figure 8.
 
 <p align="center"><img src="In_Review.jpg"></p>
 <p align="center"><b>Figure 8 - In Review</b></p>
@@ -167,16 +167,16 @@ Some cases do not follow the most common workflow from **Checked In** to **Assig
 
 #### 3.3.1 No Return
 
-In some cases, during the initial discussion with the taxpayer, the client facilitator, counselor or taxpayer may reach the conclusion that a tax return should not be prepared at all. Typical examples of **No Return** are "Out of Scope" returns or taxpayer's inquiries. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2.  The system will <span style="background-color: #fafbfc; color: black">highlight the row in white</span>. See Figure 10. As the **No Return** state is terminal, the system will immediately transfer the record from the Activity Log to the Archive.
+In some cases, during the initial discussion with the taxpayer, the client facilitator, counselor or taxpayer may reach the conclusion that a tax return should not be prepared at all. Typical examples of **No Return** are "Out of Scope" returns or taxpayer's inquiries. It is important to capture and record all **No Return** cases due to host site requirements and AARP Foundation directives. If the tax return has not yet been started in TaxSlayer, the counselor will assign a status of **"No Return"** and state the reason for this decision - see Figure 2.  The system will <span style="background-color: #fafbfc; color: black">highlight the row in white</span>. See Figure 10. As the **No Return** state is terminal, the system will immediately transfer the record from the Activity Log to the Archive tab.
 
 <p align="center"><img src="No_Return.jpg"></p>
 <p align="center"><b>Figure 10 - No Return</b></p>
 
-If a tax return was started in TaxSlayer, do not use a **No Return** status. Use a **Deactivated** state.
+If a tax return was already started in TaxSlayer, do not use a **No Return** status. Use a **Deactivated** state instead.
 
 #### 3.3.2 Incomplete
 
-Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. The system will <span style="background-color: #656768; color: white">highlight the row in grey</span>. See Figure 11.
+Should the quality reviewer determine that the tax return cannot be completed at this time, but the taxpayer intends to come back and complete the tax return, they should mark the status as **"Incomplete"** and state the reason for the incompletion - see Figure 2. **Incomplete** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through the End-of-Day process described in section 4.3 of this manual. The system will <span style="background-color: #656768; color: white">highlight the row in grey</span>. See Figure 11.
 
 <p align="center"><img src="Incomplete.jpg"></p>
 <p align="center"><b>Figure 11 - Incomplete</b></p>
@@ -197,7 +197,7 @@ In some cases, although the tax return has been completed and reviewed, the taxp
 
 ##### 3.3.5 Paper
 
-While most tax returns handled by the Tax-Aide program are filed electronically, there are circumstances where the taxpayer must file a paper return. After seeking the approval of the shift coordinator, the quality reviewer may print the tax return, hand it to the taxpayer and assign the tax return the status of **Paper** in the system. The system will require the quality reviewer to state a reason for filing a **Paper** return - see Figure 2. Since **Paper** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab. The system will <span style="background-color: #dd84f369; color: white">highlight the row in pink</span>. See Figure 14.
+While most tax returns handled by the Tax-Aide program are filed electronically, there are circumstances where the taxpayer must file a paper return. After seeking the approval of the shift coordinator, the quality reviewer may print the tax return, hand it to the taxpayer and assign the tax return the status of **Paper** in the system. The system will require the quality reviewer to state a reason for filing a **Paper** return - see Figure 2. Since **Paper** is a terminal state, the system will transfer the tax return from the Activity_Log tab into the Archive tab. The system will <span style="background-color: #d22bfc69; color: white">highlight the row in pink</span>. See Figure 14.
 
 <p align="center"><img src="paper.jpg"></p>
 <p align="center"><b>Figure 14 - Paper</b></p>
@@ -206,31 +206,27 @@ While most tax returns handled by the Tax-Aide program are filed electronically,
 
 ## Chapter 4 The Post-Filing Process
 
-After the tax return has been electronically filed with the IRS, it is the responsibility of the shift coordinator to make sure that the return was **Accepted** and address any return that was **Rejected**. Typically the shift coordinator will be informed through TaxSlayer of acceptance or rejection within 30 minutes of e-filing.
+After the tax return has been electronically filed with the IRS, it is the responsibility of the shift coordinator to make sure that the return was **Accepted** by the IRS and address any return that was **Rejected**. The shift coordinator will be informed through TaxSlayer of acceptance or rejection, typically within 30 minutes of e-filing.
 
 ### 4.1 Handling Accepted Tax Returns
 
-The normal progression of a tax return from an **e-Filed** state is to be **Accepted** by the IRS. This typically happens within 30 minutes of the tax return being e-filed. The shift coordinator, who tracks the tax returns using the TaxSlayer system, will then change the status of the return to **Accepted**. The system will <span style="background-color: #07610469; color: white">highlight the row in green</span>.  Since **Accepted** is a terminal state, the system will then transfer the tax return from the Activity_Log tab into the Archive tab. See Figure 15.
+The normal progression of a tax return from an **e-Filed** state is to be **Accepted** by the IRS. This typically happens within 30 minutes of the tax return being e-filed. The shift coordinator, who tracks the tax returns using the TaxSlayer system, will then change the status of the return to **Accepted**. The system will <span style="background-color: #043a0269; color: white">highlight the row in green</span>.  Since **Accepted** is a terminal state, the system will immediately transfer the tax return from the Activity_Log tab into the Archive tab. See Figure 15.
 
 <p align="center"><img src="accepted.jpg"></p>
 <p align="center"><b>Figure 15 - Accepted</b></p>
 
 ### 4.2 Handling IRS Rejection
 
-Occasionally, the IRS will reject an electronic filing of a tax return for a variety of reasons. The Shift Coordinator will typically find out about a rejection within approximately 30 minutes of the filing. By that time the taxpayer will not be available in person at the site and the Shift Coordinator will attempt to reach out to the taxpayer to try to resolve any discrepancy.
-
-When an IRS rejection occurs, the Shift Coordinator will change the status of the tax return to **Rejected**. The system will then present a dialog requiring the Shift Coordinator to enter a reason for the rejection and/or any additional comments. The system will <span style="background-color: red; color: white">highlight the row in red</span>. See Figure 16.
+Occasionally, the IRS will reject an electronic filing of a tax return for a variety of reasons. In that case, the Shift Coordinator will attempt to reach out to the taxpayer to try to resolve any discrepancy. The Shift Coordinator will change the status of the tax return to **Rejected**. The system will then present a dialog requiring entering a reason for the rejection and/or any additional comments. The system will <span style="background-color: red; color: white">highlight the row in red</span>. See Figure 16.
 
 <p align="center"><img src="Rejection.jpg"></p>
 <p align="center"><b>Figure 16 - Rejected</b></p>
 
-**Rejected** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual.
+**Rejected** tax returns will be swept from the Activity Log tab into the Incomplete tab through the End-of-Day process so that the returns can be dealt with in the future.
 
-Under certain circumstances an IRS rejection can be cured by refiling the tax return. This is typically done by the Shift Coordinator.
+### 4.3 The End-of-Day Process
 
-### 4.3 The End-of-day Process
-
-The previous section discussed the workflow at the Tax-Aide site during a typical daily session. At the conclusion of the daily activities, the Activity_log tab show only show the tax returns that have not yet reached a terminal state. These will be swept by a volunteer-initiated End-of-Day script into the Incomplete tab, where they can be retrieved for completion in future days. The procedure to initiate the script is as follows:
+At the conclusion of the daily activities, the Activity_log tab shows only the tax returns that have not yet reached a terminal state. These will be swept by a volunteer-initiated End-of-Day script into the Incomplete tab, from where they can be retrieved for completion in future days. The procedure to initiate the script is:
 
 * Click the "TaxAide Operations" Menu.
 * Choose the "Execute End-of-Day Sweep" menu item.
@@ -238,9 +234,9 @@ The previous section discussed the workflow at the Tax-Aide site during a typica
 
 The script executes the following operations:
 
-* Transfer all today's incomplete returns from the Activity_Log tab to the Incomplete tab. This clears the Activity_Log tab.
-* At Appointment sites - transfers all "no show" appointments to the "No Shows" tab. This clears the Appointments tab.
-* Appends a statement to the comments column of the incomplete tax return [EOD Close {date}] to help identify when the taxpayer was last seen at the site.
+* Transfers all of today's incomplete returns from the Activity_Log tab to the Incomplete tab. This clears the Activity_Log tab for next day's operations.
+* At Appointment sites - transfers all "no show" appointments to the "No Shows" tab. This clears the Appointments tab for next day's operations.
+* Appends text to the comments section of the incomplete tax return [EOD Close {date}] to help identify when the taxpayer was last seen at the site.
 
 <p align="center"><img src="End_Of_Day_Process.jpg"></p>
 <p align="center"><b>Figure 17 - End of Day Process</b></p>
@@ -249,12 +245,12 @@ The script executes the following operations:
 
 ## 🗺️ Chapter 5: Continuing Incomplete Tax Returns
 
-After the End-of-Day process was completed, **Incomplete** tax returns will be stored in the Incomplete tab. When a taxpayer returns to the site to complete their tax return, the greeter will search for the record using the filters at the headers any of the tab's column. See Figure 18.
+After the End-of-Day process was completed, **Incomplete** tax returns will be stored in the Incomplete tab. When a taxpayer returns to the site to complete their tax return, the greeter will search for the record using any of the filters of the Incomplete tab's column. See Figure 18.
 
 <p align="center"><img src="Incomplete_Tab.jpg"></p>
 <p align="center"><b>Figure 18 - The Incomplete Tab</b></p>
 
- The greeter will then click the "Transfer to Activity Log" checkbox to transfer the tax return to the Activity_Log tab. The system will confirm that the incomplete tax return record was transferred to the Activity Log tab, listing the taxpayer's name, the counselor who previously worked on this tax return, the date the taxpayer was previously at the site, any comments that were previously added to the record and the date the state of the tax return was last changed. The system will also assign the tax return ticket number 99 to indicate that this is a returning taxpayer. From this point the incomplete tax return is processed normally. See Figure 19.
+ The greeter will then click the "Transfer to Activity Log" checkbox to transfer the tax return to the Activity_Log tab. The system will confirm that the incomplete tax return record was transferred to the Activity Log tab, listing the taxpayer's name, the counselor who previously worked on this tax return, the date the taxpayer was previously at the site and any comments that were previously added to the record. The system will also assign the tax return ticket number 99 to indicate that this is a returning taxpayer. From this point the incomplete tax return is processed normally. See Figure 19.
 
 <p align="center"><img src="TransferIncompleteToActivityLog.jpg"></p>
 <p align="center"><b>Figure 19 - Transfer Incomplete Record to Activity Log Tab</b></p>
