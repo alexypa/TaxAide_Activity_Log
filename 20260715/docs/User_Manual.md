@@ -192,6 +192,10 @@ While most tax returns handled by the Tax-Aide program are filed electronically,
 <p align="center"><img src="paper.jpg"></p>
 <p align="center"><b>Figure 14 - Paper</b></p>
 
+## Chapter 4 The Post Filing Process
+
+
+
 ### 2.7 Accepted
 
 The normal progression of a tax return from an **e-Filed** state is to be **Accepted** by the IRS. This typically happens within 30 minutes of the tax return being filed as is being tracked by the Shift Coordinator using the TaxSlayer system. The Shift Coordinator will then change the status of the return to **Accepted**. The system will timestamp this transition in the "Latest Status Change" column K and <span style="background-color: green; color: white">highlight the row in green</span>. See Figure 9.
