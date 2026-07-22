@@ -31,6 +31,8 @@ In some cases the Google Workspace will require the user to go through a one-tim
 
 The system may also be accessed using a user's PC, provided that the network being used meets AARP Tax-Aide's security requirements. Please consult the District Technology Coordinator if you wish to access the system from a non-AARP network.
 
+<div style="page-break-after: always;"></div>
+
 ### 1.4 The Tax Preparation Workflow
 
 The overall process tracked by the system during a Tax-Aide shift is depicted in Figure 1.
@@ -76,6 +78,8 @@ For the following states the system enforces stating a reason for the tax return
 ### 1.5 Status Tracking
 
 It is important to note that the system keeps track of every transition from one state to another. It does so in a background process which is not visible by the system operators. The information gathered by status tracking is processed and displayed on the system's dashboard in a variety of ways.
+
+<div style="page-break-after: always;"></div>
 
 ## 🗺️ Chapter 2: The Check In Process
 
@@ -124,6 +128,8 @@ Once the taxpayer's first and last names are entered into the Activity Log tab, 
 The moment the taxpayer has checked in, a clock starts, showing the duration the taxpayer has been on site under the Duration header of the Activity_Log tab. The clock updates every minute. The clock continues to advance while the tax return is in any of the following states: **Checked In**, **Assigned**, **Ready for Review** or **In Review**. The clock stops when the return reaches any of the following states: **e-Filed**, **Complete**, **Paper**, **Accepted**, **Deactivated**, **No Return** or **Incomplete**.
 
 The background color of the duration changes to alert the volunteers of a process that maybe too long. By default it stays green up to 45 minutes, orange between 45 and 90 minutes and red above 90 minutes. Those times may be set differently in the Setting tab by a system administrator.
+
+<div style="page-break-after: always;"></div>
 
 ## 🗺️ Chapter 3: The Tax Preparation Process
 
@@ -196,6 +202,8 @@ While most tax returns handled by the Tax-Aide program are filed electronically,
 <p align="center"><img src="paper.jpg"></p>
 <p align="center"><b>Figure 14 - Paper</b></p>
 
+<div style="page-break-after: always;"></div>
+
 ## Chapter 4 The Post-Filing Process
 
 After the tax return has been electronically filed with the IRS, it is the responsibility of the shift coordinator to make sure that the return was **Accepted** and address any return that was **Rejected**. Typically the shift coordinator will be informed through TaxSlayer of acceptance or rejection within 30 minutes of e-filing.
@@ -237,6 +245,8 @@ The script executes the following operations:
 <p align="center"><img src="End_Of_Day_Process.jpg"></p>
 <p align="center"><b>Figure 17 - End of Day Process</b></p>
 
+<div style="page-break-after: always;"></div>
+
 ## 🗺️ Chapter 5: Continuing Incomplete Tax Returns
 
 After the End-of-Day process was completed, **Incomplete** tax returns will be stored in the Incomplete tab. When a taxpayer returns to the site to complete their tax return, the greeter will search for the record using the filters at the headers any of the tab's column. See Figure 18.
@@ -249,6 +259,8 @@ After the End-of-Day process was completed, **Incomplete** tax returns will be s
 <p align="center"><img src="TransferIncompleteToActivityLog.jpg"></p>
 <p align="center"><b>Figure 19 - Transfer Incomplete Record to Activity Log Tab</b></p>
 
+<div style="page-break-after: always;"></div>
+
 ## 🗺️ Chapter 6: The Archive Tab
 
 All tax return records that reached a terminal state are archived in the Archive tab. These include tax returns that were:
@@ -260,9 +272,11 @@ All tax return records that reached a terminal state are archived in the Archive
 
 The archive serves as the database underlying the site's Dashboard and can be sorted by any of the columns.
 
+<div style="page-break-after: always;"></div>
+
 ## 🗺️ Chapter 7: The No Shows Tab
 
-The End-of_Day process transfers all appointments for which taxpayers at an appointment site were scheduled an failed to show up. See Figure 20.
+The End-of-Day process transfers all appointments for which taxpayers at an appointment site were scheduled an failed to show up. See Figure 20.
 
 <p align="center"><img src="No Show Tab.jpg"></p>
 <p align="center"><b>Figure 20 - The No Show Tab</b></p>
