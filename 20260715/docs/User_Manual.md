@@ -81,21 +81,19 @@ It is important to note that the system keeps track of every transition from one
 
 ### 2.1  Checking In Scheduled Taxpayers
 
-This section is only applicable to sites who operate by appointment.
+This section is only applicable to sites operating by appointment.
 
 Prior to the daily session, a Session Management Coordinator populates the Appointments tab of the system with the day's appointments. This process will be described later in this manual. The Appointments tab is shown in Figure 2.
 
 <p align="center"><img src="Appointment_Tab.jpg"></p>
 <p align="center"><b>Figure 3 -The Appointment Tab</b></p>
 
-When a taxpayer is welcomed at the tax preparation site, the greeter confirms the taxpayer's identity and checks the checkbox next to the taxpayer name (column E). The system will then timestamp the taxpayer's arrival date and time and transfer the tax return record to the Activity Log tab and confirm as follows:
+When a taxpayer is welcomed at the tax preparation site, the greeter confirms the taxpayer's identity and checks the **Check In** checkbox next to the taxpayer name. The system will then timestamp the taxpayer's arrival date and time and transfer the tax return record to the Activity Log tab and confirm as follows:
 
 <p align="center"><img src="Checkin_Confirmation_Dialog.jpg"></p>
 <p align="center"><b>Figure 4 -Checked In Confirmation</b></p>
 
-After transferring the record to the Activity Log tab, the system will delete the appointment record from the Appointment tab. The fields transferred to the Activity Log tab include the taxpayer's first and last names (capitalized) and the time they checked in. The system then focuses on the row in the Appointment tab to which the appointment was transferred. The greeter may then add the primary taxpayer's last 4 digits of their Social Security number, if required by the site leadership. The system enters the tax year which by default is the current tax year (e.g 2026 for tax returns prepared in early 2027). The volunteer may choose a different tax year from the dropdown. If the taxpayer wishes to prepare tax returns for more than one year, the greeter should enter each year as a separate record, as each tax return is tracked separately.
-
-A note about "no-shows". If at the end of the day's session a taxpayer still did not show up for their appointment, the greeter should leave the check-in box on the Appointments tab blank. The Shift Coordinator will purge un-executed appointments after the end of the daily session. More on that later in the manual.
+After transferring the record to the Activity Log tab, the system will delete the appointment record from the Appointment tab. The fields transferred to the Activity Log tab include the taxpayer's first and last names (capitalized) and the time they checked in. The system then focuses on the row in the Activity_Log tab to which the appointment was transferred. The greeter may then add the primary taxpayer's last 4 digits of their Social Security number, if required by the site standard operating procedures. The system enters the tax year which by default is the current tax year (e.g 2026 for tax returns prepared in early 2027). The volunteer may choose a different tax year from the dropdown. If the taxpayer wishes to prepare tax returns for more than one year, the greeter should enter each year as a separate record, as each tax return is tracked separately as described in section 2.2 below.
 
 ### 2.2  Handling Walk-In Taxpayers
 
@@ -196,15 +194,14 @@ While most tax returns handled by the Tax-Aide program are filed electronically,
 
 After the tax return has been electronically filed with the IRS, it is the responsibility of the shift coordinator to make sure that the return was **Accepted** and address any return that was **Rejected**. Typically the shift coordinator will be informed through TaxSlayer of acceptance or rejection within 30 minutes of e-filing.
 
-### 4.1 Accepted
+### 4.1 Handling Accepted Tax Returns
 
 The normal progression of a tax return from an **e-Filed** state is to be **Accepted** by the IRS. This typically happens within 30 minutes of the tax return being e-filed. The shift coordinator, who tracks the tax returns using the TaxSlayer system, will then change the status of the return to **Accepted**. The system will <span style="background-color: #07610469; color: white">highlight the row in green</span>.  Since **Accepted** is a terminal state, the system will then transfer the tax return from the Activity_Log tab into the Archive tab. See Figure 15.
 
 <p align="center"><img src="accepted.jpg"></p>
 <p align="center"><b>Figure 15 - Accepted</b></p>
 
-
-### 2.8 IRS Rejection
+### 4.2 Handling IRS Rejection
 
 Occasionally, the IRS will reject an electronic filing of a tax return for a variety of reasons. The Shift Coordinator will typically find out about a rejection within approximately 30 minutes of the filing. By that time the taxpayer will not be available in person at the site and the Shift Coordinator will attempt to reach out to the taxpayer to try to resolve any discrepancy.
 
@@ -213,33 +210,33 @@ When an IRS rejection occurs, the Shift Coordinator will change the status of th
 <p align="center"><img src="Rejection.jpg"></p>
 <p align="center"><b>Figure 16 - Rejected</b></p>
 
-**Rejected** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual. 
+**Rejected** tax returns will be swept from the Activity Log tab into the Incomplete tab at the end of the day through a process described later in this manual.
 
 Under certain circumstances an IRS rejection can be cured by refiling the tax return. This is typically done by the Shift Coordinator.
 
-## 🗺️ Section 3: End-of-day Process
+### 4.3 The End-of-day Process
 
-The previous section discussed the workflow at the Tax-Aide site during a typical daily session. After the conclusion of the daily activities, the system must be prepared for future operations. This is accomplished by an automated script which is initiated by the Shift Coordinator as follows:
+The previous section discussed the workflow at the Tax-Aide site during a typical daily session. After the conclusion of the daily activities, the system must be prepared for future operations. This is accomplished by an automated script initiated by the Shift Coordinator as follows:
 
-* Click the "TaxAide" Menu.
-* Choose the End Of Day Process menu item.
-* Confirm by clicking "Yes" on the "Confirm End of Day Process" dialog. See Figure 15.
+* Click the "TaxAide Operations" Menu.
+* Choose the "Execute End-of-Day Sweep" menu item.
+* Confirm by clicking "Yes" on the "Confirm End of Day Process" dialog. See Figure 17.
 
 The script executes the following operations:
 
-* Archives all the tax returns in a "terminal" state to the Archive tab.
-* Transfers all tax returns that are yet to be completed to an Incomplete tab
-* Clears the Activity Log tab
-* At Appointment sites - transfers all "no show" appointments to a "No Shows" tab.
+* Transfer all today's incomplete returns from the Activity_Log tab to the Incomplete tab. This clears the Activity_Log tab.
+* At Appointment sites - transfers all "no show" appointments to the "No Shows" tab. This clears the Appointments tab.
+* Appends a statement to the comments column of the incomplete tax return [EOD Close {date}] to help identify when the taxpayer was last seen at the site.
 
-<figure>
-   <img src="End_Of_Day_Process.jpg" alt="End of Day Process" style="display: block; margin: 0 auto;">
-   <figcaption align="center">Figure 15 - End of Day Process</figcaption>
-</figure>
+<p align="center"><img src="End_Of_Day_Process.jpg"></p>
+<p align="center"><b>Figure 17 - End of Day Process</b></p>
 
-## 🗺️ Section 4: Continuing Incomplete Tax Returns
+## 🗺️ Chapter 5: Continuing Incomplete Tax Returns
 
-Incomplete tax returns are listed in the Incomplete tab. When a taxpayer returns to the site to complete their tax return, the greeter will search for the record using the filters at the headers any of the columns. When the greeter finds the taxpayer's record, they will click the "Transfer to Activity Log" checkbox (column A). See Figure 16.
+Incomplete tax returns are tabulated in the Incomplete tab. When a taxpayer returns to the site to complete their tax return, the greeter will search for the record using the filters at the headers any of the columns. When the greeter finds the taxpayer's record, they will click the "Transfer to Activity Log" checkbox. See Figure 18.
+
+<p align="center"><img src="End_Of_Day_Process.jpg"></p>
+<p align="center"><b>Figure 18 - Continuing an Incomplete Tax Return</b></p>
 
 The system will confirm that the incomplete tax return record was transferred to the Activity Log tab, listing the taxpayer's name, the counselor who previously worked on this tax return, the date the taxpayer was previously at the site, any comments that were previously added to the record and the date and time the state of the tax return was last changed. The system will also assign the tax return ticket number 99 to indicate that this is a returning taxpayer. From this point the incomplete tax return is processed normally using the Activity Log tab. See Figure 16.
 
