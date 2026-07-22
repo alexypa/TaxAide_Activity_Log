@@ -85,10 +85,8 @@ This section is only applicable to sites who operate by appointment.
 
 Prior to the daily session, a Session Management Coordinator populates the Appointments tab of the system with the day's appointments. This process will be described later in this manual. The Appointments tab is shown in Figure 2.
 
-<figure>
-   <img src="Appointment_Tab.jpg" alt="Appointments Tab" style="display: block; width: 100%; height: auto; margin: 0 auto;">>
-   <figcaption align="center">Figure 3 - A Populated Appointment Tab</figcaption>
-</figure>
+<p align="center"><img src="Appointment_Tab.jpg"></p>
+<p align="center"><b>Figure 3 -The Appointment Tab</b></p>
 
 
 When a taxpayer is welcomed at the tax preparation site, the greeter confirms the taxpayer's identity and checks the checkbox next to the taxpayer name (column E). The system will then timestamp the taxpayer's arrival date and time and transfer the tax return record to the Activity Log tab and confirm as follows:
