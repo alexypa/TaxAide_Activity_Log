@@ -36,6 +36,9 @@ const EodController = (() => {
 
     // Clear Appointment tab for next day
     AppointmentView.applyAppointmentResult(AppointmentController.clearAppointments());
+
+    // Refresh the Dashboard to reflect the changes made by the EOD sweep
+    DashboardController.refreshDashboard();
   }
 
   function transferIncompleteReturns_() {

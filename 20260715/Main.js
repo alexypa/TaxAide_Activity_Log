@@ -20,6 +20,8 @@ function onOpen() {
     .addItem("🔄 Refresh Activity Log", "runDashboardRefresh")
     .addSeparator()
     .addItem("🌙 Execute End-of-Day Sweep", "runEndOfDaySweep")
+    addSeparator()
+    .addItem("Refresh Dashboard", "DashboardController.refreshDashboard")
     .addToUi();
 
   try {
