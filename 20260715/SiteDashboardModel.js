@@ -6,12 +6,23 @@
 
 const SiteDashboardModel = (() => {
 
-  // Updated to 52 planned sessions for the season
-  const TOTAL_PLANNED_SESSIONS = 52;
+  // Default fallback if Settings!B11 is unpopulated
+  const DEFAULT_PLANNED_SESSIONS = 52;
 
   function calculateMetrics() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const tz = ss.getSpreadsheetTimeZone();
+
+    // Read Total Planned Sessions dynamically from Settings!B11
+    const settingsSheet = ss.getSheetByName("Settings");
+    let totalPlannedSessions = DEFAULT_PLANNED_SESSIONS;
+
+    if (settingsSheet) {
+      const b11Val = settingsSheet.getRange("B11").getValue();
+      if (b11Val && !isNaN(b11Val) && Number(b11Val) > 0) {
+        totalPlannedSessions = Number(b11Val);
+      }
+    }
 
     const activitySheet   = ss.getSheetByName("Activity_Log");
     const incompleteSheet = ss.getSheetByName("Incomplete");
@@ -45,7 +56,7 @@ const SiteDashboardModel = (() => {
       mostRecentDateLabel: Utilities.formatDate(new Date(mostRecentDateStr.replace(/-/g, '/')), tz, "MM/dd/yyyy"),
       std: createBlankMetricSet(),
       recent: createBlankMetricSet(),
-      totalPlannedSessions: TOTAL_PLANNED_SESSIONS
+      totalPlannedSessions: totalPlannedSessions
     };
 
     const stdSessionDates = new Set();
@@ -129,8 +140,9 @@ const SiteDashboardModel = (() => {
       categorize(normalizeRowDate(r[0]), status, r[5], r[6]);
     });
 
-    metrics.std.uniqueSessions = stdSessionDates.size || 1;
-    metrics.recent.uniqueSessions = 1;
+    // Session Summaries (Returns 0 when sheets are cleared)
+    metrics.std.uniqueSessions = stdSessionDates.size;
+    metrics.recent.uniqueSessions = stdSessionDates.size > 0 ? 1 : 0;
 
     metrics.std.activeVolunteers = stdVolunteers.size;
     metrics.recent.activeVolunteers = recentVolunteers.size;
