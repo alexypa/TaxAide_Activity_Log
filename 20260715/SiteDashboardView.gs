@@ -18,7 +18,7 @@ const SiteDashboardView = (() => {
     }
 
     sheet.clear();
-    sheet.setGridlines(true);
+    sheet.setHiddenGridlines(false); // FIXED: Show gridlines on this sheet
 
     const timeZone = ss.getSpreadsheetTimeZone();
     const updatedTag = Utilities.formatDate(new Date(), timeZone, "MM/dd/yyyy hh:mm a");
