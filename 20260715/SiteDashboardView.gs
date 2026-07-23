@@ -1,11 +1,11 @@
 /**
  * ====================================================================================
- *  DashboardView.gs
- *  Visual renderer for the Dashboard tab.
+ *  SiteDashboardView.gs
+ *  Visual renderer for the Site Dashboard tab.
  * ====================================================================================
  */
 
-const DashboardView = (() => {
+const SiteDashboardView = (() => {
 
   const SHEET_NAME = "Dashboard";
 

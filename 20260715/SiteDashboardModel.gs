@@ -1,20 +1,20 @@
 /**
  * ============================================================
- *  DashboardModel.gs
- *  Data access and metrics calculator for the Dashboard.
+ *  SiteDashboardModel.gs
+ *  Data access and metrics calculator for the Site Dashboard.
  * ============================================================
  */
 
-const DashboardModel = (() => {
+const SiteDashboardModel = (() => {
 
-  // Total planned site sessions for the tax season (Adjustable configuration)
+  // Total planned site sessions for the tax season
   const TOTAL_PLANNED_SESSIONS = 120;
 
   function calculateMetrics() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const tz = ss.getSpreadsheetTimeZone();
 
-    const activitySheet  = ss.getSheetByName("Activity_Log");
+    const activitySheet   = ss.getSheetByName("Activity_Log");
     const incompleteSheet = ss.getSheetByName("Incomplete");
     const archiveSheet    = ss.getSheetByName("Archive");
 
