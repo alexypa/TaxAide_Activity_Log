@@ -1,14 +1,13 @@
 /**
  * ============================================================
  *  SiteDashboardModel.gs
- *  Data access and metrics calculator for the Site Dashboard.
  * ============================================================
  */
 
 const SiteDashboardModel = (() => {
 
-  // Total planned site sessions for the tax season
-  const TOTAL_PLANNED_SESSIONS = 120;
+  // Updated to 52 planned sessions for the season
+  const TOTAL_PLANNED_SESSIONS = 52;
 
   function calculateMetrics() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -18,7 +17,6 @@ const SiteDashboardModel = (() => {
     const incompleteSheet = ss.getSheetByName("Incomplete");
     const archiveSheet    = ss.getSheetByName("Archive");
 
-    // Read raw data from sheets
     const activityData = (activitySheet && activitySheet.getLastRow() > 1) 
       ? activitySheet.getRange(2, 1, activitySheet.getLastRow() - 1, 12).getValues() : [];
 
@@ -26,21 +24,23 @@ const SiteDashboardModel = (() => {
       ? incompleteSheet.getRange(2, 1, incompleteSheet.getLastRow() - 1, 11).getValues() : [];
 
     const archiveData = (archiveSheet && archiveSheet.getLastRow() > 1) 
-      ? archiveSheet.getRange(2, 1, archiveSheet.getLastRow() - 1, 12).getValues() : [];
+      ? archiveSheet.getRange(2, 1, archiveSheet.getLastRow() - 1, 11).getValues() : [];
 
-    // Determine Most Recent Session Date
     const todayStr = Utilities.formatDate(new Date(), tz, "yyyy-MM-dd");
     let mostRecentDateStr = todayStr;
 
-    // Check last entry in Archive if today has no activity yet
-    if (activityData.length === 0 && archiveData.length > 0) {
-      const lastArchiveDate = archiveData[archiveData.length - 1][1]; // Check In Time / Timestamp
-      if (lastArchiveDate instanceof Date) {
-        mostRecentDateStr = Utilities.formatDate(lastArchiveDate, tz, "yyyy-MM-dd");
-      }
+    // Determine the most recent active session date from data
+    const allDates = [];
+    [...activityData, ...archiveData].forEach(r => {
+      const d = r[1] instanceof Date ? r[1] : (r[0] instanceof Date ? r[0] : null);
+      if (d) allDates.push(Utilities.formatDate(d, tz, "yyyy-MM-dd"));
+    });
+    
+    if (allDates.length > 0) {
+      allDates.sort();
+      mostRecentDateStr = allDates[allDates.length - 1];
     }
 
-    // Metric Storage Objects
     const metrics = {
       mostRecentDateLabel: Utilities.formatDate(new Date(mostRecentDateStr.replace(/-/g, '/')), tz, "MM/dd/yyyy"),
       std: createBlankMetricSet(),
@@ -48,17 +48,26 @@ const SiteDashboardModel = (() => {
       totalPlannedSessions: TOTAL_PLANNED_SESSIONS
     };
 
-    // Track unique session dates and active volunteers
     const stdSessionDates = new Set();
     const recentVolunteers = new Set();
     const stdVolunteers = new Set();
 
-    // Categorization Logic Helper
+    function normalizeRowDate(rawDate) {
+      if (rawDate instanceof Date) {
+        return Utilities.formatDate(rawDate, tz, "yyyy-MM-dd");
+      } else if (rawDate && rawDate.toString().trim() !== "") {
+        const parsed = new Date(rawDate);
+        if (!isNaN(parsed.getTime())) {
+          return Utilities.formatDate(parsed, tz, "yyyy-MM-dd");
+        }
+      }
+      return todayStr;
+    }
+
     function categorize(rowDate, status, counselor, reviewer) {
       const isRecent = (rowDate === mostRecentDateStr);
       if (rowDate) stdSessionDates.add(rowDate);
 
-      // Collect unique active volunteers
       if (counselor && counselor.toString().trim() !== "") {
         stdVolunteers.add(counselor.toString().trim().toUpperCase());
         if (isRecent) recentVolunteers.add(counselor.toString().trim().toUpperCase());
@@ -68,10 +77,8 @@ const SiteDashboardModel = (() => {
         if (isRecent) recentVolunteers.add(reviewer.toString().trim().toUpperCase());
       }
 
-      // Map Statuses
       const normalizedStatus = status ? status.toString().trim() : "";
 
-      // 1. Terminal States
       if (normalizedStatus === "Accepted") {
         metrics.std.efiledAccepted++;
         if (isRecent) metrics.recent.efiledAccepted++;
@@ -88,37 +95,40 @@ const SiteDashboardModel = (() => {
         metrics.std.noReturn++;
         if (isRecent) metrics.recent.noReturn++;
       } 
-      // 2. Incomplete / Non-Terminal States
       else if (normalizedStatus === "Rejected") {
         metrics.std.rejected++;
         if (isRecent) metrics.recent.rejected++;
       } 
       else {
-        // Includes: e-Filed, Checked In, Assigned, Ready for Review, In Review, Complete, Incomplete
         metrics.std.waitingForCompletion++;
         if (isRecent) metrics.recent.waitingForCompletion++;
       }
     }
 
-    // Process Activity_Log (Active, non-terminal returns)
+    // Process Activity_Log
     activityData.forEach(r => {
-      const rowDate = r[1] instanceof Date ? Utilities.formatDate(r[1], tz, "yyyy-MM-dd") : todayStr;
-      categorize(rowDate, r[9], r[7], r[8]);
+      const returnId = r[0] ? r[0].toString().trim() : "";
+      const status = r[9] ? r[9].toString().trim() : "";
+      if (!returnId && !status) return;
+      categorize(normalizeRowDate(r[1]), status, r[7], r[8]);
     });
 
-    // Process Incomplete (Paused/In-progress returns)
+    // Process Incomplete
     incompleteData.forEach(r => {
-      const rowDate = r[1] instanceof Date ? Utilities.formatDate(r[1], tz, "yyyy-MM-dd") : todayStr;
-      categorize(rowDate, r[8], r[6], r[7]);
+      const ssn = r[2] ? r[2].toString().trim() : "";
+      const status = r[8] ? r[8].toString().trim() : "";
+      if (!ssn && !status) return;
+      categorize(normalizeRowDate(r[1]), status, r[6], r[7]);
     });
 
-    // Process Archive (Historical completed & terminal returns)
+    // Process Archive
     archiveData.forEach(r => {
-      const rowDate = r[1] instanceof Date ? Utilities.formatDate(r[1], tz, "yyyy-MM-dd") : todayStr;
-      categorize(rowDate, r[9], r[7], r[8]);
+      const ssn = r[1] ? r[1].toString().trim() : "";
+      const status = r[7] ? r[7].toString().trim() : "";
+      if (!ssn && !status) return;
+      categorize(normalizeRowDate(r[0]), status, r[5], r[6]);
     });
 
-    // Final Summaries
     metrics.std.uniqueSessions = stdSessionDates.size || 1;
     metrics.recent.uniqueSessions = 1;
 
@@ -141,8 +151,6 @@ const SiteDashboardModel = (() => {
     };
   }
 
-  return {
-    calculateMetrics
-  };
+  return { calculateMetrics };
 
 })();
