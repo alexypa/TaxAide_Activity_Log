@@ -21,11 +21,11 @@ const ActivityLogController = (() => {
     // Read row data
     const row = ActivityLogModel.getRow(rowNumber);
 
+    // Route action based on column number
     switch (colNumber) {
       case columns.CHECKIN_TIME:
+        // Check In Time is a system-generated timestamp and cannot be manually edited
         return {ok: false, action: "FORBIDDEN_EDIT", rowNumber, colNumber, message: "Check In Time field is set by the system when a taxpayer checks in"};
-      
-      // NEW ROUTING RULE: Route inline field modifications directly to the database backend handler
       case columns.TICKET:
       case columns.SSN_LAST4:
       case columns.TAXYEAR:

@@ -17,22 +17,22 @@ const QueueTimerController = (() => {
 
       const COL = ActivityLogModel.getColumns();
 
-      // Read entire dashboard data range to evaluate check-in timestamps and statuses
+      // Read entire Activity_Log sheet data range to evaluate check-in timestamps and statuses
       const dataRange = logSheet.getRange(2, 1, lastRow - 1, logSheet.getLastColumn());
       const values = dataRange.getValues();
 
       const durationValues = [];
       const now = new Date();
 
-      // Define which statuses keep the clock running
+      // Define which statuses keep the clock running. All other statuses will freeze the duration at its last recorded value.
       const activeStatuses = ["Checked In", "Assigned", "Ready for Review", "In Review"];
 
       // Calculate running minutes
       for (let i = 0; i < values.length; i++) {
         const rowData = values[i];
         const checkInTime = rowData[COL.CHECKIN_TIME - 1];
-        const status = rowData[COL.STATUS - 1]; // Grab the current status
-        const currentDuration = rowData[COL.DURATION - 1]; // Grab the existing time
+        const status = rowData[COL.STATUS - 1]; // Grab the status of the current row
+        const currentDuration = rowData[COL.DURATION - 1]; // Grab the cumulative duration text from Column L (Column 12)
 
         // Guard against manual entry anomalies or incomplete data
         if (!checkInTime || !(checkInTime instanceof Date)) {
@@ -40,12 +40,13 @@ const QueueTimerController = (() => {
           continue;
         }
 
-        // If active, calculate new time. Otherwise, freeze existing time.
+        // If tax return is in active status, calculate new time. Otherwise, freeze existing time.
         if (activeStatuses.includes(status)) {
           const elapsedMinutes = Math.floor((now.getTime() - checkInTime.getTime()) / 60000);
           durationValues.push([elapsedMinutes + " min"]);
         } else {
-          // It's in a terminal or paused state (e-Filed, Incomplete, etc.)
+          // It's in a terminal or paused state (e-Filed, Incomplete, Rejected. Complete or any of the TERMINAL), 
+          // freeze the duration at its last recorded value. This prevents the clock from advancing for completed or paused returns.
           // Push the currently recorded duration to stop the clock from advancing
           durationValues.push([currentDuration]);
         }
@@ -55,7 +56,8 @@ const QueueTimerController = (() => {
     const durationRange = logSheet.getRange(2, COL.DURATION, durationValues.length, 1);
     durationRange.setValues(durationValues);
 
-    // TARGET ALL MATERIAL CELL RANGES ALL THE WAY TO THE MAXIMUM SHEET BOUNDARY
+    // Clean up any trailing rows beyond the last active row 
+    // to prevent ghost formatting or stale data from lingering in the queue
     const maxRowsInSheet = logSheet.getMaxRows();
     const nextEmptyRow = lastRow + 1;
     

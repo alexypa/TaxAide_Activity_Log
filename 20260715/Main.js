@@ -6,14 +6,9 @@
 /**
  * Standard Google Apps Script entry point that fires automatically 
  * when the Spreadsheet workbook is opened by any user.
- */
-/**
- * Automatically creates the custom TaxAide operational toolbar menu 
+ * Automatically creates the custom TaxAide operations toolbar menu 
  * when the spreadsheet workbook initializes.
- */
-/**
- * Automatically runs when the spreadsheet workbook initializes.
- * Builds the operational menus and forces a live dashboard compiler refresh.
+ * Automatically forces a live dashboard compiler refresh.
  */
 function onOpen() {
   SpreadsheetApp.getUi().createMenu("TaxAide Operations")
@@ -57,47 +52,6 @@ function runEndOfDaySweep() {
   }
 }
 
-
-function securityCheck_(e) {
-  try {
-      if (e && e.authMode === ScriptApp.AuthMode.NONE) {
-        ui.alert(
-          "⚠️ First-Time Authorization Required",
-          "Welcome to the TaxAide Activity Logging System!\n\n" +
-          "Before you can use the entire system's functionality, Google requires your account to be authorized to run the script.\n\n" +
-          "👉 TO ACTIVATE NOW:\n" +
-          "1. Click the 'TaxAide' menu at the top of your screen.\n" +
-          "2. Click 'First-Time Activation'.\n" +
-          "3. If your account has not yet been authorized, this may launch some Google activation screen.\n" +
-          "4. Follow the Google prompts (Click Continue -> Advanced -> Go to project).\n\n" +
-          "This is a one-time setup step for your account.",
-          ui.ButtonSet.OK
-        );
-      }
-    } catch (err) {
-      console.warn("Auth check skipped: " + err.message);
-    }
-}
-
-/**
- * Harmless activation bridge function.
- * Triggered by user gesture to safely force Google's OAuth screen if missing.
- */
-function activateUserSession_() {
-  const ui = SpreadsheetApp.getUi();
-  
-  ui.alert(
-    "✅ Activation Successful",
-    "Your account is fully authorized and trusted by the TaxAide Activity Logging script.\n\n" +
-    "You can now use the TaxAide Activity Logging System normally.",
-    ui.ButtonSet.OK
-  );
-}
-
-function onEdit(e) {
-  // Do nothing. onEditHandler(e) will handle the onEdit() installed trigger.
-}
-
 /**
  * =======================================================================
  *  Main onEdit router
@@ -105,12 +59,19 @@ function onEdit(e) {
  *  Runs under the owner's permissions to safely update backend DB tabs.
  * =======================================================================
  */
+
+function onEdit(e) {
+  // Do nothing. onEditHandler(e) will handle the onEdit() installed trigger.
+}
+
 function onEditHandler(e) {
   if (!e || !e.range || !e.source) return;
 
   Logger.log("Event: " + JSON.stringify(e));
+
   const sheetName = e.source.getActiveSheet().getName();
 
+  // Route edits to the appropriate controller based on the sheet name
   if (sheetName === "Appointments") {
     const result = AppointmentController.handleAppointmentEdit(e);
     AppointmentView.applyAppointmentResult(result);
@@ -131,8 +92,8 @@ function onEditHandler(e) {
 }
 
 /**
- * Updates the master clock in the Settings sheet.
- *
+ * Updates the 1 minute clock in the Settings sheet.
+ * and then calls QueueTimerController.updateLiveQueueDurations() to recalculate the live durations.
  */
 function updateMasterClock() {
   const settingsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Settings");  
