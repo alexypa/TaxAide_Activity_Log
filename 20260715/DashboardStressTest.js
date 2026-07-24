@@ -21,7 +21,7 @@
  *     - Multi-Day Returns: 20% of historical returns span across multiple days 
  *                          (intake logged on Day N, completion event logged 2 days later).
  *     - Relational Integrity: Uses UUIDs (TEST_PREFIX + UUID) to tie records 
- *                             between DB_Tax_Returns, DB_History_Log, and active view tabs.
+ *                               between DB_Tax_Returns, DB_History_Log, and active view tabs.
  *
  *  4. Production Rule & Validation Compliance:
  *     - Volunteer Rosters: Dynamically read from production ranges on 'Settings' tab:
@@ -94,12 +94,12 @@ const DashboardStressTest = (() => {
   }
 
   /**
-   * Formats duration into h:mm format
+   * Formats duration into explicit hr/min text string
    */
   function formatDuration(minutes) {
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return `${hrs}:${mins < 10 ? '0' : ''}${mins}`;
+    return hrs > 0 ? `${hrs} hr ${mins} min` : `${mins} min`;
   }
 
   function runFullStressTest() {
@@ -166,7 +166,10 @@ const DashboardStressTest = (() => {
             // 20% of historical accepted returns span across multiple days
             if (Math.random() < 0.20) {
               isMultiDay = true;
-              completionDateToUse = new Date(arrivalTime.getTime() + (2 * 24 * 60 * 60 * 1000)); // Completed 2 days later
+              // Realistic multi-day: Resumed 2 days later at a new random afternoon time
+              const completionDay = new Date(sessionDate.getTime() + (2 * 24 * 60 * 60 * 1000));
+              const resumeTime = getRandomArrivalTime(completionDay);
+              completionDateToUse = new Date(resumeTime.getTime() + (durationMin * 60 * 1000));
             }
           }
           else if (rand < 0.70) { status = "Paper"; targetSheet = "Archive"; expectedCounts.paper++; }
@@ -222,6 +225,21 @@ const DashboardStressTest = (() => {
   }
 
   /**
+   * Helper: Finds true bottom of sheet using a mandatory column (Last Name) to bypass checkboxes
+   */
+  function appendToTrueBottom(sheet, rowData, mandatoryColIndex) {
+    const colData = sheet.getRange(1, mandatoryColIndex, sheet.getMaxRows(), 1).getValues();
+    let targetRow = 1;
+    for (let i = colData.length - 1; i >= 0; i--) {
+      if (colData[i][0] !== "" && colData[i][0] !== null && colData[i][0] !== undefined) {
+        targetRow = i + 1;
+        break;
+      }
+    }
+    sheet.getRange(targetRow + 1, 1, 1, rowData.length).setValues([rowData]);
+  }
+
+  /**
    * Helper: Seeds DB_Tax_Returns, DB_History_Log, and target queue sheet for 1 return
    */
   function seedSingleReturn(config) {
@@ -259,25 +277,28 @@ const DashboardStressTest = (() => {
       }
     }
 
-    // 3. Target View Sheet Entry
+    // 3. Target View Sheet Entry routing via true bottom logic
     if (targetSheetName === "Activity_Log") {
-      viewSheet.appendRow([
+      // Last Name is Col 6 (F)
+      appendToTrueBottom(viewSheet, [
         returnId, arrivalTime, ticketNum, String(mockSSN), "TEST_FIRST", "TEST_LAST", 2026, counselor, reviewer, status, "Live Active Queue Item", `${durationMin} min`
-      ]);
+      ], 6);
     } 
     else if (targetSheetName === "Incomplete") {
-      viewSheet.appendRow([
-        false, arrivalTime, String(mockSSN), "TEST_FIRST", "TEST_LAST", 2026, counselor, reviewer, status, "Paused Return", arrivalTime
-      ]);
+      // Last Name is Col 5 (E)
+      appendToTrueBottom(viewSheet, [
+        false, arrivalTime, String(mockSSN), "TEST_FIRST", "TEST_LAST", 2026, counselor, reviewer, status, "Paused Return", formatDuration(durationMin)
+      ], 5);
     } 
     else if (targetSheetName === "Archive") {
-      viewSheet.appendRow([
+      // Last Name is Col 4 (D)
+      appendToTrueBottom(viewSheet, [
         arrivalTime, String(mockSSN), "TEST_FIRST", "TEST_LAST", 2026, counselor, reviewer, status, isMultiDay ? "Multi-Day Completion" : "Same-Day Completion", completionTime, formatDuration(durationMin)
-      ]);
+      ], 4);
     }
   }
 
-  function clearTestData() {
+function clearTestData() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const tabsToClean = ["DB_Tax_Returns", "DB_History_Log", "Activity_Log", "Incomplete", "Archive"];
 
@@ -285,19 +306,27 @@ const DashboardStressTest = (() => {
       const sh = ss.getSheetByName(tabName);
       if (sh && sh.getLastRow() > 1) {
         const data = sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).getValues();
+        
+        // Loop backwards through the rows
         for (let i = data.length - 1; i >= 0; i--) {
           const rowStr = JSON.stringify(data[i]);
-          if (rowStr.includes(TEST_PREFIX) || rowStr.includes("Multi-Day") || rowStr.includes("Arrival Intake")) {
-            sh.deleteRow(i + 2);
+          
+          // If the row contains the test ID OR the dummy names, clear its contents
+          if (rowStr.includes(TEST_PREFIX) || rowStr.includes("TEST_FIRST") || rowStr.includes("TEST_LAST")) {
+            sh.getRange(i + 2, 1, 1, sh.getLastColumn()).clearContent();
           }
         }
       }
     });
 
     SpreadsheetApp.flush();
-    SiteDashboardController.refreshDashboard();
+    
+    // Refresh the dashboard back to 0
+    if (typeof SiteDashboardController !== "undefined" && SiteDashboardController.refreshDashboard) {
+      SiteDashboardController.refreshDashboard();
+    }
 
-    console.log("🧹 Relational test data and Dashboard reset successfully.");
+    console.log("🧹 Relational test data cleared successfully (rows preserved).");
   }
 
   return {

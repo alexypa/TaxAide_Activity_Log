@@ -23,12 +23,26 @@ const SiteDashboardView = (() => {
     const timeZone = ss.getSpreadsheetTimeZone();
     const updatedTag = Utilities.formatDate(new Date(), timeZone, "MM/dd/yyyy hh:mm a");
 
+    // Fetch the dynamic site name from Settings!B2
+    const settingsSheet = ss.getSheetByName("Settings");
+    let siteName = "AARP TAXAIDE SITE"; // Fallback name
+    
+    if (settingsSheet) {
+      const fetchedName = settingsSheet.getRange("B2").getValue();
+      if (fetchedName && fetchedName.toString().trim() !== "") {
+        siteName = fetchedName.toString().trim();
+      }
+    }
+
+    // Assemble the full dynamic title
+    const dynamicTitle = `${siteName.toUpperCase()} DASHBOARD AS OF ${updatedTag.toUpperCase()}`;
+
     // Grid Construction
     const grid = [
-      [`AARP TAXAIDE SITE DASHBOARD`, "", `Last Updated: ${updatedTag}`],
+      [dynamicTitle, "", ""], // Title goes in top-left cell; merge will cover A1:C1
       ["METRIC", "TAX SEASON TO DATE", `MOST RECENT SESSION (${data.mostRecentDateLabel})`],
       ["Completed Tax Returns", data.std.completedTotal, data.recent.completedTotal],
-      ["   • e-Filed & Accepted", data.std.efiledAccepted, data.recent.efiledAccepted],
+      ["   • Accepted by the IRS", data.std.efiledAccepted, data.recent.efiledAccepted],
       ["   • Paper Returns", data.std.paper, data.recent.paper],
       ["Incomplete Tax Returns", data.std.incompleteTotal, data.recent.incompleteTotal],
       ["   • Waiting for Completion", data.std.waitingForCompletion, data.recent.waitingForCompletion],

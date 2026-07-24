@@ -92,6 +92,9 @@ const ActivityLogView = {
 
         // Fetch current row values before deleting the row
         const rowModel = ActivityLogModel.getRow(rowNumber);
+        
+        // Grab the previously frozen duration text directly from Column L (Column 12)
+        const frozenDurationText = activitySheet.getRange(rowNumber, 12).getValue().toString();
 
         // Format Date timestamps using our readable pattern
         const formattedCheckIn = rowModel.checkInTime instanceof Date ? 
@@ -100,15 +103,21 @@ const ActivityLogView = {
 
         const formattedCompleted = Utilities.formatDate(now, timeZone, "MM/dd/yyyy hh:mm a");
 
-        // Calculate Time to Complete (h:mm)
-        let timeToCompleteStr = "0:00";
-        if (rowModel.checkInTime instanceof Date) {
-          const diffMs = now.getTime() - rowModel.checkInTime.getTime();  
-          const totalMinutes = Math.floor(diffMs / (1000 * 60));
-          const hours = Math.floor(totalMinutes / 60);
-          const mins =  totalMinutes % 60;
-          timeToCompleteStr = `${hours}:${mins < 10 ? "0" : ""}${mins}`;
+        // Calculate Time to Complete using the frozen minutes, NOT current time
+        let totalMinutes = 0;
+        const match = frozenDurationText.match(/\d+/); // Extract the numbers from "37 min"
+        if (match) {
+          totalMinutes = parseInt(match[0], 10);
+        } else if (rowModel.checkInTime instanceof Date) {
+          // Fallback just in case the cell was blank
+          totalMinutes = Math.floor((now.getTime() - rowModel.checkInTime.getTime()) / 60000);
         }
+
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        
+        // Build a consistent, unambiguous string
+        const timeToCompleteStr = hours > 0 ? `${hours} hr ${mins} min` : `${mins} min`;
 
         const archiveViewRow = [
           formattedCheckIn,
@@ -127,7 +136,6 @@ const ActivityLogView = {
         archiveSheet.appendRow(archiveViewRow);
         // Sorts the entire archive by Column 10 (Completed Date/Time) descending
         archiveSheet.getRange(2, 1, archiveSheet.getLastRow() - 1, archiveSheet.getLastColumn()).sort({column: 10, ascending: false});
-
 
         // Delete the row cleanly from the active grid
         activitySheet.deleteRow(rowNumber);

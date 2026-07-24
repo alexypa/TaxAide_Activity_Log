@@ -16,6 +16,8 @@ const AppointmentView = (() => {
    */
   function applyAppointmentResult(result) {
 
+    Logger.log("AppointmentView.applyAppointmentResult() invoked with result: " + JSON.stringify(result));
+
     // No op if result object does not exist or result contains "ignore"
     if (!result || result.ignore) return;
 
@@ -88,7 +90,8 @@ function createActivityLog_(ss, apptSheet, result) {
     firstName: apptData.firstName.toUpperCase(),
     lastName: apptData.lastName.toUpperCase(),
     taxYear: apptData.taxYear,
-    status: "Checked In"
+    status: "Checked In",
+    duration:"0 min"
   });
 
   // 5. Flush changes to secure the database transaction instantly

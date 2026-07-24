@@ -15,18 +15,18 @@ const ActivityLogModel = (() => {
     if (cachedColumns) return cachedColumns;
 
     cachedColumns = {
-      RETURN_ID:    ColumnMapper.col(SHEET, "Return ID"), 
-      CHECKIN_TIME: ColumnMapper.col(SHEET, "Check In Time"),
-      TICKET:       ColumnMapper.col(SHEET, "Ticket #"),
-      SSN_LAST4:    ColumnMapper.col(SHEET, "SSN Last 4"),
-      FIRST:        ColumnMapper.col(SHEET, "First Name"),
-      LAST:         ColumnMapper.col(SHEET, "Last Name"),
-      TAXYEAR:      ColumnMapper.col(SHEET, "Tax Year"),
-      COUNSELOR:    ColumnMapper.col(SHEET, "Counselor"),
-      REVIEWER:     ColumnMapper.col(SHEET, "Reviewer"),
-      STATUS:       ColumnMapper.col(SHEET, "Status"),
-      COMMENTS:     ColumnMapper.col(SHEET, "Comments"),
-      DURATION:     ColumnMapper.col(SHEET, "Duration")
+      RETURN_ID:    ColumnMapper.col(SHEET, "Return ID"),                      // Column A
+      CHECKIN_TIME: ColumnMapper.col(SHEET, "Check In Time"),                  // Column B
+      TICKET:       ColumnMapper.col(SHEET, "Ticket #"),                       // Column C
+      SSN_LAST4:    ColumnMapper.col(SHEET, "SSN Last 4"),                     // Column D
+      FIRST:        ColumnMapper.col(SHEET, "First Name"),                     // Column E
+      LAST:         ColumnMapper.col(SHEET, "Last Name"),                      // Column F  
+      TAXYEAR:      ColumnMapper.col(SHEET, "Tax Year"),                       // Column G
+      COUNSELOR:    ColumnMapper.col(SHEET, "Counselor"),                      // Column H
+      REVIEWER:     ColumnMapper.col(SHEET, "Reviewer"),                       // Column I
+      STATUS:       ColumnMapper.col(SHEET, "Status"),                         // Column J
+      COMMENTS:     ColumnMapper.col(SHEET, "Comments"),                       // Column K
+      DURATION:     ColumnMapper.col(SHEET, "Cumulative Active Duration")      // Column L
     };
     return cachedColumns;
   }

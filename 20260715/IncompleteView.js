@@ -53,9 +53,15 @@ const IncompleteView = (() => {
       const updatedComments = `[Reactivated ${dateTag}] ${taxReturn.comments || ""}`;
 
       // 2. Build exact 12-Column Array matching Activity_Log relational schema
+      // Preserve original Check In Time if present on the Incomplete row; fallback to now
+      const originalCheckIn = (taxReturn.checkInTime && taxReturn.checkInTime instanceof Date) 
+        ? taxReturn.checkInTime 
+        : now;
+
+      // Build exact 12-Column Array matching Activity_Log relational schema
       const logEntry = [
         returnId,                               // Col A: Return ID
-        now,                                    // Col B: Check In Time (Set to current time)
+        originalCheckIn,                        // Col B: Check In Time (Preserves original check-in)
         ticketNum,                              // Col C: Ticket #
         taxReturn.ssnLast4,                     // Col D: SSN Last 4
         taxReturn.firstName,                    // Col E: First Name
@@ -65,7 +71,7 @@ const IncompleteView = (() => {
         taxReturn.reviewer,                     // Col I: Reviewer
         taxReturn.status || "Checked In",       // Col J: Status
         updatedComments,                        // Col K: Comments
-        ""                                      // Col L: Duration
+        ""                                      // Col L: Duration (Will be populated by QueueTimerController)
       ];
 
       // 3. Append to Activity_Log

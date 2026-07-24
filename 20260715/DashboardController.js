@@ -17,7 +17,8 @@ const DashboardController = (() => {
 
   /**
    * Refreshes and compiles the active dashboard grid scratchpad.
-   * Pulls ONLY today's non-terminal returns from the master data logs.
+   * Pulls ONLY today's non-terminal returns from the master data logs,
+   * while hydrating historical durations for paused/terminal states.
    */
   function refreshDailyDashboard() {
     try {
@@ -74,12 +75,17 @@ const DashboardController = (() => {
           let latestComments = "";
           let statusCaptured = false;
 
+          // Added: Track timestamps for state hydration
+          let firstCheckInTime = null;
+          let terminalEventTime = null;
+
           // 4. Trace the complete history backwards to isolate distinct workflow assignments
           for (let j = historyData.length - 1; j >= 0; j--) {
             const histRow = historyData[j];
             if (histRow[1] === returnId) {
               let currentStatus = histRow[2] ? histRow[2].toString().trim() : "";
               const assignedVolunteer = histRow[3] || "";
+              const eventTimestamp = new Date(histRow[4]); // Col 5 in DB is Timestamp
 
               // Map legacy EOD string to valid dropdown option
               if (currentStatus === "EOD_INCOMPLETE") {
@@ -90,6 +96,11 @@ const DashboardController = (() => {
               if (!statusCaptured && currentStatus) {
                 latestStatus = currentStatus;
                 statusCaptured = true;
+                
+                // If the absolute latest state is a terminal state, mark when it happened
+                if (isStatusTerminal(currentStatus) || currentStatus === "Incomplete" || currentStatus === "e-Filed") {
+                  terminalEventTime = eventTimestamp;
+                }
               }
 
               if (!latestComments && histRow[5]) {
@@ -103,12 +114,24 @@ const DashboardController = (() => {
               if (currentStatus === "Assigned" && !counselorName) {
                 counselorName = assignedVolunteer;
               }
+              
+              // Capture the very first "Checked In" timestamp (earliest historical record)
+              if (currentStatus === "Checked In") {
+                firstCheckInTime = eventTimestamp;
+              }
             }
           }
 
           // Fallback if history had no status entry
           if (!latestStatus) {
             latestStatus = "Checked In";
+          }
+          
+          // Calculate State Hydration (Frozen Duration)
+          let hydratedDuration = "";
+          if (firstCheckInTime && terminalEventTime && firstCheckInTime < terminalEventTime) {
+            const elapsedMinutes = Math.floor((terminalEventTime.getTime() - firstCheckInTime.getTime()) / 60000);
+            hydratedDuration = `${elapsedMinutes} min`;
           }
 
           // Bypass terminal rows completely (e.g. "No Return", "Accepted", "Paper", "Deactivated")
@@ -126,7 +149,7 @@ const DashboardController = (() => {
             reviewerName,                             // Col I: Reviewer
             latestStatus,                             // Col J: Status (Guaranteed valid)
             latestComments,                           // Col K: Comments
-            ""                                        // Col L: Duration
+            hydratedDuration                          // Col L: Duration (Hydrated from History!)
           ]);
         }
       }

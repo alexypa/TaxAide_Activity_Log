@@ -100,6 +100,16 @@ const EodController = (() => {
         // Preserve current row status; fallback to "Incomplete" only if completely blank
         const rowStatus = rowModel.status ? rowModel.status.toString().trim() : "Incomplete";
 
+        // --- CALCULATE CUMULATIVE DURATION ---
+        let durationStr = "0:00";
+        if (rowModel.checkInTime && rowModel.checkInTime instanceof Date) {
+          const diffMs = now.getTime() - rowModel.checkInTime.getTime();
+          const totalMins = Math.floor(diffMs / 60000);
+          const hrs = Math.floor(totalMins / 60);
+          const mins = totalMins % 60;
+          durationStr = `${hrs}:${mins < 10 ? '0' : ''}${mins}`;
+        }
+
         // Build 11-column array matching Incomplete tab tracking schema requirements
         const incompleteRow = [
           "", // Clean space left open exclusively for checkbox asset initialization
@@ -112,14 +122,14 @@ const EodController = (() => {
           rowModel.reviewer || "",
           rowStatus, // Preserves original status (e.g., Rejected, e-Filed, Incomplete)
           eodComments,
-          now
+          durationStr // Col K: Replaces old status timestamp with Cumulative Duration (h:mm)
         ];
 
-        // 4. Find the true physical bottom of Incomplete tab to safely bypass ghost rows
-        const incColA = incompleteSheet.getRange(1, 1, incompleteSheet.getMaxRows(), 1).getValues();
+        // 4. Find the true physical bottom of Incomplete tab by scanning Column E (Last Name) to bypass checkboxes
+        const incColE = incompleteSheet.getRange(1, 5, incompleteSheet.getMaxRows(), 1).getValues();
         let targetNewRow = 1;
-        for (let i = incColA.length - 1; i >= 0; i--) {
-          if (incColA[i][0] !== "" && incColA[i][0] !== undefined && incColA[i][0] !== null) {
+        for (let i = incColE.length - 1; i >= 0; i--) {
+          if (incColE[i][0] !== "" && incColE[i][0] !== undefined && incColE[i][0] !== null) {
             targetNewRow = i + 1;
             break;
           }
