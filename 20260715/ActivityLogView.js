@@ -58,7 +58,6 @@ const ActivityLogView = {
 
       // 1. If the transition requires a reason, show the reason dialog and halt further processing
       if (result.requiresReason) {
-        //showReasonDialog(result.reasonType, result.row, result.newStatus, result.oldStatus);
         Logger.log("Result: " + JSON.stringify(result));
         const reasons = TransitionReasonRegistry[result.reasonType] || [];
         const template = HtmlService.createTemplateFromFile("ReasonDialog");
@@ -68,83 +67,97 @@ const ActivityLogView = {
         template.newStatus = result.newStatus;
         template.previousStatus = result.oldStatus;
 
-        const html = template.evaluate()
-          .setWidth(420)
-          .setHeight(300);
-
+        const html = template.evaluate().setWidth(420).setHeight(300);
         SpreadsheetApp.getUi().showModalDialog(html, "Reason Required");
         return; // Exits here to wait for the user to type a reason in the dialog
       }
       
-      // 2. If no reason is required (or this is the secondary execution after the reason was saved)
-      const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
-      const currentComments = activitySheet.getRange(rowNumber, ActivityLogModel.getColumns().COMMENTS).getValue();
-      const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, "", currentComments);
-      DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
-    
-      // 3. Process the archival and row deletion for terminal states
-      if (TERMINAL_STATES.includes(result.newStatus)) {
+      // ========================================================================
+      // ENTER CRITICAL SECTION: Lock required for DB writes, sorting, and row deletion
+      // ========================================================================
+      const lock = LockService.getDocumentLock();
+      try {
+        lock.waitLock(15000); // Wait up to 15 seconds for traffic to clear
 
-        // Archive the row into the Archive sheet before deletion
-        const archiveSheet = e.source.getSheetByName("Archive");
-        const timeZone = e.source.getSpreadsheetTimeZone();
-        const now = new Date();
+        // 2. Write to the central DB History Log safely
+        const dbHistorySheet = e.source.getSheetByName("DB_History_Log");
+        const currentComments = activitySheet.getRange(rowNumber, ActivityLogModel.getColumns().COMMENTS).getValue();
+        const historyEvent = new TaxReturnHistory(result.taxReturnId, result.newStatus, "", currentComments);
+        DatabaseController.appendRowExplicit(dbHistorySheet, historyEvent.toRowArray());
+      
+        // 3. Process the archival and row deletion for terminal states
+        if (TERMINAL_STATES.includes(result.newStatus)) {
 
-        // Fetch current row values before deleting the row
-        const rowModel = ActivityLogModel.getRow(rowNumber);
-        
-        // Grab the previously frozen duration text directly from Column L (Column 12)
-        const frozenDurationText = activitySheet.getRange(rowNumber, 12).getValue().toString();
+          // RE-FIND THE TRUE ROW: Because we waited for a lock, another script may have 
+          // deleted a row above us, shifting our target row up!
+          const activeData = activitySheet.getDataRange().getValues();
+          let trueRowIndex = -1;
+          const returnIdColIndex = ActivityLogModel.getColumns().RETURN_ID - 1;
+          
+          for (let i = 1; i < activeData.length; i++) {
+            if (activeData[i][returnIdColIndex] === result.taxReturnId) {
+              trueRowIndex = i + 1;
+              break;
+            }
+          }
 
-        // Format Date timestamps using our readable pattern
-        const formattedCheckIn = rowModel.checkInTime instanceof Date ? 
-          Utilities.formatDate(rowModel.checkInTime, timeZone, "MM/dd/yyyy hh:mm a") :
-          rowModel.checkInTime;
+          if (trueRowIndex === -1) throw new Error("Could not locate taxpayer for archival. Row may have already been removed.");
 
-        const formattedCompleted = Utilities.formatDate(now, timeZone, "MM/dd/yyyy hh:mm a");
+          // Archive the row into the Archive sheet before deletion
+          const archiveSheet = e.source.getSheetByName("Archive");
+          const timeZone = e.source.getSpreadsheetTimeZone();
+          const now = new Date();
 
-        // Calculate Time to Complete using the frozen minutes, NOT current time
-        let totalMinutes = 0;
-        const match = frozenDurationText.match(/\d+/); // Extract the numbers from "37 min"
-        if (match) {
-          totalMinutes = parseInt(match[0], 10);
-        } else if (rowModel.checkInTime instanceof Date) {
-          // Fallback just in case the cell was blank
-          totalMinutes = Math.floor((now.getTime() - rowModel.checkInTime.getTime()) / 60000);
+          // Fetch current row values using the safe trueRowIndex
+          const rowModel = ActivityLogModel.getRow(trueRowIndex);
+          
+          // Grab the previously frozen duration text directly from Column L
+          const frozenDurationText = activitySheet.getRange(trueRowIndex, 12).getValue().toString();
+
+          const formattedCheckIn = rowModel.checkInTime instanceof Date ? 
+            Utilities.formatDate(rowModel.checkInTime, timeZone, "MM/dd/yyyy hh:mm a") : rowModel.checkInTime;
+          const formattedCompleted = Utilities.formatDate(now, timeZone, "MM/dd/yyyy hh:mm a");
+
+          // Calculate Time to Complete safely
+          let totalMinutes = 0;
+          const match = frozenDurationText.match(/\d+/); 
+          if (match) {
+            totalMinutes = parseInt(match[0], 10);
+          } else if (rowModel.checkInTime instanceof Date) {
+            totalMinutes = Math.floor((now.getTime() - rowModel.checkInTime.getTime()) / 60000);
+          }
+
+          const hours = Math.floor(totalMinutes / 60);
+          const mins = totalMinutes % 60;
+          const timeToCompleteStr = hours > 0 ? `${hours} hr ${mins} min` : `${mins} min`;
+
+          const archiveViewRow = [
+            formattedCheckIn, rowModel.ssnLast4, rowModel.firstName, rowModel.lastName,
+            rowModel.taxYear, rowModel.counselor, rowModel.reviewer, result.newStatus,
+            currentComments || rowModel.comments || "", formattedCompleted, timeToCompleteStr
+          ];
+
+          // Safely Append and Sort Archive
+          archiveSheet.appendRow(archiveViewRow);
+          archiveSheet.getRange(2, 1, archiveSheet.getLastRow() - 1, archiveSheet.getLastColumn()).sort({column: 10, ascending: false});
+
+          // Delete the row cleanly from the active grid using the verified row index
+          activitySheet.deleteRow(trueRowIndex);
+          
+          e.source.toast(rowModel.firstName + " " + rowModel.lastName + " - Tax return completed and moved to archives.", "Tax Return Completed", 5);
+          
+        } else {
+          // If it's a normal transition (e.g., In Review -> Incomplete)
+          ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
         }
-
-        const hours = Math.floor(totalMinutes / 60);
-        const mins = totalMinutes % 60;
         
-        // Build a consistent, unambiguous string
-        const timeToCompleteStr = hours > 0 ? `${hours} hr ${mins} min` : `${mins} min`;
+        SpreadsheetApp.flush(); // Commit all safe structural changes to Google's servers
 
-        const archiveViewRow = [
-          formattedCheckIn,
-          rowModel.ssnLast4,
-          rowModel.firstName,
-          rowModel.lastName,
-          rowModel.taxYear,
-          rowModel.counselor,
-          rowModel.reviewer,
-          result.newStatus,
-          currentComments || rowModel.comments || "",
-          formattedCompleted,
-          timeToCompleteStr
-        ];
-
-        archiveSheet.appendRow(archiveViewRow);
-        // Sorts the entire archive by Column 10 (Completed Date/Time) descending
-        archiveSheet.getRange(2, 1, archiveSheet.getLastRow() - 1, archiveSheet.getLastColumn()).sort({column: 10, ascending: false});
-
-        // Delete the row cleanly from the active grid
-        activitySheet.deleteRow(rowNumber);
-        
-        // Optional: Flash a quick toast message confirming the cleanup
-        e.source.toast(rowModel.firstName + " " + rowModel.lastName + " - Tax return completed and moved to archives.", "Tax Return Completed", 5);
-      } else {
-        // If it's a normal transition (e.g., In Review -> Incomplete), just update the status cell
-        ActivityLogModel.setFields(rowNumber, { status: result.newStatus });
+      } catch (err) {
+        Logger.log("Archival Concurrency Error: " + err.message);
+        SpreadsheetApp.getUi().alert("System Busy", "Another process was updating the log. Please verify the status change was recorded.", SpreadsheetApp.getUi().ButtonSet.OK);
+      } finally {
+        lock.releaseLock();
       }
       return;
     }

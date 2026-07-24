@@ -58,58 +58,82 @@ const AppointmentView = (() => {
     checkboxesRange.setDataValidation(checkboxRule);
   }
 
-function createActivityLog_(ss, apptSheet, result) {
-  const apptRowIndex = result.row;
-  
-  // 1. Extract data using your exact Appointment tab headers
-  const apptData = {
-    firstName: apptSheet.getRange(apptRowIndex, 2).getValue(), // Column B: First Name
-    lastName: apptSheet.getRange(apptRowIndex, 3).getValue(),  // Column C: Last Name
-    ssnLast4: "",                                              // Not on appointment tab
-    taxYear: new Date().getFullYear().toString(),              // Default current operational season
-    firstNameSpouse: "",
-    lastNameSpouse: ""
-  };
+  /*
+    * Creates a new entry in the Activity_Log sheet for a checked-in appointment
+    */  
+  function createActivityLog_(ss, apptSheet, result) {
+    // 1. Grab a Document Lock to prevent race conditions from rapid clicking
+    const lock = LockService.getDocumentLock();
+    
+    try {
+      // 2. Wait up to 10 seconds for any conflicting check-ins to finish
+      lock.waitLock(10000);
+      
+      const apptRowIndex = result.row;
+      
+      // Extract data using your exact Appointment tab headers
+      const apptData = {
+        firstName: apptSheet.getRange(apptRowIndex, 2).getValue(), // Column B: First Name
+        lastName: apptSheet.getRange(apptRowIndex, 3).getValue(),  // Column C: Last Name
+        ssnLast4: "",                                              // Not on appointment tab
+        taxYear: new Date().getFullYear().toString(),              // Default current operational season
+        firstNameSpouse: "",
+        lastNameSpouse: ""
+      };
 
-  // 2. Run the transaction (Checks/Creates master profile, writes "Checked In" to DB_History_Log)
-  const taxReturnId = DatabaseController.processCheckInTransaction(ss, apptData);
+      // Run the transaction (Checks/Creates master profile, writes "Checked In" to DB_History_Log)
+      const taxReturnId = DatabaseController.processCheckInTransaction(ss, apptData);
 
-  // 3. Write the arrival timestamp to your "Checked In Time" column on the Appointments tab
-  apptSheet.getRange(apptRowIndex, 6).setValue(result.entry.checkedInTime); // Column F
+      // Write the arrival timestamp to your "Checked In Time" column on the Appointments tab
+      apptSheet.getRange(apptRowIndex, 6).setValue(result.entry.checkedInTime); // Column F
 
-  // 4. NEW: Draw the new entry visually onto the active Activity_Log dashboard instantly
-  const activityLogSheet = ss.getSheetByName("Activity_Log");
-  const targetRow = activityLogSheet.getLastRow() + 1;
+      // Draw the new entry visually onto the active Activity_Log dashboard instantly
+      const activityLogSheet = ss.getSheetByName("Activity_Log");
+      const targetRow = activityLogSheet.getLastRow() + 1;
 
-  // Use the synchronized ActivityLogModel to batch-write variables safely by header name
-  ActivityLogModel.setFields(targetRow, {
-    returnId: taxReturnId,
-    checkInTime: result.entry.checkedInTime,
-    ticket: "",              // Stays completely clean/blank for scheduled appointments
-    ssnLast4: "",            // Blank until intake counselor gathers it
-    firstName: apptData.firstName.toUpperCase(),
-    lastName: apptData.lastName.toUpperCase(),
-    taxYear: apptData.taxYear,
-    status: "Checked In",
-    duration:"0 min"
-  });
+      // Use the synchronized ActivityLogModel to batch-write variables safely by header name
+      ActivityLogModel.setFields(targetRow, {
+        returnId: taxReturnId,
+        checkInTime: result.entry.checkedInTime,
+        ticket: "",              // Stays completely clean/blank for scheduled appointments
+        ssnLast4: "",            // Blank until intake counselor gathers it
+        firstName: apptData.firstName.toUpperCase(),
+        lastName: apptData.lastName.toUpperCase(),
+        taxYear: apptData.taxYear,
+        status: "Checked In",
+        duration:"0 min"
+      });
 
-  // 5. Flush changes to secure the database transaction instantly
-  SpreadsheetApp.flush();
+      // 3. CRITICAL: Flush changes to the sheet BEFORE releasing the lock 
+      SpreadsheetApp.flush();
 
-  // 6. Shift user's screen focus directly to the Activity_Log tab
-    ss.setActiveSheet(activityLogSheet);
-    activityLogSheet.getRange(targetRow, 1).activate(); // Selects the newly created row
+      // Shift user's screen focus directly to the Activity_Log tab
+      ss.setActiveSheet(activityLogSheet);
+      activityLogSheet.getRange(targetRow, 1).activate(); // Selects the newly created row
 
-  // 7. Show confirmation to the intake coordinator
-  const ui = SpreadsheetApp.getUi();
-  ui.alert(
-      'Taxpayer Checked In',
-      'Name: ' + apptData.firstName.toUpperCase() + " " + apptData.lastName.toUpperCase() + "\n" +
-      'Checked in at: ' + Utilities.formatDate(result.entry.checkedInTime, ss.getSpreadsheetTimeZone(), "MM/dd/yyyy hh:mm a"),
-      ui.ButtonSet.OK
-  );
-}
+      // Show confirmation to the intake coordinator
+      const ui = SpreadsheetApp.getUi();
+      ui.alert(
+          'Taxpayer Checked In',
+          'Name: ' + apptData.firstName.toUpperCase() + " " + apptData.lastName.toUpperCase() + "\n" +
+          'Checked in at: ' + Utilities.formatDate(result.entry.checkedInTime, ss.getSpreadsheetTimeZone(), "MM/dd/yyyy hh:mm a"),
+          ui.ButtonSet.OK
+      );
+
+    } catch (e) {
+      // If multiple clicks lock up the system for more than 10 seconds, fail gracefully
+      Logger.log("Lock timeout or error during rapid check-in: " + e.message);
+      
+      // REVERSE THE CHECKMARK
+      apptSheet.getRange(result.row, 5).uncheck(); // Unchecks the box in Column E
+      SpreadsheetApp.flush(); // Force the UI to visually remove the checkmark immediately
+      
+      SpreadsheetApp.getUi().alert("System Busy", "Please wait a moment and try checking in this taxpayer again.", SpreadsheetApp.getUi().ButtonSet.OK);
+    } finally {
+      // 4. Always release the lock so the next script in line can run
+      lock.releaseLock();
+    }
+  }
 
   /**
    * Invoked by the End of the Day menu item, this function moves all no shows
